@@ -96,16 +96,18 @@
             <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Settings</h2>
 
             <div class="mb-8 pb-6 border-b">
-                <h3 class="text-lg font-semibold text-gray-700 mb-3">Calendar Feed</h3>
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Proxy & Compass Feed</h3>
+                 <label for="workerUrl" class="block text-sm font-medium text-gray-700 mb-2">Cloudflare Worker URL:</label>
+                <input type="url" id="workerUrl" placeholder="https://your-worker.your-name.workers.dev" class="block w-full px-3 py-2 mb-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+
                 <label for="calendarUrl" class="block text-sm font-medium text-gray-700 mb-2">Compass Calendar Feed URL (.ics):</label>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="url" id="calendarUrl" placeholder="https://your-school.compass.education/..." class="flex-grow block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     <button id="loadCalendarBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out whitespace-nowrap">
-                        Save & Load
+                        Save & Load Compass
                     </button>
                 </div>
-                 <p class="mt-2 text-xs text-gray-500">Your calendar URL will be saved locally. Auto-refresh every 10 seconds is enabled.</p>
-                 <div id="corsWarningSettings" class="mt-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-md text-sm hidden">...</div>
+                 <p class="mt-2 text-xs text-gray-500">Your Worker URL and Compass URL are saved locally. Auto-refresh every 10 seconds is enabled.</p>
             </div>
 
             <div class="mb-8 pb-6 border-b">
@@ -123,15 +125,13 @@
 
             <div class="mb-8 pb-6 border-b">
                 <h3 class="text-lg font-semibold text-gray-700 mb-3">Canvas Integration</h3>
+                 <p class="text-sm text-gray-600 mb-2">Ensure your Cloudflare Worker URL is set above.</p>
                  <label for="canvasDomain" class="block text-sm font-medium text-gray-700 mb-2">Canvas Domain:</label>
                 <input type="url" id="canvasDomain" placeholder="https://yourinstitution.instructure.com" class="block w-full px-3 py-2 mb-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <label for="canvasToken" class="block text-sm font-medium text-gray-700 mb-2">Canvas API Access Token:</label>
                 <input type="password" id="canvasToken" placeholder="Paste your token here" class="block w-full px-3 py-2 mb-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <button id="saveCanvasSettingsBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm text-sm">Save Canvas Settings</button>
-                <p class="mt-2 text-xs text-gray-500">Your Canvas domain and token are saved locally. Ensure your Canvas domain is correct (e.g., https://canvas.example.com).</p>
-                 <div id="canvasCORSWarningSettings" class="mt-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-md text-sm hidden">
-                    <strong>Canvas API Note:</strong> Direct browser access to Canvas API might be blocked by CORS. If data doesn't load, this is likely the reason.
-                </div>
+                <button id="saveCanvasSettingsBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm text-sm">Save Canvas Settings & Fetch</button>
+                <p class="mt-2 text-xs text-gray-500">Your Canvas domain and token are saved locally.</p>
             </div>
 
             <div class="mb-8 pb-6 border-b">
@@ -144,7 +144,6 @@
                      <button id="addCanvasCourseMappingBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm text-sm">Add Mapping</button>
                 </div>
             </div>
-
 
              <div class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-700 mb-3">Appearance</h3>
@@ -198,7 +197,6 @@
                              <div id="weeklyViewGrid" class="weekly-grid"></div>
                          </div>
                      </div>
-                     <div id="corsWarningCalendar" class="mt-6 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-md text-sm hidden">...</div>
                  </div>
                  <aside id="sidebar" class="content-bg rounded-lg shadow-lg p-4 lg:sticky lg:top-24 lg:self-start">
                      <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Other Events & Due Dates</h3>
@@ -210,9 +208,6 @@
         <section id="canvasSection" class="hidden fade-in">
             <div class="content-bg rounded-lg shadow-lg p-6 md:p-8">
                 <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6">Canvas Details</h2>
-                <div id="canvasCORSWarningPage" class="mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 rounded-md hidden">
-                    <strong>Canvas API Note:</strong> Direct browser access to Canvas API might be blocked by CORS. If data doesn't load, this is likely the reason. Ensure your Canvas Domain and API Token are correctly set in Settings.
-                </div>
                 <div id="canvasDataMessageArea" class="text-center my-4"></div>
                 <div id="canvasCoursesDisplay" class="space-y-6">
                     </div>
@@ -224,6 +219,7 @@
     <script>
         // --- Constants & DOM Elements ---
         const CALENDAR_URL_KEY = 'compassCalendarUrl';
+        const WORKER_URL_KEY = 'compassWorkerUrl';
         const CLASS_MAPPINGS_KEY = 'compassClassMappings';
         const CLASS_COLORS_KEY = 'compassClassColors';
         const BACKGROUND_URL_KEY = 'compassBackgroundUrl';
@@ -232,20 +228,17 @@
         const CANVAS_COURSE_MAPPINGS_KEY = 'canvasCourseMappings';
 
         const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
-        const REFRESH_INTERVAL = 10000; // 10 seconds
-        const STATUS_UPDATE_INTERVAL = 1000; // 1 second for 'ago' text
+        const REFRESH_INTERVAL = 10000;
+        const STATUS_UPDATE_INTERVAL = 1000;
 
-        // Compass elements
+        const workerUrlInput = document.getElementById('workerUrl');
         const urlInput = document.getElementById('calendarUrl');
         const loadButton = document.getElementById('loadCalendarBtn');
         const calendarDisplayList = document.getElementById('calendarDisplayList');
         const calendarDisplayWeek = document.getElementById('calendarDisplayWeek');
         const weeklyViewGrid = document.getElementById('weeklyViewGrid');
         const calendarMessageArea = document.getElementById('calendarMessageArea');
-        const corsWarningSettings = document.getElementById('corsWarningSettings'); // For Compass
-        const corsWarningCalendar = document.getElementById('corsWarningCalendar'); // For Compass
 
-        // General settings & UI elements
         const settingsMessageArea = document.getElementById('settingsMessageArea');
         const searchBox = document.getElementById('searchBox');
         const sortOrderSelect = document.getElementById('sortOrder');
@@ -270,12 +263,9 @@
         const statusIconSpan = document.getElementById('statusIcon');
         const statusTextSpan = document.getElementById('statusText');
 
-        // Canvas specific elements
         const canvasDomainInput = document.getElementById('canvasDomain');
         const canvasTokenInput = document.getElementById('canvasToken');
         const saveCanvasSettingsBtn = document.getElementById('saveCanvasSettingsBtn');
-        const canvasCORSWarningSettings = document.getElementById('canvasCORSWarningSettings');
-        const canvasCORSWarningPage = document.getElementById('canvasCORSWarningPage');
         const canvasDataMessageArea = document.getElementById('canvasDataMessageArea');
         const canvasCoursesDisplay = document.getElementById('canvasCoursesDisplay');
         const canvasCourseMappingsListDiv = document.getElementById('canvasCourseMappingsList');
@@ -283,8 +273,7 @@
         const canvasCourseIdForMappingInput = document.getElementById('canvasCourseIdForMapping');
         const addCanvasCourseMappingBtn = document.getElementById('addCanvasCourseMappingBtn');
 
-
-        // --- State Variables ---
+        let compassWorkerUrl = '';
         let allParsedEvents = [];
         let previousProcessedClassEvents = [];
         let processedClassEvents = [];
@@ -297,9 +286,8 @@
         let backgroundUrl = DEFAULT_BACKGROUND_URL;
         let canvasDomain = '';
         let canvasToken = '';
-        let canvasCourseMappings = {}; // { "Mapped Compass Class Name": "CanvasCourseID", ... }
-        let fetchedCanvasCourses = []; // To store fetched course data for mapping
-
+        let canvasCourseMappings = {};
+        let fetchedCanvasCourses = [];
         let messageTimeout = null;
         let refreshIntervalId = null;
         let statusUpdateIntervalId = null;
@@ -308,8 +296,6 @@
         let lastSuccessfulUpdateTime = null;
         let currentStatus = 'idle';
 
-
-        // --- Inline SVG Icons ---
         const ICONS = {
              clock: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
              location: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
@@ -320,7 +306,6 @@
              link: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-blue-500 hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`
         };
 
-        // --- Event Listeners ---
         loadButton.addEventListener('click', handleSaveAndLoad);
         searchBox.addEventListener('input', handleSearch);
         sortOrderSelect.addEventListener('change', handleSort);
@@ -336,7 +321,6 @@
         canvasCourseMappingsListDiv.addEventListener('click', handleCanvasMappingListClick);
         document.addEventListener('DOMContentLoaded', initializeApp);
 
-        // --- Initialization ---
         function initializeApp() {
             loadSettings();
             applyBackground();
@@ -344,20 +328,32 @@
             renderCanvasCourseMappingsList();
             initializeStatusIndicator();
 
-            const savedUrl = localStorage.getItem(CALENDAR_URL_KEY);
-            if (savedUrl) {
-                urlInput.value = savedUrl;
-                startAutoRefresh(savedUrl);
+            const savedWorkerUrl = localStorage.getItem(WORKER_URL_KEY);
+            const savedCompassUrl = localStorage.getItem(CALENDAR_URL_KEY);
+
+            if (savedWorkerUrl) {
+                workerUrlInput.value = savedWorkerUrl;
+                compassWorkerUrl = savedWorkerUrl;
             } else {
+                showMessage('Please set your Cloudflare Worker URL in Settings.', 'error', 'settings');
+            }
+
+            if (savedCompassUrl && compassWorkerUrl) {
+                urlInput.value = savedCompassUrl;
+                startAutoRefresh(savedCompassUrl);
+            } else if (!savedCompassUrl && compassWorkerUrl) { // Worker URL might be set but not Compass
                  showMessage('Go to Settings to enter your Compass calendar URL.', 'info', 'calendar');
                  updateStatusIndicator('idle');
+            } else if (!compassWorkerUrl) { // If worker URL is missing, don't try to load Compass
+                updateStatusIndicator('idle');
             }
-            switchSection('calendar'); // Default to calendar view
+            switchSection('calendar');
             switchViewMode(currentViewMode);
         }
 
-        // --- Settings Management ---
         function loadSettings() {
+             compassWorkerUrl = localStorage.getItem(WORKER_URL_KEY) || '';
+             workerUrlInput.value = compassWorkerUrl;
              classMappings = JSON.parse(localStorage.getItem(CLASS_MAPPINGS_KEY) || '{}');
              classColors = JSON.parse(localStorage.getItem(CLASS_COLORS_KEY) || '{}');
              backgroundUrl = localStorage.getItem(BACKGROUND_URL_KEY) || DEFAULT_BACKGROUND_URL;
@@ -369,7 +365,9 @@
              canvasTokenInput.value = canvasToken;
         }
 
-        function saveSettings(showMsg = true, type = 'general') { // type can be 'general', 'canvasAuth', 'canvasMap'
+        function saveSettings(showMsg = true, type = 'general') {
+            localStorage.setItem(WORKER_URL_KEY, workerUrlInput.value.trim());
+            localStorage.setItem(CALENDAR_URL_KEY, urlInput.value.trim());
             localStorage.setItem(CLASS_MAPPINGS_KEY, JSON.stringify(classMappings));
             localStorage.setItem(CLASS_COLORS_KEY, JSON.stringify(classColors));
             localStorage.setItem(BACKGROUND_URL_KEY, backgroundUrlInput.value.trim());
@@ -377,301 +375,140 @@
             localStorage.setItem(CANVAS_TOKEN_KEY, canvasTokenInput.value.trim());
             localStorage.setItem(CANVAS_COURSE_MAPPINGS_KEY, JSON.stringify(canvasCourseMappings));
 
-            loadSettings(); // Reload all settings
-            applyBackground(); // Re-apply background in case it changed
+            loadSettings();
+            applyBackground();
 
             if (showMsg) showMessage('Settings saved.', 'success', 'settings');
 
-            if (type === 'general' && allParsedEvents.length > 0) { // Re-process Compass if general settings changed
+            if (type === 'general' && allParsedEvents.length > 0) {
                 previousProcessedClassEvents = [...processedClassEvents];
                 processAndClassifyEvents(allParsedEvents);
                 isAutoRefreshing = false;
                 renderViews();
-            } else if (type === 'canvasAuth' || type === 'canvasMap') { // Re-fetch Canvas data if Canvas settings changed
-                if (canvasDomain && canvasToken) {
+            } else if (type === 'canvasAuth' || type === 'canvasMap') {
+                if (compassWorkerUrl && canvasDomain && canvasToken) {
                     fetchCanvasData();
+                }
+            } else if (type === 'compass') {
+                const currentCompassUrl = urlInput.value.trim();
+                if (compassWorkerUrl && currentCompassUrl) {
+                    isFirstLoad = true;
+                    startAutoRefresh(currentCompassUrl);
                 }
             }
         }
-
-        function applyBackground() {
-             document.body.style.backgroundImage = `url('${backgroundUrl || DEFAULT_BACKGROUND_URL}')`;
-        }
-         function handleSaveBackground() {
-             const newUrl = backgroundUrlInput.value.trim();
-             localStorage.setItem(BACKGROUND_URL_KEY, newUrl);
-             backgroundUrl = newUrl || DEFAULT_BACKGROUND_URL;
-             applyBackground();
-             showMessage('Background saved.', 'success', 'settings');
-         }
-         function handleResetBackground() {
-             backgroundUrlInput.value = '';
-             localStorage.removeItem(BACKGROUND_URL_KEY);
-             backgroundUrl = DEFAULT_BACKGROUND_URL;
-             applyBackground();
-             showMessage('Background reset to default.', 'success', 'settings');
-         }
-         function handleSaveCanvasSettings() {
+        function applyBackground() { document.body.style.backgroundImage = `url('${backgroundUrl || DEFAULT_BACKGROUND_URL}')`; }
+        function handleSaveBackground() { const newUrl = backgroundUrlInput.value.trim(); localStorage.setItem(BACKGROUND_URL_KEY, newUrl); backgroundUrl = newUrl || DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background saved.', 'success', 'settings'); }
+        function handleResetBackground() { backgroundUrlInput.value = ''; localStorage.removeItem(BACKGROUND_URL_KEY); backgroundUrl = DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background reset to default.', 'success', 'settings'); }
+        function handleSaveCanvasSettings() {
             saveSettings(true, 'canvasAuth');
-            if (canvasDomainInput.value.trim() && canvasTokenInput.value.trim()) {
-                 canvasCORSWarningSettings.classList.add('hidden');
-                 fetchCanvasData(); // Attempt to fetch data immediately after saving
+            if (compassWorkerUrl && canvasDomainInput.value.trim() && canvasTokenInput.value.trim()) {
+                 fetchCanvasData();
             } else {
-                showMessage('Canvas Domain and Token are required to fetch data.', 'error', 'settings');
+                showMessage('Worker URL, Canvas Domain and Token are required to fetch data.', 'error', 'settings');
             }
          }
 
         function renderMappingsList() {
-            mappingsListDiv.innerHTML = '';
-            const sortedCodes = Object.keys(classMappings).sort();
-            sortedCodes.forEach(code => { /* ... same as before ... */
-                const name = classMappings[code];
-                const color = classColors[name] || '#e5e7eb';
-                const item = document.createElement('div');
-                item.className = 'mapping-item p-2 border rounded-md bg-gray-50';
-                item.innerHTML = `
-                    <input type="text" value="${code}" data-code="${code}" class="mapping-code bg-gray-200 w-20" readonly>
-                    <span>&rarr;</span>
-                    <input type="text" value="${name}" data-code="${code}" class="mapping-name flex-grow">
-                    <input type="color" value="${color}" data-code="${code}" data-name="${name}" class="mapping-color">
-                    <button data-action="remove" data-code="${code}" title="Remove Mapping">&times;</button>
-                `;
-                mappingsListDiv.appendChild(item);
-            });
-            mappingsListDiv.querySelectorAll('.mapping-name, .mapping-color').forEach(input => {
-                input.addEventListener('change', handleMappingEdit);
-            });
+            mappingsListDiv.innerHTML = ''; const sortedCodes = Object.keys(classMappings).sort();
+            sortedCodes.forEach(code => { const name = classMappings[code]; const color = classColors[name] || '#e5e7eb'; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-gray-50';
+                item.innerHTML = `<input type="text" value="${code}" data-code="${code}" class="mapping-code bg-gray-200 w-20" readonly><span>&rarr;</span><input type="text" value="${name}" data-code="${code}" class="mapping-name flex-grow"><input type="color" value="${color}" data-code="${code}" data-name="${name}" class="mapping-color"><button data-action="remove" data-code="${code}" title="Remove Mapping">&times;</button>`;
+                mappingsListDiv.appendChild(item); });
+            mappingsListDiv.querySelectorAll('.mapping-name, .mapping-color').forEach(input => input.addEventListener('change', handleMappingEdit));
         }
-        function handleAddMapping() {
-            const code = newMappingCodeInput.value.trim().toUpperCase();
-            const name = newMappingNameInput.value.trim();
-            const color = newMappingColorInput.value;
-            if (!code || !name) { showMessage('Both Code and Full Name are required.', 'error', 'settings'); return; }
-            if (classMappings[code]) { showMessage(`Code "${code}" already exists.`, 'error', 'settings'); return; }
-            classMappings[code] = name; classColors[name] = color;
-            newMappingCodeInput.value = ''; newMappingNameInput.value = ''; newMappingColorInput.value = '#e5e7eb';
-            renderMappingsList(); saveSettings(true, 'general');
-        }
-         function handleMappingListClick(event) {
-            const target = event.target; const action = target.getAttribute('data-action'); const code = target.getAttribute('data-code');
-            if (action === 'remove' && code) {
-                const name = classMappings[code]; delete classMappings[code]; delete classColors[name];
-                renderMappingsList(); saveSettings(true, 'general');
-            }
-        }
-         function handleMappingEdit(event) {
-             const input = event.target; const code = input.getAttribute('data-code'); const originalName = classMappings[code];
-             if (input.classList.contains('mapping-name')) {
-                 const newName = input.value.trim();
-                 if (newName && newName !== originalName) {
-                     classMappings[code] = newName;
-                     if (classColors[originalName]) { classColors[newName] = classColors[originalName]; delete classColors[originalName]; }
-                     const colorInput = input.closest('.mapping-item').querySelector('.mapping-color');
-                     if(colorInput) colorInput.setAttribute('data-name', newName);
-                     renderMappingsList(); saveSettings(true, 'general');
-                 } else { input.value = originalName; }
-             } else if (input.classList.contains('mapping-color')) {
-                 const name = input.getAttribute('data-name'); const newColor = input.value;
-                 if (name) { classColors[name] = newColor; saveSettings(true, 'general'); }
-             }
-         }
-
+        function handleAddMapping() { const code = newMappingCodeInput.value.trim().toUpperCase(); const name = newMappingNameInput.value.trim(); const color = newMappingColorInput.value; if (!code || !name) { showMessage('Both Code and Full Name are required.', 'error', 'settings'); return; } if (classMappings[code]) { showMessage(`Code "${code}" already exists.`, 'error', 'settings'); return; } classMappings[code] = name; classColors[name] = color; newMappingCodeInput.value = ''; newMappingNameInput.value = ''; newMappingColorInput.value = '#e5e7eb'; renderMappingsList(); saveSettings(true, 'general'); }
+        function handleMappingListClick(event) { const target = event.target; const action = target.getAttribute('data-action'); const code = target.getAttribute('data-code'); if (action === 'remove' && code) { const name = classMappings[code]; delete classMappings[code]; delete classColors[name]; renderMappingsList(); saveSettings(true, 'general'); } }
+        function handleMappingEdit(event) { const input = event.target; const code = input.getAttribute('data-code'); const originalName = classMappings[code]; if (input.classList.contains('mapping-name')) { const newName = input.value.trim(); if (newName && newName !== originalName) { classMappings[code] = newName; if (classColors[originalName]) { classColors[newName] = classColors[originalName]; delete classColors[originalName]; } const colorInput = input.closest('.mapping-item').querySelector('.mapping-color'); if(colorInput) colorInput.setAttribute('data-name', newName); renderMappingsList(); saveSettings(true, 'general'); } else { input.value = originalName; } } else if (input.classList.contains('mapping-color')) { const name = input.getAttribute('data-name'); const newColor = input.value; if (name) { classColors[name] = newColor; saveSettings(true, 'general'); } } }
         function renderCanvasCourseMappingsList() {
-            canvasCourseMappingsListDiv.innerHTML = '';
-            const sortedCompassNames = Object.keys(canvasCourseMappings).sort();
-            sortedCompassNames.forEach(compassName => {
-                const canvasId = canvasCourseMappings[compassName];
-                const item = document.createElement('div');
-                item.className = 'mapping-item p-2 border rounded-md bg-gray-50';
-                item.innerHTML = `
-                    <input type="text" value="${compassName}" data-compass-name="${compassName}" class="canvas-map-compass-name bg-gray-200 flex-grow" readonly>
-                    <span>&rarr;</span>
-                    <input type="text" value="${canvasId}" data-compass-name="${compassName}" class="canvas-map-id w-32">
-                    <button data-action="remove-canvas-map" data-compass-name="${compassName}" title="Remove Mapping">&times;</button>
-                `;
-                canvasCourseMappingsListDiv.appendChild(item);
-            });
-            canvasCourseMappingsListDiv.querySelectorAll('.canvas-map-id').forEach(input => {
-                input.addEventListener('change', handleCanvasMappingEdit);
-            });
+            canvasCourseMappingsListDiv.innerHTML = ''; const sortedCompassNames = Object.keys(canvasCourseMappings).sort();
+            sortedCompassNames.forEach(compassName => { const canvasId = canvasCourseMappings[compassName]; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-gray-50';
+                item.innerHTML = `<input type="text" value="${compassName}" data-compass-name="${compassName}" class="canvas-map-compass-name bg-gray-200 flex-grow" readonly><span>&rarr;</span><input type="text" value="${canvasId}" data-compass-name="${compassName}" class="canvas-map-id w-32"><button data-action="remove-canvas-map" data-compass-name="${compassName}" title="Remove Mapping">&times;</button>`;
+                canvasCourseMappingsListDiv.appendChild(item); });
+            canvasCourseMappingsListDiv.querySelectorAll('.canvas-map-id').forEach(input => input.addEventListener('change', handleCanvasMappingEdit));
         }
-        function handleAddCanvasCourseMapping() {
-            const compassName = compassClassNameForCanvasInput.value.trim();
-            const canvasId = canvasCourseIdForMappingInput.value.trim();
-            if (!compassName || !canvasId) { showMessage('Compass Class Name and Canvas Course ID are required.', 'error', 'settings'); return; }
-            if (canvasCourseMappings[compassName]) { showMessage(`Mapping for "${compassName}" already exists.`, 'error', 'settings'); return; }
-            canvasCourseMappings[compassName] = canvasId;
-            compassClassNameForCanvasInput.value = ''; canvasCourseIdForMappingInput.value = '';
-            renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap');
-        }
-        function handleCanvasMappingListClick(event) {
-            const target = event.target; const action = target.getAttribute('data-action'); const compassName = target.getAttribute('data-compass-name');
-            if (action === 'remove-canvas-map' && compassName) {
-                delete canvasCourseMappings[compassName];
-                renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap');
-            }
-        }
-        function handleCanvasMappingEdit(event) {
-            const input = event.target; const compassName = input.getAttribute('data-compass-name'); const newCanvasId = input.value.trim();
-            if (compassName && newCanvasId) {
-                canvasCourseMappings[compassName] = newCanvasId;
-                saveSettings(true, 'canvasMap');
-            } else if (compassName && !newCanvasId) { // If ID cleared, remove mapping
-                delete canvasCourseMappings[compassName];
-                renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap');
-            }
-        }
+        function handleAddCanvasCourseMapping() { const compassName = compassClassNameForCanvasInput.value.trim(); const canvasId = canvasCourseIdForMappingInput.value.trim(); if (!compassName || !canvasId) { showMessage('Compass Class Name and Canvas Course ID are required.', 'error', 'settings'); return; } if (canvasCourseMappings[compassName]) { showMessage(`Mapping for "${compassName}" already exists.`, 'error', 'settings'); return; } canvasCourseMappings[compassName] = canvasId; compassClassNameForCanvasInput.value = ''; canvasCourseIdForMappingInput.value = ''; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); }
+        function handleCanvasMappingListClick(event) { const target = event.target; const action = target.getAttribute('data-action'); const compassName = target.getAttribute('data-compass-name'); if (action === 'remove-canvas-map' && compassName) { delete canvasCourseMappings[compassName]; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); } }
+        function handleCanvasMappingEdit(event) { const input = event.target; const compassName = input.getAttribute('data-compass-name'); const newCanvasId = input.value.trim(); if (compassName && newCanvasId) { canvasCourseMappings[compassName] = newCanvasId; saveSettings(true, 'canvasMap'); } else if (compassName && !newCanvasId) { delete canvasCourseMappings[compassName]; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); } }
 
-
-        // --- Navigation & View Switching ---
-        function handleNavClick(event) {
-            const section = event.target.getAttribute('data-section');
-            switchSection(section);
-        }
+        function handleNavClick(event) { const section = event.target.getAttribute('data-section'); switchSection(section); }
         function switchSection(section) {
-            isAutoRefreshing = false; // Always treat manual navigation as non-refresh for animations
-            settingsSection.classList.add('hidden');
-            calendarSection.classList.add('hidden');
-            canvasSection.classList.add('hidden');
-            navLinks.forEach(link => link.classList.remove('active'));
+            isAutoRefreshing = false; settingsSection.classList.add('hidden'); calendarSection.classList.add('hidden'); canvasSection.classList.add('hidden'); navLinks.forEach(link => link.classList.remove('active'));
+            let activeNavLink = document.querySelector(`.nav-link[data-section="${section}"]`);
+            if (activeNavLink) activeNavLink.classList.add('active');
 
-            if (section === 'settings') {
-                settingsSection.classList.remove('hidden');
-                document.querySelector('.nav-link[data-section="settings"]').classList.add('active');
+            if (section === 'settings') { settingsSection.classList.remove('hidden');
             } else if (section === 'canvas') {
                 canvasSection.classList.remove('hidden');
-                document.querySelector('.nav-link[data-section="canvas"]').classList.add('active');
-                if (canvasDomain && canvasToken && fetchedCanvasCourses.length === 0) { // Fetch if not already fetched
-                    fetchCanvasData();
-                } else if (!canvasDomain || !canvasToken) {
-                    showMessageForCanvas('Please set your Canvas Domain and API Token in Settings.', 'info');
-                    canvasCORSWarningPage.classList.remove('hidden');
-                }
-            } else { // 'calendar' or default
+                if (compassWorkerUrl && canvasDomain && canvasToken) { fetchCanvasData(); }
+                else { showMessageForCanvas('Please set Worker URL, Canvas Domain, and API Token in Settings.', 'info'); }
+            } else {
                 calendarSection.classList.remove('hidden');
-                document.querySelector('.nav-link[data-section="calendar"]').classList.add('active');
-                if (allParsedEvents.length > 0) {
-                     renderViews();
-                } else {
-                     const savedUrl = localStorage.getItem(CALENDAR_URL_KEY);
-                     if (!savedUrl) showMessage('Go to Settings to enter your Compass calendar URL.', 'info', 'calendar');
-                }
+                if (allParsedEvents.length > 0) { renderViews(); }
+                else { const savedUrl = localStorage.getItem(CALENDAR_URL_KEY); if (!savedUrl && !compassWorkerUrl) showMessage('Go to Settings to enter Worker & Compass URLs.', 'info', 'calendar'); }
             }
         }
+        function switchViewMode(mode) { currentViewMode = mode; listViewBtn.classList.toggle('active', mode === 'list'); weekViewBtn.classList.toggle('active', mode === 'week'); calendarDisplayList.classList.toggle('hidden', mode !== 'list'); calendarDisplayWeek.classList.toggle('hidden', mode !== 'week'); listControls.classList.toggle('hidden', mode !== 'list'); isAutoRefreshing = false; renderViews(); }
 
-        function switchViewMode(mode) { /* ... same as before ... */
-            currentViewMode = mode;
-            listViewBtn.classList.toggle('active', mode === 'list');
-            weekViewBtn.classList.toggle('active', mode === 'week');
-            calendarDisplayList.classList.toggle('hidden', mode !== 'list');
-            calendarDisplayWeek.classList.toggle('hidden', mode !== 'week');
-            listControls.classList.toggle('hidden', mode !== 'list');
-            isAutoRefreshing = false;
-            renderViews();
+        function handleSaveAndLoad() {
+            const workerURLValue = workerUrlInput.value.trim();
+            const compassURLValue = urlInput.value.trim();
+            if (!workerURLValue) { showMessage('Cloudflare Worker URL is required.', 'error', 'settings'); return; }
+            if (!compassURLValue) { showMessage('Compass Calendar Feed URL is required.', 'error', 'settings'); return; }
+            try { new URL(workerURLValue); new URL(compassURLValue); }
+            catch (_) { showMessage('Invalid URL format for Worker or Compass URL.', 'error', 'settings'); return; }
+            saveSettings(false, 'compass');
+            showMessage('Settings saved. Starting auto-refresh...', 'loading', 'settings');
         }
-
-        // --- Calendar Loading, Refreshing, Parsing ---
-        function handleSaveAndLoad() { /* ... same as before ... */
-            const url = urlInput.value.trim();
-            if (!url) { showMessage('Please enter a valid Compass Calendar URL.', 'error', 'settings'); return; }
-            try { new URL(url); } catch (_) { showMessage('Invalid URL format.', 'error', 'settings'); return; }
-            localStorage.setItem(CALENDAR_URL_KEY, url);
-            showMessage('URL saved. Starting auto-refresh...', 'loading', 'settings');
-            isFirstLoad = true;
-            startAutoRefresh(url);
-        }
-        function startAutoRefresh(url) { /* ... same as before ... */
+        function startAutoRefresh(compassCalUrl) {
             stopAutoRefresh();
-            fetchAndProcessCalendar(url, true);
-            refreshIntervalId = setInterval(() => fetchAndProcessCalendar(url, false), REFRESH_INTERVAL);
+            if (!compassWorkerUrl) { showMessage('Worker URL not set. Cannot start auto-refresh.', 'error', 'calendar'); updateStatusIndicator('failed'); return; }
+            fetchAndProcessCalendar(compassCalUrl, true);
+            refreshIntervalId = setInterval(() => fetchAndProcessCalendar(compassCalUrl, false), REFRESH_INTERVAL);
             initializeStatusIndicator();
         }
-        function stopAutoRefresh() { /* ... same as before ... */
-             if (refreshIntervalId) clearInterval(refreshIntervalId);
-             if (statusUpdateIntervalId) clearInterval(statusUpdateIntervalId);
-             refreshIntervalId = null; statusUpdateIntervalId = null;
-        }
-        async function fetchAndProcessCalendar(url, isInitialLoadForThisCall = false) { /* ... same as before ... */
-            if (!url) return;
+        function stopAutoRefresh() { if (refreshIntervalId) clearInterval(refreshIntervalId); if (statusUpdateIntervalId) clearInterval(statusUpdateIntervalId); refreshIntervalId = null; statusUpdateIntervalId = null; }
+
+        async function fetchAndProcessCalendar(compassCalUrl, isInitialLoadForThisCall = false) {
+            if (!compassCalUrl || !compassWorkerUrl) { console.warn("Compass or Worker URL missing, skipping fetch."); return; }
             isAutoRefreshing = !isInitialLoadForThisCall;
-            if (isFirstLoad && isInitialLoadForThisCall) {
-                 showMessage('Loading calendar data...', 'loading', 'calendar');
-                 updateStatusIndicator('loading');
-            }
-            corsWarningSettings.classList.add('hidden'); corsWarningCalendar.classList.add('hidden');
+            if (isFirstLoad && isInitialLoadForThisCall) { showMessage('Loading calendar data...', 'loading', 'calendar'); updateStatusIndicator('loading'); }
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const icsData = await response.text();
-                if (!icsData) throw new Error('Fetched data is empty.');
+                const fetchUrl = `${compassWorkerUrl}/compass?url=${encodeURIComponent(compassCalUrl)}`;
+                const response = await fetch(fetchUrl);
+                if (!response.ok) { const errorData = await response.json().catch(() => ({ error: `HTTP error ${response.status}` })); throw new Error(errorData.error || `Failed to fetch from worker: ${response.status} ${response.statusText}`); }
+                const icsData = await response.text(); if (!icsData) throw new Error('Fetched data from worker is empty.');
                 const newParsedEvents = parseCalendarData(icsData);
-                if (isFirstLoad && isInitialLoadForThisCall) {
-                    showMessage(`Successfully loaded ${newParsedEvents.length} events.`, 'success', 'calendar');
-                    isFirstLoad = false;
-                }
+                if (isFirstLoad && isInitialLoadForThisCall) { showMessage(`Successfully loaded ${newParsedEvents.length} events.`, 'success', 'calendar'); isFirstLoad = false; }
                 lastSuccessfulUpdateTime = Date.now(); updateStatusIndicator('live');
-                previousProcessedClassEvents = [...processedClassEvents];
-                allParsedEvents = newParsedEvents;
-                processAndClassifyEvents(allParsedEvents);
-                renderViews();
+                previousProcessedClassEvents = [...processedClassEvents]; allParsedEvents = newParsedEvents; processAndClassifyEvents(allParsedEvents); renderViews();
             } catch (error) {
-                console.error('Error loading or parsing calendar:', error);
-                let errorMsg = `Failed to load calendar. Error: ${error.message}.`;
-                 if (error instanceof TypeError || error.message.includes('HTTP error') || error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                     errorMsg += ' This might be a CORS issue.';
-                     corsWarningSettings.textContent = errorMsg; corsWarningSettings.classList.remove('hidden');
-                     corsWarningCalendar.textContent = errorMsg + " Check Settings or try again."; corsWarningCalendar.classList.remove('hidden');
-                 }
-                 showMessage(errorMsg, 'error', 'calendar');
-                 updateStatusIndicator('failed');
-                 if (isInitialLoadForThisCall) isFirstLoad = false;
+                console.error('Error fetching/processing Compass data via worker:', error); showMessage(`Error fetching Compass data: ${error.message}.`, 'error', 'calendar'); updateStatusIndicator('failed');
+                if (isInitialLoadForThisCall) isFirstLoad = false;
             }
         }
-        function parseCalendarData(icsData) { /* ... same as before ... */
+        function parseCalendarData(icsData) {
             try {
-                const jcalData = ICAL.parse(icsData); const comp = new ICAL.Component(jcalData); const vevents = comp.getAllSubcomponents('vevent');
-                if (!vevents || vevents.length === 0) return [];
+                const jcalData = ICAL.parse(icsData); const comp = new ICAL.Component(jcalData); const vevents = comp.getAllSubcomponents('vevent'); if (!vevents || vevents.length === 0) return [];
                 const today = new Date(); today.setHours(0, 0, 0, 0);
-                return vevents.map(vevent => {
-                    const event = new ICAL.Event(vevent); const startDate = event.startDate.toJSDate();
-                    return { id: event.uid || `${event.summary}-${startDate.toISOString()}`, summary: event.summary || 'No Title', originalSummary: event.summary || 'No Title', startDate: startDate, endDate: event.endDate.toJSDate(), location: event.location || null, description: event.description || '', teacher: extractTeacher(event.description || '') };
-                }).filter(event => event.startDate >= today);
+                return vevents.map(vevent => { const event = new ICAL.Event(vevent); const startDate = event.startDate.toJSDate(); return { id: event.uid || `${event.summary}-${startDate.toISOString()}`, summary: event.summary || 'No Title', originalSummary: event.summary || 'No Title', startDate: startDate, endDate: event.endDate.toJSDate(), location: event.location || null, description: event.description || '', teacher: extractTeacher(event.description || '') }; }).filter(event => event.startDate >= today);
             } catch (parseError) { console.error('Error parsing iCal data:', parseError); showMessage(`Error parsing calendar data: ${parseError.message}`, 'error', 'calendar'); return []; }
         }
 
-        // --- Event Processing & Classification ---
-        function applyMappings(originalSummary) { /* ... same as V4 (Full Replace & Fixes) ... */
+        function applyMappings(originalSummary) {
             const sortedCodes = Object.keys(classMappings).sort((a, b) => b.length - a.length);
-            for (const code of sortedCodes) {
-                const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const regex = new RegExp(escapedCode, 'i');
-                if (regex.test(originalSummary)) {
-                    return classMappings[code];
-                }
-            }
+            for (const code of sortedCodes) { const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(escapedCode, 'i'); if (regex.test(originalSummary)) { return classMappings[code]; } }
             return originalSummary;
         }
-         function getClassColor(originalSummary, mappedSummary) { /* ... same as V4 (Full Replace & Fixes) ... */
-             if (originalSummary !== mappedSummary) {
-                 return classColors[mappedSummary] || '#e5e7eb';
-             } else {
-                 const sortedCodes = Object.keys(classMappings).sort((a, b) => b.length - a.length);
-                 for (const code of sortedCodes) {
-                     const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                     const regex = new RegExp(escapedCode, 'i');
-                     if (regex.test(originalSummary)) {
-                         return classColors[classMappings[code]] || '#e5e7eb';
-                     }
-                 }
-             }
+        function getClassColor(originalSummary, mappedSummary) {
+             if (originalSummary !== mappedSummary) { return classColors[mappedSummary] || '#e5e7eb';
+             } else { const sortedCodes = Object.keys(classMappings).sort((a, b) => b.length - a.length); for (const code of sortedCodes) { const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(escapedCode, 'i'); if (regex.test(originalSummary)) { return classColors[classMappings[code]] || '#e5e7eb'; } } }
              return '#e5e7eb';
          }
-        function processAndClassifyEvents(events) { /* ... same as V4 (Full Replace & Fixes) ... */
+        function processAndClassifyEvents(events) {
             const newProcessedClasses = []; const newProcessedSidebar = []; const prevEventMap = new Map(previousProcessedClassEvents.map(e => [e.id, e]));
             events.forEach(event => {
                 const newEvent = { ...event }; newEvent.summary = applyMappings(newEvent.originalSummary); newEvent.color = getClassColor(newEvent.originalSummary, newEvent.summary);
-                const previousEvent = prevEventMap.get(newEvent.id);
-                if (previousEvent && previousEvent.location !== newEvent.location) { newEvent.oldLocation = previousEvent.location; } else { delete newEvent.oldLocation; }
+                const previousEvent = prevEventMap.get(newEvent.id); if (previousEvent && previousEvent.location !== newEvent.location) { newEvent.oldLocation = previousEvent.location; } else { delete newEvent.oldLocation; }
                 const summaryLower = newEvent.summary.toLowerCase(); const originalSummaryLower = newEvent.originalSummary.toLowerCase();
                 const containsNonClassKeyword = /\b(due|assignment|meeting|event|holiday|assembly|whole school|carnival)\b/i;
                 const isLikelyClass = newEvent.location && !containsNonClassKeyword.test(summaryLower) && !containsNonClassKeyword.test(originalSummaryLower);
@@ -680,30 +517,14 @@
             processedClassEvents = newProcessedClasses; processedSidebarEvents = newProcessedSidebar.sort((a, b) => a.startDate - b.startDate);
         }
 
-        // --- Rendering ---
-        function renderViews() { /* ... same as V4 (Full Replace & Fixes) ... */
-            if (currentViewMode === 'list') { renderListView(); } else { renderWeeklyView(); }
-            renderSidebar();
-            calendarDisplayList.classList.toggle('hidden', currentViewMode !== 'list');
-            calendarDisplayWeek.classList.toggle('hidden', currentViewMode !== 'week');
-        }
-        function renderListView() { /* ... mostly same as V4, ensure isAutoRefreshing check for animations ... */
+        function renderViews() { if (currentViewMode === 'list') { renderListView(); } else { renderWeeklyView(); } renderSidebar(); calendarDisplayList.classList.toggle('hidden', currentViewMode !== 'list'); calendarDisplayWeek.classList.toggle('hidden', currentViewMode !== 'week');}
+        function renderListView() {
             clearDisplayAreaOnly('list'); const eventsToDisplay = filterAndSortEvents(processedClassEvents); const eventsByDay = groupEventsByDay(eventsToDisplay); const sortedDays = Object.keys(eventsByDay).sort((a, b) => new Date(a) - new Date(b));
-            if (sortedDays.length === 0 && !isFirstLoad) { /* ... empty state handling ... */
-                 if (processedClassEvents.length > 0 && currentSearchTerm) { showMessage(`No classes found matching "${currentSearchTerm}".`, 'info', 'calendar'); }
-                 else if (processedClassEvents.length === 0 && allParsedEvents.length > 0) { showMessage('No regular classes found in the upcoming schedule.', 'info', 'calendar'); }
-                 else if (allParsedEvents.length === 0) { if (!localStorage.getItem(CALENDAR_URL_KEY)) { showMessage('Go to Settings to enter your calendar URL.', 'info', 'calendar'); } else if (!calendarMessageArea.textContent.includes('Failed')) { showMessage('No upcoming events found.', 'info', 'calendar');}}
-                 return;
-            }
+            if (sortedDays.length === 0 && !isFirstLoad) { if (processedClassEvents.length > 0 && currentSearchTerm) { showMessage(`No classes found matching "${currentSearchTerm}".`, 'info', 'calendar'); } else if (processedClassEvents.length === 0 && allParsedEvents.length > 0) { showMessage('No regular classes found in the upcoming schedule.', 'info', 'calendar'); } else if (allParsedEvents.length === 0) { if (!localStorage.getItem(CALENDAR_URL_KEY)) { showMessage('Go to Settings to enter your calendar URL.', 'info', 'calendar'); } else if (!calendarMessageArea.textContent.includes('Failed')) { showMessage('No upcoming events found.', 'info', 'calendar');}} return; }
             sortedDays.forEach((dayString, dayIndex) => {
-                const dayEvents = eventsByDay[dayString]; const dayDate = new Date(dayString); const dayHeader = document.createElement('h3');
-                dayHeader.className = 'text-lg font-semibold text-gray-700 mt-5 mb-2 border-b pb-1';
-                if (!isAutoRefreshing) { dayHeader.classList.add('fade-in'); dayHeader.style.animationDelay = `${dayIndex * 0.05}s`; }
-                dayHeader.textContent = formatDateHeading(dayDate); calendarDisplayList.appendChild(dayHeader);
+                const dayEvents = eventsByDay[dayString]; const dayDate = new Date(dayString); const dayHeader = document.createElement('h3'); dayHeader.className = 'text-lg font-semibold text-gray-700 mt-5 mb-2 border-b pb-1'; if (!isAutoRefreshing) { dayHeader.classList.add('fade-in'); dayHeader.style.animationDelay = `${dayIndex * 0.05}s`; } dayHeader.textContent = formatDateHeading(dayDate); calendarDisplayList.appendChild(dayHeader);
                 dayEvents.forEach((event, eventIndex) => {
-                    const card = document.createElement('div'); card.className = 'event-card p-3 rounded-lg border shadow-sm'; card.style.backgroundColor = event.color || '#ffffff'; card.style.borderColor = darkenColor(event.color || '#e5e7eb', 15);
-                    if (!isAutoRefreshing) { card.classList.add('fade-in'); card.style.animationDelay = `${(dayIndex * 50) + (eventIndex * 30) + 50}ms`; }
-                    else { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
+                    const card = document.createElement('div'); card.className = 'event-card p-3 rounded-lg border shadow-sm'; card.style.backgroundColor = event.color || '#ffffff'; card.style.borderColor = darkenColor(event.color || '#e5e7eb', 15); if (!isAutoRefreshing) { card.classList.add('fade-in'); card.style.animationDelay = `${(dayIndex * 50) + (eventIndex * 30) + 50}ms`; } else { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
                     const startTime = formatTime(event.startDate); const endTime = formatTime(event.endDate); const textColor = isColorDark(event.color || '#ffffff') ? 'text-white' : 'text-gray-800'; const iconColor = isColorDark(event.color || '#ffffff') ? 'text-gray-300' : 'text-gray-500';
                     const clockIcon = ICONS.clock.replace('text-gray-500', iconColor); const locationIcon = ICONS.location.replace('text-gray-500', iconColor); const teacherIcon = ICONS.teacher.replace('text-gray-500', iconColor);
                     let locationHtml = ''; if (event.oldLocation) { locationHtml += `<span class="text-red-500 line-through mr-1 opacity-80">${event.oldLocation}</span>`; } locationHtml += (event.location || 'N/A');
@@ -712,14 +533,10 @@
                 });
             });
         }
-        function renderWeeklyView() { /* ... mostly same as V4, ensure isAutoRefreshing check for animations ... */
+        function renderWeeklyView() {
             clearDisplayAreaOnly('week'); weeklyViewGrid.innerHTML = ''; const hourStart = 8; const hourEnd = 16; const slotHeight = 60;
-            for (let h = hourStart; h < hourEnd; h++) {
-                const timeDiv = document.createElement('div'); timeDiv.className = 'time-slot'; timeDiv.textContent = formatTime(new Date(0,0,0, h, 0)); timeDiv.style.gridRow = `${h - hourStart + 1} / span 1`; weeklyViewGrid.appendChild(timeDiv);
-                for(let dayIndex=0; dayIndex < 5; dayIndex++) { const cell = document.createElement('div'); cell.className = 'day-column-bg'; cell.style.gridRow = `${h - hourStart + 1} / span 1`; cell.style.gridColumn = `${dayIndex + 2} / span 1`; weeklyViewGrid.appendChild(cell); }
-            }
-            const dayContentContainers = [];
-            for(let dayIndex=0; dayIndex < 5; dayIndex++) { const container = document.createElement('div'); container.className = 'day-column-content'; container.setAttribute('data-day-index', dayIndex.toString()); weeklyViewGrid.appendChild(container); dayContentContainers.push(container); }
+            for (let h = hourStart; h < hourEnd; h++) { const timeDiv = document.createElement('div'); timeDiv.className = 'time-slot'; timeDiv.textContent = formatTime(new Date(0,0,0, h, 0)); timeDiv.style.gridRow = `${h - hourStart + 1} / span 1`; weeklyViewGrid.appendChild(timeDiv); for(let dayIndex=0; dayIndex < 5; dayIndex++) { const cell = document.createElement('div'); cell.className = 'day-column-bg'; cell.style.gridRow = `${h - hourStart + 1} / span 1`; cell.style.gridColumn = `${dayIndex + 2} / span 1`; weeklyViewGrid.appendChild(cell); } }
+            const dayContentContainers = []; for(let dayIndex=0; dayIndex < 5; dayIndex++) { const container = document.createElement('div'); container.className = 'day-column-content'; container.setAttribute('data-day-index', dayIndex.toString()); weeklyViewGrid.appendChild(container); dayContentContainers.push(container); }
             const today = new Date(); const currentDayOfWeek = (today.getDay() + 6) % 7; const monday = new Date(today); monday.setDate(today.getDate() - currentDayOfWeek); monday.setHours(0, 0, 0, 0); const friday = new Date(monday); friday.setDate(monday.getDate() + 4); friday.setHours(23, 59, 59, 999);
             const weekClassEvents = processedClassEvents.filter(event => event.startDate >= monday && event.startDate <= friday);
             weekClassEvents.forEach((event, eventIndex) => {
@@ -740,7 +557,7 @@
                 }
             });
         }
-        function renderSidebar() { /* ... mostly same as V4, ensure isAutoRefreshing check for animations ... */
+        function renderSidebar() {
             sidebarEventsDiv.innerHTML = ''; if (processedSidebarEvents.length === 0) { sidebarEventsDiv.innerHTML = '<p class="text-sm text-gray-500 italic">No other events or due dates found.</p>'; sidebar.classList.add('hidden'); return; }
             sidebar.classList.remove('hidden');
             processedSidebarEvents.forEach((event, index) => {
@@ -753,175 +570,63 @@
             });
         }
 
-        // --- Canvas API Functions ---
-        async function fetchCanvasAPI(endpoint) {
-            if (!canvasDomain || !canvasToken) {
-                showMessageForCanvas('Canvas Domain and API Token not set in Settings.', 'error');
-                return null;
-            }
-            const headers = new Headers({ 'Authorization': `Bearer ${canvasToken}` });
-            // To mitigate some basic CORS issues if a proxy isn't used, but server must still allow.
-            // For more complex scenarios, a proper CORS proxy server would be needed.
-            // const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Example, often rate-limited or down
-            // const requestUrl = proxyUrl + `${canvasDomain}/api/v1/${endpoint}`;
-            const requestUrl = `${canvasDomain}/api/v1/${endpoint}`;
-
+        async function fetchCanvasAPI(canvasApiEndpoint) {
+            if (!compassWorkerUrl) { showMessageForCanvas('Cloudflare Worker URL not set in Settings.', 'error'); return null; }
+            if (!canvasDomain || !canvasToken) { showMessageForCanvas('Canvas Domain and API Token not set in Settings.', 'error'); return null; }
+            const workerRequestUrl = `${compassWorkerUrl}/canvas/${canvasApiEndpoint}?domain=${encodeURIComponent(canvasDomain)}`;
             try {
-                const response = await fetch(requestUrl, { headers: headers });
-                if (!response.ok) {
-                    if (response.status === 401) throw new Error('Canvas API: Unauthorized. Check your token.');
-                    if (response.status === 404) throw new Error(`Canvas API: Endpoint not found (${endpoint}). Check domain.`);
-                    throw new Error(`Canvas API Error: ${response.status} ${response.statusText}`);
-                }
+                const response = await fetch(workerRequestUrl, { headers: { 'Authorization': `Bearer ${canvasToken}` } });
+                if (!response.ok) { const errorData = await response.json().catch(() => ({ error: `Worker error: ${response.status} ${response.statusText}` })); throw new Error(errorData.error || `Failed to fetch from Canvas via worker: ${response.status}`); }
                 return await response.json();
-            } catch (error) {
-                console.error('Canvas API Fetch Error:', error);
-                showMessageForCanvas(`Error fetching from Canvas: ${error.message}. This could be a CORS issue or invalid settings.`, 'error');
-                canvasCORSWarningPage.classList.remove('hidden');
-                canvasCORSWarningSettings.classList.remove('hidden');
-                return null;
-            }
+            } catch (error) { console.error('Canvas API Fetch Error via Worker:', error); showMessageForCanvas(`Error fetching from Canvas: ${error.message}.`, 'error'); return null; }
         }
-
-        async function fetchCanvasCourses() {
-            const courses = await fetchCanvasAPI('courses?enrollment_state=active&per_page=50');
-            if (courses) {
-                fetchedCanvasCourses = courses.map(course => ({ id: course.id, name: course.name, course_code: course.course_code }));
-                return fetchedCanvasCourses;
-            }
-            return [];
-        }
-
-        async function fetchAssignmentsForCourse(courseId) {
-            // Get assignments, then filter for upcoming or recently past due ones
-            const assignments = await fetchCanvasAPI(`courses/${courseId}/assignments?order_by=due_at&bucket=upcoming&per_page=50`);
-            // Also fetch ungraded assignments (bucket=ungraded), could be useful
-            // const ungradedAssignments = await fetchCanvasAPI(`courses/${courseId}/assignments?bucket=ungraded&per_page=50`);
-            // You might want to combine and de-duplicate these lists.
-            return assignments || [];
-        }
-
+        async function fetchCanvasCourses() { const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&per_page=50'); if (courses) { fetchedCanvasCourses = courses.map(course => ({ id: course.id, name: course.name, course_code: course.course_code })); return fetchedCanvasCourses; } return []; }
+        async function fetchAssignmentsForCourse(courseId) { const assignments = await fetchCanvasAPI(`api/v1/courses/${courseId}/assignments?order_by=due_at&bucket=upcoming&per_page=50`); return assignments || []; }
         async function fetchCanvasData() {
-            if (!canvasDomain || !canvasToken) {
-                showMessageForCanvas('Please set Canvas Domain and API Token in Settings.', 'info');
-                return;
-            }
+            if (!compassWorkerUrl || !canvasDomain || !canvasToken) { showMessageForCanvas('Please set Worker URL, Canvas Domain and API Token in Settings.', 'info'); return; }
             showMessageForCanvas('Loading Canvas data...', 'loading');
-            canvasCORSWarningPage.classList.add('hidden'); // Hide warning initially
-
             const courses = await fetchCanvasCourses();
-            if (!courses || courses.length === 0) {
-                if (!canvasDataMessageArea.textContent.includes('Error')) { // Don't overwrite error messages
-                     showMessageForCanvas('No active Canvas courses found or failed to load courses.', 'info');
-                }
-                return;
-            }
-
-            canvasCoursesDisplay.innerHTML = ''; // Clear previous
-            let assignmentsFound = 0;
-
+            if (!courses || courses.length === 0) { if (!canvasDataMessageArea.textContent.includes('Error')) { showMessageForCanvas('No active Canvas courses found or failed to load courses.', 'info');} return; }
+            canvasCoursesDisplay.innerHTML = ''; let assignmentsFound = 0;
             for (const course of courses) {
-                const courseDiv = document.createElement('div');
-                courseDiv.className = 'canvas-item-card p-4 rounded-lg shadow mb-4';
+                const courseDiv = document.createElement('div'); courseDiv.className = 'canvas-item-card p-4 rounded-lg shadow mb-4';
                 courseDiv.innerHTML = `<h3 class="text-lg font-semibold text-indigo-700 mb-2">${course.name} <span class="text-sm text-gray-500">(${course.course_code || 'ID: ' + course.id})</span></h3>`;
-                const assignmentsList = document.createElement('ul');
-                assignmentsList.className = 'list-disc list-inside space-y-1 pl-2 text-sm';
-
+                const assignmentsList = document.createElement('ul'); assignmentsList.className = 'list-disc list-inside space-y-1 pl-2 text-sm';
                 const assignments = await fetchAssignmentsForCourse(course.id);
                 if (assignments && assignments.length > 0) {
                     assignmentsFound += assignments.length;
-                    assignments.forEach(assignment => {
-                        const li = document.createElement('li');
-                        const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour:'numeric', minute:'2-digit' }) : 'No due date';
-                        li.innerHTML = `<a href="${assignment.html_url}" target="_blank" class="text-blue-600 hover:underline">${assignment.name}</a> - Due: ${dueDate}`;
-                        assignmentsList.appendChild(li);
-                    });
-                } else {
-                    assignmentsList.innerHTML = '<li class="text-gray-500 italic">No upcoming assignments.</li>';
-                }
-                courseDiv.appendChild(assignmentsList);
-                canvasCoursesDisplay.appendChild(courseDiv);
+                    assignments.forEach(assignment => { const li = document.createElement('li'); const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour:'numeric', minute:'2-digit' }) : 'No due date'; li.innerHTML = `<a href="${assignment.html_url}" target="_blank" class="text-blue-600 hover:underline">${assignment.name}${ICONS.link}</a> - Due: ${dueDate}`; assignmentsList.appendChild(li); });
+                } else { assignmentsList.innerHTML = '<li class="text-gray-500 italic">No upcoming assignments.</li>'; }
+                courseDiv.appendChild(assignmentsList); canvasCoursesDisplay.appendChild(courseDiv);
             }
-            if (assignmentsFound > 0) {
-                showMessageForCanvas(`Loaded ${courses.length} courses and ${assignmentsFound} upcoming assignments.`, 'success');
-            } else if (courses.length > 0) {
-                 showMessageForCanvas(`Loaded ${courses.length} courses. No upcoming assignments found for these courses.`, 'info');
-            }
+            if (assignmentsFound > 0) { showMessageForCanvas(`Loaded ${courses.length} courses and ${assignmentsFound} upcoming assignments.`, 'success');
+            } else if (courses.length > 0) { showMessageForCanvas(`Loaded ${courses.length} courses. No upcoming assignments found for these courses.`, 'info'); }
         }
-
         function showMessageForCanvas(msg, type = 'info') {
-            // Simplified message display for Canvas page
-            canvasDataMessageArea.innerHTML = '';
-            const msgElement = document.createElement('div');
-            let bgColor, textColor, borderColor, loader = '';
-            let autoDismiss = (type === 'success' || type === 'info');
-
-            switch (type) {
-                case 'error': bgColor = 'bg-red-100'; textColor = 'text-red-700'; borderColor = 'border-red-500'; break;
-                case 'success': bgColor = 'bg-green-100'; textColor = 'text-green-700'; borderColor = 'border-green-500'; break;
-                case 'loading': bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break;
-                default: bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500';
-            }
-            msgElement.className = `p-3 ${bgColor} border-l-4 ${borderColor} ${textColor} rounded-md shadow-sm text-sm fade-in`;
-            msgElement.innerHTML = loader + msg;
-            canvasDataMessageArea.appendChild(msgElement);
-
-            if (autoDismiss) {
-                setTimeout(() => {
-                    if (canvasDataMessageArea.contains(msgElement)) {
-                        msgElement.classList.remove('fade-in'); msgElement.classList.add('fade-out');
-                        msgElement.addEventListener('animationend', () => { if(canvasDataMessageArea.contains(msgElement)) canvasDataMessageArea.removeChild(msgElement); }, { once: true });
-                    }
-                }, 3000);
-            }
+            canvasDataMessageArea.innerHTML = ''; const msgElement = document.createElement('div'); let bgColor, textColor, borderColor, loader = ''; let autoDismiss = (type === 'success' || type === 'info');
+            switch (type) { case 'error': bgColor = 'bg-red-100'; textColor = 'text-red-700'; borderColor = 'border-red-500'; break; case 'success': bgColor = 'bg-green-100'; textColor = 'text-green-700'; borderColor = 'border-green-500'; break; case 'loading': bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500';}
+            msgElement.className = `p-3 ${bgColor} border-l-4 ${borderColor} ${textColor} rounded-md shadow-sm text-sm fade-in`; msgElement.innerHTML = loader + msg; canvasDataMessageArea.appendChild(msgElement);
+            if (autoDismiss) { setTimeout(() => { if (canvasDataMessageArea.contains(msgElement)) { msgElement.classList.remove('fade-in'); msgElement.classList.add('fade-out'); msgElement.addEventListener('animationend', () => { if(canvasDataMessageArea.contains(msgElement)) canvasDataMessageArea.removeChild(msgElement); }, { once: true }); } }, 3000); }
         }
 
+        function handleSearch(event) { currentSearchTerm = event.target.value.toLowerCase(); renderListView(); }
+        function handleSort(event) { currentSortOrder = event.target.value; renderListView(); }
+        function filterAndSortEvents(events) { const filtered = events.filter(event => { if (!currentSearchTerm) return true; const teacherMatch = event.teacher ? event.teacher.toLowerCase().includes(currentSearchTerm) : false; return ( event.summary.toLowerCase().includes(currentSearchTerm) || event.originalSummary.toLowerCase().includes(currentSearchTerm) || (event.location && event.location.toLowerCase().includes(currentSearchTerm)) || teacherMatch ); }); return filtered; }
+        function groupEventsByDay(events) { const grouped = {}; events.forEach(event => { const dayKey = event.startDate.toDateString(); if (!grouped[dayKey]) grouped[dayKey] = []; grouped[dayKey].push(event); }); for (const dayKey in grouped) { grouped[dayKey].sort((a, b) => { switch (currentSortOrder) { case 'name': return a.summary.localeCompare(b.summary); case 'location': return (a.location || '').localeCompare(b.location || ''); case 'time': default: return a.startDate - b.startDate; } }); } return grouped; }
 
-        // --- Event Filtering, Sorting (List View) ---
-        function handleSearch(event) { /* ... same as V4 ... */ currentSearchTerm = event.target.value.toLowerCase(); renderListView(); }
-        function handleSort(event) { /* ... same as V4 ... */ currentSortOrder = event.target.value; renderListView(); }
-        function filterAndSortEvents(events) { /* ... same as V4 ... */
-            const filtered = events.filter(event => { if (!currentSearchTerm) return true; const teacherMatch = event.teacher ? event.teacher.toLowerCase().includes(currentSearchTerm) : false; return ( event.summary.toLowerCase().includes(currentSearchTerm) || event.originalSummary.toLowerCase().includes(currentSearchTerm) || (event.location && event.location.toLowerCase().includes(currentSearchTerm)) || teacherMatch ); });
-            return filtered;
-        }
-        function groupEventsByDay(events) { /* ... same as V4 ... */
-            const grouped = {}; events.forEach(event => { const dayKey = event.startDate.toDateString(); if (!grouped[dayKey]) grouped[dayKey] = []; grouped[dayKey].push(event); });
-            for (const dayKey in grouped) { grouped[dayKey].sort((a, b) => { switch (currentSortOrder) { case 'name': return a.summary.localeCompare(b.summary); case 'location': return (a.location || '').localeCompare(b.location || ''); case 'time': default: return a.startDate - b.startDate; } }); }
-            return grouped;
-        }
+        function initializeStatusIndicator() { if (statusUpdateIntervalId) clearInterval(statusUpdateIntervalId); statusUpdateIntervalId = setInterval(updateAgoText, STATUS_UPDATE_INTERVAL); updateStatusIndicator(currentStatus); }
+        function updateStatusIndicator(status) { currentStatus = status; statusIndicatorDiv.classList.remove('hidden'); let iconHtml = ''; let textPrefix = ''; let textClass = 'status-text'; let iconClass = 'status-icon'; switch (status) { case 'live': iconHtml = ''; iconClass += ' live'; textPrefix = 'LIVE'; break; case 'failed': iconHtml = ICONS.cloudError; iconClass += ' failed'; textClass += ' failed'; textPrefix = 'FAILED'; break; case 'loading': iconHtml = '<div class="loader !w-3 !h-3 !border-2 !border-t-blue-500 !m-0"></div>'; iconClass = ''; textPrefix = 'Loading...'; break; case 'idle': default: statusIndicatorDiv.classList.add('hidden'); return; } statusIconSpan.innerHTML = iconHtml; statusIconSpan.className = iconClass; statusTextSpan.className = textClass; statusTextSpan.textContent = `${textPrefix} - ${getAgoText()}`; }
+        function updateAgoText() { if (currentStatus === 'live' || currentStatus === 'failed') { statusTextSpan.textContent = `${currentStatus.toUpperCase()} - ${getAgoText()}`; } else if (currentStatus === 'loading') { statusTextSpan.textContent = 'Loading...'; } }
+        function getAgoText() { if (!lastSuccessfulUpdateTime) return 'never updated'; const now = Date.now(); const secondsAgo = Math.round((now - lastSuccessfulUpdateTime) / 1000); if (secondsAgo < 5) return 'updated just now'; if (secondsAgo < 60) return `updated ${secondsAgo}s ago`; const minutesAgo = Math.floor(secondsAgo / 60); if (minutesAgo < 60) return `updated ${minutesAgo}m ago`; const hoursAgo = Math.floor(minutesAgo / 60); return `updated ${hoursAgo}h ago`; }
 
-        // --- Status Indicator ---
-        function initializeStatusIndicator() { /* ... same as V4 ... */ if (statusUpdateIntervalId) clearInterval(statusUpdateIntervalId); statusUpdateIntervalId = setInterval(updateAgoText, STATUS_UPDATE_INTERVAL); updateStatusIndicator(currentStatus); }
-        function updateStatusIndicator(status) { /* ... same as V4 ... */
-            currentStatus = status; statusIndicatorDiv.classList.remove('hidden'); let iconHtml = ''; let textPrefix = ''; let textClass = 'status-text'; let iconClass = 'status-icon';
-            switch (status) { case 'live': iconHtml = ''; iconClass += ' live'; textPrefix = 'LIVE'; break; case 'failed': iconHtml = ICONS.cloudError; iconClass += ' failed'; textClass += ' failed'; textPrefix = 'FAILED'; break; case 'loading': iconHtml = '<div class="loader !w-3 !h-3 !border-2 !border-t-blue-500 !m-0"></div>'; iconClass = ''; textPrefix = 'Loading...'; break; case 'idle': default: statusIndicatorDiv.classList.add('hidden'); return; }
-            statusIconSpan.innerHTML = iconHtml; statusIconSpan.className = iconClass; statusTextSpan.className = textClass; statusTextSpan.textContent = `${textPrefix} - ${getAgoText()}`;
-        }
-        function updateAgoText() { /* ... same as V4 ... */
-            if (currentStatus === 'live' || currentStatus === 'failed') { statusTextSpan.textContent = `${currentStatus.toUpperCase()} - ${getAgoText()}`; } else if (currentStatus === 'loading') { statusTextSpan.textContent = 'Loading...'; }
-        }
-        function getAgoText() { /* ... same as V4 ... */
-            if (!lastSuccessfulUpdateTime) return 'never updated'; const now = Date.now(); const secondsAgo = Math.round((now - lastSuccessfulUpdateTime) / 1000);
-            if (secondsAgo < 5) return 'updated just now'; if (secondsAgo < 60) return `updated ${secondsAgo}s ago`; const minutesAgo = Math.floor(secondsAgo / 60);
-            if (minutesAgo < 60) return `updated ${minutesAgo}m ago`; const hoursAgo = Math.floor(minutesAgo / 60); return `updated ${hoursAgo}h ago`;
-        }
-
-        // --- Utility Functions ---
-        function clearDisplay() { /* ... same as V4 ... */ calendarDisplayList.innerHTML = ''; weeklyViewGrid.innerHTML = ''; sidebarEventsDiv.innerHTML = ''; canvasCoursesDisplay.innerHTML = ''; canvasDataMessageArea.innerHTML = ''; corsWarningSettings.classList.add('hidden'); corsWarningCalendar.classList.add('hidden'); canvasCORSWarningPage.classList.add('hidden'); canvasCORSWarningSettings.classList.add('hidden');}
-        function clearDisplayAreaOnly(view = 'list') { /* ... same as V4 ... */ if (view === 'list') calendarDisplayList.innerHTML = ''; else if (view === 'week') weeklyViewGrid.innerHTML = ''; else if (view === 'canvas') canvasCoursesDisplay.innerHTML = '';}
-        function showMessage(msg, type = 'info', location = 'calendar') { /* ... same as V4 ... */
-            const targetMessageArea = location === 'settings' ? settingsMessageArea : calendarMessageArea;
-            if (messageTimeout && targetMessageArea.contains(messageTimeout.element)) { clearTimeout(messageTimeout.id); if (messageTimeout.element && targetMessageArea.contains(messageTimeout.element)) {targetMessageArea.removeChild(messageTimeout.element);} }
-            targetMessageArea.innerHTML = ''; const msgElement = document.createElement('div'); let bgColor, textColor, borderColor, loader = ''; let autoDismiss = false;
-            switch (type) { case 'error': bgColor = 'bg-red-100'; textColor = 'text-red-700'; borderColor = 'border-red-500'; break; case 'success': bgColor = 'bg-green-100'; textColor = 'text-green-700'; borderColor = 'border-green-500'; autoDismiss = true; break; case 'loading': bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; autoDismiss = true;}
-            msgElement.className = `p-3 ${bgColor} border-l-4 ${borderColor} ${textColor} rounded-md shadow-sm text-sm fade-in`; msgElement.innerHTML = loader + msg; targetMessageArea.appendChild(msgElement);
-            if (autoDismiss) { const timeoutId = setTimeout(() => { if (targetMessageArea.contains(msgElement)) { msgElement.classList.remove('fade-in'); msgElement.classList.add('fade-out'); msgElement.addEventListener('animationend', () => { if(targetMessageArea.contains(msgElement)) {targetMessageArea.removeChild(msgElement);} }, { once: true }); } if (messageTimeout && messageTimeout.id === timeoutId) { messageTimeout = null; } }, 3000); messageTimeout = { id: timeoutId, element: msgElement }; } else { messageTimeout = { id: null, element: msgElement }; }
-        }
-        function formatTime(date) { /* ... same as V4 ... */ return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); }
-        function formatDateHeading(date) { /* ... same as V4 ... */ const options = { weekday: 'long', month: 'long', day: 'numeric' }; return date.toLocaleDateString(undefined, options); }
-        function extractTeacher(description) { /* ... same as V4 ... */ const lines = description.split('\\n'); let teacherLine = lines.find(line => /^\s*teacher:/i.test(line)); if (teacherLine) return teacherLine.replace(/^\s*teacher:/i, '').trim(); return null; }
-        function isColorDark(hexColor) { /* ... same as V4 ... */ if (!hexColor || hexColor.length < 4) return false; hexColor = hexColor.substring(1); if (hexColor.length === 3) hexColor = hexColor.split('').map(c => c + c).join(''); const r = parseInt(hexColor.substring(0, 2), 16); const g = parseInt(hexColor.substring(2, 4), 16); const b = parseInt(hexColor.substring(4, 6), 16); const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b)); return hsp < 127.5; }
-        function darkenColor(hexColor, percent) { /* ... same as V4 ... */ if (!hexColor || hexColor.length < 4) return '#cccccc'; let R = parseInt(hexColor.substring(1,3),16); let G = parseInt(hexColor.substring(3,5),16); let B = parseInt(hexColor.substring(5,7),16); R = parseInt(R * (100 - percent) / 100); G = parseInt(G * (100 - percent) / 100); B = parseInt(B * (100 - percent) / 100); R = (R<0)?0:R; G = (G<0)?0:G; B = (B<0)?0:B; const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16)); const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16)); const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16)); return "#"+RR+GG+BB; }
+        function clearDisplay() { calendarDisplayList.innerHTML = ''; weeklyViewGrid.innerHTML = ''; sidebarEventsDiv.innerHTML = ''; canvasCoursesDisplay.innerHTML = ''; canvasDataMessageArea.innerHTML = '';}
+        function clearDisplayAreaOnly(view = 'list') { if (view === 'list') calendarDisplayList.innerHTML = ''; else if (view === 'week') weeklyViewGrid.innerHTML = ''; else if (view === 'canvas') canvasCoursesDisplay.innerHTML = '';}
+        function showMessage(msg, type = 'info', location = 'calendar') { const targetMessageArea = location === 'settings' ? settingsMessageArea : calendarMessageArea; if (messageTimeout && targetMessageArea.contains(messageTimeout.element)) { clearTimeout(messageTimeout.id); if (messageTimeout.element && targetMessageArea.contains(messageTimeout.element)) {targetMessageArea.removeChild(messageTimeout.element);} } targetMessageArea.innerHTML = ''; const msgElement = document.createElement('div'); let bgColor, textColor, borderColor, loader = ''; let autoDismiss = false; switch (type) { case 'error': bgColor = 'bg-red-100'; textColor = 'text-red-700'; borderColor = 'border-red-500'; break; case 'success': bgColor = 'bg-green-100'; textColor = 'text-green-700'; borderColor = 'border-green-500'; autoDismiss = true; break; case 'loading': bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; autoDismiss = true;} msgElement.className = `p-3 ${bgColor} border-l-4 ${borderColor} ${textColor} rounded-md shadow-sm text-sm fade-in`; msgElement.innerHTML = loader + msg; targetMessageArea.appendChild(msgElement); if (autoDismiss) { const timeoutId = setTimeout(() => { if (targetMessageArea.contains(msgElement)) { msgElement.classList.remove('fade-in'); msgElement.classList.add('fade-out'); msgElement.addEventListener('animationend', () => { if(targetMessageArea.contains(msgElement)) {targetMessageArea.removeChild(msgElement);} }, { once: true }); } if (messageTimeout && messageTimeout.id === timeoutId) { messageTimeout = null; } }, 3000); messageTimeout = { id: timeoutId, element: msgElement }; } else { messageTimeout = { id: null, element: msgElement }; } }
+        function formatTime(date) { return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); }
+        function formatDateHeading(date) { const options = { weekday: 'long', month: 'long', day: 'numeric' }; return date.toLocaleDateString(undefined, options); }
+        function extractTeacher(description) { const lines = description.split('\\n'); let teacherLine = lines.find(line => /^\s*teacher:/i.test(line)); if (teacherLine) return teacherLine.replace(/^\s*teacher:/i, '').trim(); return null; }
+        function isColorDark(hexColor) { if (!hexColor || hexColor.length < 4) return false; hexColor = hexColor.substring(1); if (hexColor.length === 3) hexColor = hexColor.split('').map(c => c + c).join(''); const r = parseInt(hexColor.substring(0, 2), 16); const g = parseInt(hexColor.substring(2, 4), 16); const b = parseInt(hexColor.substring(4, 6), 16); const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b)); return hsp < 127.5; }
+        function darkenColor(hexColor, percent) { if (!hexColor || hexColor.length < 4) return '#cccccc'; let R = parseInt(hexColor.substring(1,3),16); let G = parseInt(hexColor.substring(3,5),16); let B = parseInt(hexColor.substring(5,7),16); R = parseInt(R * (100 - percent) / 100); G = parseInt(G * (100 - percent) / 100); B = parseInt(B * (100 - percent) / 100); R = (R<0)?0:R; G = (G<0)?0:G; B = (B<0)?0:B; const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16)); const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16)); const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16)); return "#"+RR+GG+BB; }
 
     </script>
 </body>
