@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Compass Calendar Viewer</title>
+    <title>Class Companion</title> {/* Changed Title */}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.4.0/ical.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -53,6 +53,8 @@
         .week-event { position: absolute; left: 2px; right: 2px; font-size: 0.7rem; line-height: 1.2; padding: 2px 4px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 10; opacity: 1; transform: translateY(0); }
         .week-event.fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
         .week-event:hover { filter: brightness(1.1); }
+        .week-event.canvas-assignment-event { border-left: 3px solid #e53e3e; /* Red border for Canvas assignments */ }
+
 
         .mapping-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
         .mapping-item input[type="text"], .mapping-item input[type="color"], .mapping-item select { padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; }
@@ -62,6 +64,8 @@
 
         #sidebar { width: 250px; flex-shrink: 0; }
         .sidebar-event-card { background-color: #f3f4f6; border-left: 4px solid #6b7280; }
+        .sidebar-event-card.canvas-assignment { border-left-color: #e53e3e; /* Red border for Canvas assignments in sidebar */ }
+
 
         .status-indicator { display: flex; align-items: center; font-size: 0.8rem; margin-top: -1rem; margin-bottom: 1rem; }
         .status-icon { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
@@ -71,6 +75,8 @@
         .status-text.failed { color: #f97316; font-weight: 500; }
 
         .canvas-item-card { background-color: #fff; border: 1px solid #e5e7eb; }
+        .clickable-class-link { color: inherit; text-decoration: none; } /* Default link style */
+        .clickable-class-link:hover { text-decoration: underline; color: #3b82f6; /* Blue-500 on hover */ }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -79,7 +85,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-xl font-bold text-indigo-600">Calendar Viewer</span>
+                    <span class="text-xl font-bold text-indigo-600">Class Companion</span> {/* Changed Title */}
                 </div>
                 <div class="flex items-center space-x-4">
                     <button data-section="calendar" class="nav-link text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out active">Calendar</button>
@@ -568,14 +574,24 @@
             if (!compassWorkerUrl) { showMessageForCanvas('Cloudflare Worker URL not set in Settings.', 'error'); return null; }
             if (!canvasDomain || !canvasToken) { showMessageForCanvas('Canvas Domain and API Token not set in Settings.', 'error'); return null; }
 
-            const separator = canvasApiEndpointWithPathAndQuery.includes('?') ? '&' : '?';
-            const workerRequestUrl = `${compassWorkerUrl}/canvas/${canvasApiEndpointWithPathAndQuery}${separator}domain=${encodeURIComponent(canvasDomain)}`;
+            // Correctly append domain as a query parameter to the worker URL
+            const workerPath = `${compassWorkerUrl}/canvas/${canvasApiEndpointWithPathAndQuery}`;
+            const finalWorkerUrl = new URL(workerPath);
+            finalWorkerUrl.searchParams.append('domain', canvasDomain);
+
 
             try {
-                const response = await fetch(workerRequestUrl, { headers: { 'Authorization': `Bearer ${canvasToken}` } });
-                if (!response.ok) { const errorData = await response.json().catch(() => ({ error: `Worker error: ${response.status} ${response.statusText}` })); throw new Error(errorData.error || `Failed to fetch from Canvas via worker: ${response.status}`); }
+                const response = await fetch(finalWorkerUrl.toString(), { headers: { 'Authorization': `Bearer ${canvasToken}` } });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: `Worker error: ${response.status} ${response.statusText}` }));
+                    throw new Error(errorData.error || `Failed to fetch from Canvas via worker: ${response.status}`);
+                }
                 return await response.json();
-            } catch (error) { console.error('Canvas API Fetch Error via Worker:', error); showMessageForCanvas(`Error fetching from Canvas: ${error.message}.`, 'error'); return null; }
+            } catch (error) {
+                console.error('Canvas API Fetch Error via Worker:', error);
+                showMessageForCanvas(`Error fetching from Canvas: ${error.message}. Check worker logs if issue persists.`, 'error'); // Added suggestion to check worker logs
+                return null;
+            }
         }
         async function fetchCanvasCourses() { const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&per_page=50'); if (courses) { fetchedCanvasCourses = courses.map(course => ({ id: course.id, name: course.name, course_code: course.course_code })); return fetchedCanvasCourses; } return []; }
         async function fetchAssignmentsForCourse(courseId) { const assignments = await fetchCanvasAPI(`api/v1/courses/${courseId}/assignments?order_by=due_at&bucket=upcoming&per_page=50`); return assignments || []; }
@@ -585,6 +601,8 @@
             const courses = await fetchCanvasCourses();
             if (!courses || courses.length === 0) { if (!canvasDataMessageArea.textContent.includes('Error')) { showMessageForCanvas('No active Canvas courses found or failed to load courses.', 'info');} return; }
             canvasCoursesDisplay.innerHTML = ''; let assignmentsFound = 0;
+            let canvasAssignmentEvents = []; // For merging with Compass events
+
             for (const course of courses) {
                 const courseDiv = document.createElement('div'); courseDiv.className = 'canvas-item-card p-4 rounded-lg shadow mb-4';
                 courseDiv.innerHTML = `<h3 class="text-lg font-semibold text-indigo-700 mb-2">${course.name} <span class="text-sm text-gray-500">(${course.course_code || 'ID: ' + course.id})</span></h3>`;
@@ -592,10 +610,44 @@
                 const assignments = await fetchAssignmentsForCourse(course.id);
                 if (assignments && assignments.length > 0) {
                     assignmentsFound += assignments.length;
-                    assignments.forEach(assignment => { const li = document.createElement('li'); const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour:'numeric', minute:'2-digit' }) : 'No due date'; li.innerHTML = `<a href="${assignment.html_url}" target="_blank" class="text-blue-600 hover:underline">${assignment.name}${ICONS.link}</a> - Due: ${dueDate}`; assignmentsList.appendChild(li); });
+                    assignments.forEach(assignment => {
+                        const li = document.createElement('li');
+                        const dueDate = assignment.due_at ? new Date(assignment.due_at) : null;
+                        const dueDateStr = dueDate ? dueDate.toLocaleDateString([], { month: 'short', day: 'numeric', hour:'numeric', minute:'2-digit' }) : 'No due date';
+                        li.innerHTML = `<a href="${assignment.html_url}" target="_blank" class="text-blue-600 hover:underline">${assignment.name}${ICONS.link}</a> - Due: ${dueDateStr}`;
+                        assignmentsList.appendChild(li);
+
+                        // Add to calendar events if due date exists
+                        if (dueDate) {
+                            canvasAssignmentEvents.push({
+                                id: `canvas-asgn-${assignment.id}`,
+                                summary: `(Canvas) ${assignment.name} - ${course.name}`,
+                                originalSummary: `(Canvas) ${assignment.name} - ${course.name}`,
+                                startDate: dueDate,
+                                endDate: new Date(dueDate.getTime() + 30 * 60000), // Assume 30 min duration for display
+                                location: `Canvas: ${course.name}`,
+                                description: assignment.description || '', // Or a link
+                                isCanvasAssignment: true,
+                                html_url: assignment.html_url, // Store direct link
+                                color: '#E53E3E' // Default red for Canvas assignments, can be configurable later
+                            });
+                        }
+                    });
                 } else { assignmentsList.innerHTML = '<li class="text-gray-500 italic">No upcoming assignments.</li>'; }
                 courseDiv.appendChild(assignmentsList); canvasCoursesDisplay.appendChild(courseDiv);
             }
+
+            // Merge Canvas assignments with existing events and re-render calendar
+            if (canvasAssignmentEvents.length > 0) {
+                allParsedEvents = allParsedEvents.filter(event => !event.isCanvasAssignment); // Remove old canvas assignments
+                allParsedEvents.push(...canvasAssignmentEvents);
+                previousProcessedClassEvents = [...processedClassEvents]; // Update previous state
+                processAndClassifyEvents(allParsedEvents); // Re-process all events
+                isAutoRefreshing = false; // Allow animations for this update
+                renderViews(); // Re-render calendar views
+            }
+
+
             if (assignmentsFound > 0) { showMessageForCanvas(`Loaded ${courses.length} courses and ${assignmentsFound} upcoming assignments.`, 'success');
             } else if (courses.length > 0) { showMessageForCanvas(`Loaded ${courses.length} courses. No upcoming assignments found for these courses.`, 'info'); }
         }
