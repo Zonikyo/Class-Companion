@@ -84,6 +84,23 @@
         .notification-preference label { margin-right: 0.5rem; min-width: 150px; }
         .notification-preference input[type="checkbox"] { margin-right: 0.5rem; }
         .notification-preference input[type="number"] { width: 70px; padding: 0.25rem 0.5rem; }
+
+        /* "NOW" and "In X mins" indicators */
+        .time-indicator {
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+        }
+        .time-indicator-now {
+            background-color: #facc15; /* yellow-400 */
+            color: #713f12; /* yellow-800 */
+        }
+        .time-indicator-upcoming {
+            background-color: #a7f3d0; /* green-200 */
+            color: #047857; /* green-700 */
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -186,6 +203,11 @@
                         <input type="number" id="notifyAssignmentsLeadTime2" min="1" class="border-gray-300 rounded-md shadow-sm">
                         <span class="ml-2 text-sm text-gray-500">minutes before due</span>
                     </div>
+                     <div class="notification-preference">
+                        <input type="checkbox" id="notifyTimetableChangesEnabled">
+                        <label for="notifyTimetableChangesEnabled" class="font-medium text-gray-700">Timetable Changes:</label>
+                        <span class="ml-2 text-sm text-gray-500">(Room, Time, Cancellation)</span>
+                    </div>
                 </div>
                 <button id="saveNotificationSettingsBtn" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm text-sm">Save Notification Preferences</button>
             </div>
@@ -272,13 +294,13 @@
         const CANVAS_DOMAIN_KEY = 'canvasDomain';
         const CANVAS_TOKEN_KEY = 'canvasToken';
         const CANVAS_COURSE_MAPPINGS_KEY = 'canvasCourseMappings';
-        const NOTIFICATION_SETTINGS_KEY = 'classCompanionNotificationSettings'; // New key
+        const NOTIFICATION_SETTINGS_KEY = 'classCompanionNotificationSettings';
 
         const DEFAULT_WORKER_URL = 'https://class-companion.thebestmate100.workers.dev';
         const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
         const REFRESH_INTERVAL = 10000;
         const STATUS_UPDATE_INTERVAL = 1000;
-        const NOTIFICATION_CHECK_INTERVAL = 30000; // Check for notifications every 30 seconds
+        const NOTIFICATION_CHECK_INTERVAL = 30000;
 
         const PASTEL_COLORS = [
             { name: 'Mint', value: '#a2d2ff' }, { name: 'Lavender', value: '#bde0fe' },
@@ -333,7 +355,6 @@
         const canvasCourseIdForMappingInput = document.getElementById('canvasCourseIdForMapping');
         const addCanvasCourseMappingBtn = document.getElementById('addCanvasCourseMappingBtn');
 
-        // Notification Settings Elements
         const notificationPermissionStatusDiv = document.getElementById('notificationPermissionStatus');
         const notifyClassesEnabledCheckbox = document.getElementById('notifyClassesEnabled');
         const notifyClassesLeadTimeInput = document.getElementById('notifyClassesLeadTime');
@@ -341,14 +362,15 @@
         const notifyAssignmentsLeadTime1Input = document.getElementById('notifyAssignmentsLeadTime1');
         const notifyAssignmentsEnabled2Checkbox = document.getElementById('notifyAssignmentsEnabled2');
         const notifyAssignmentsLeadTime2Input = document.getElementById('notifyAssignmentsLeadTime2');
+        const notifyTimetableChangesEnabledCheckbox = document.getElementById('notifyTimetableChangesEnabled'); // New
         const saveNotificationSettingsBtn = document.getElementById('saveNotificationSettingsBtn');
 
 
         let compassWorkerUrl = DEFAULT_WORKER_URL;
-        let allParsedEvents = []; // Combined Compass and Canvas events for calendar views
+        let allParsedEvents = [];
         let previousProcessedClassEvents = [];
-        let processedClassEvents = []; // Only Compass classes for specific logic
-        let processedSidebarEvents = []; // Other Compass events + Canvas assignments for sidebar
+        let processedClassEvents = [];
+        let processedSidebarEvents = [];
         let currentSortOrder = 'time';
         let currentSearchTerm = '';
         let currentViewMode = 'list';
@@ -358,19 +380,16 @@
         let canvasDomain = '';
         let canvasToken = '';
         let canvasCourseMappings = {};
-        let fetchedCanvasCourses = []; // For Canvas tab display
-        let notificationSettings = { // Default notification settings
-            classesEnabled: false,
-            classesLeadTime: 5, // minutes
-            assignmentsEnabled1: false,
-            assignmentsLeadTime1: 60, // minutes (1 hour)
-            assignmentsEnabled2: false,
-            assignmentsLeadTime2: 5, // minutes
+        let fetchedCanvasCourses = [];
+        let notificationSettings = {
+            classesEnabled: false, classesLeadTime: 5,
+            assignmentsEnabled1: false, assignmentsLeadTime1: 60,
+            assignmentsEnabled2: false, assignmentsLeadTime2: 5,
+            timetableChangesEnabled: false // New
         };
-        let notificationPermission = Notification.permission; // Initial permission status
-        let sentNotifications = new Set(); // To track sent notifications: eventId_leadTimeType
+        let notificationPermission = Notification.permission;
+        let sentNotifications = new Set();
         let notificationCheckIntervalId = null;
-
 
         let messageTimeout = null;
         let refreshIntervalId = null;
@@ -409,14 +428,14 @@
 
         function initializeApp() {
             populatePastelColorOptions();
-            loadSettings(); // Also loads notification settings
+            loadSettings();
             applyBackground();
             renderMappingsList();
             renderCanvasCourseMappingsList();
-            renderNotificationSettings(); // Populate notification UI
+            renderNotificationSettings();
             initializeStatusIndicator();
-            setupNotificationPermission(); // Check/request permission
-            startNotificationChecker(); // Start checking for notifications
+            setupNotificationPermission();
+            startNotificationChecker();
 
             const savedCompassUrl = localStorage.getItem(CALENDAR_URL_KEY);
             if (compassWorkerUrl && savedCompassUrl) { urlInput.value = savedCompassUrl; startAutoRefresh(savedCompassUrl);
@@ -439,7 +458,6 @@
              canvasCourseMappings = JSON.parse(localStorage.getItem(CANVAS_COURSE_MAPPINGS_KEY) || '{}');
              canvasDomainInput.value = canvasDomain;
              canvasTokenInput.value = canvasToken;
-             // Load notification settings
              const savedNotificationSettings = JSON.parse(localStorage.getItem(NOTIFICATION_SETTINGS_KEY));
              if (savedNotificationSettings) {
                 notificationSettings = { ...notificationSettings, ...savedNotificationSettings };
@@ -455,7 +473,7 @@
             localStorage.setItem(CANVAS_DOMAIN_KEY, canvasDomainInput.value.trim());
             localStorage.setItem(CANVAS_TOKEN_KEY, canvasTokenInput.value.trim());
             localStorage.setItem(CANVAS_COURSE_MAPPINGS_KEY, JSON.stringify(canvasCourseMappings));
-            localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(notificationSettings)); // Save notification settings
+            localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(notificationSettings));
 
             loadSettings();
             applyBackground();
@@ -469,7 +487,7 @@
                 renderViews();
             } else if (type === 'canvasAuth' || type === 'canvasMap') {
                 if (compassWorkerUrl && canvasDomain && canvasToken) {
-                    fetchCanvasData(); // Also re-fetch and merge canvas assignments for calendar
+                    fetchCanvasData();
                 }
             } else if (type === 'compass') {
                 const currentCompassUrl = urlInput.value.trim();
@@ -478,8 +496,7 @@
                     startAutoRefresh(currentCompassUrl);
                 }
             } else if (type === 'notifications') {
-                // Notification settings saved, re-check permissions if enabling
-                if (notificationSettings.classesEnabled || notificationSettings.assignmentsEnabled1 || notificationSettings.assignmentsEnabled2) {
+                if (notificationSettings.classesEnabled || notificationSettings.assignmentsEnabled1 || notificationSettings.assignmentsEnabled2 || notificationSettings.timetableChangesEnabled) {
                     requestNotificationPermission();
                 }
             }
@@ -574,12 +591,27 @@
                 const response = await fetch(fetchUrl);
                 if (!response.ok) { const errorData = await response.json().catch(() => ({ error: `HTTP error ${response.status}` })); throw new Error(errorData.error || `Failed to fetch from worker: ${response.status} ${response.statusText}`); }
                 const icsData = await response.text(); if (!icsData) throw new Error('Fetched data from worker is empty.');
-                const newParsedEvents = parseCalendarData(icsData);
-                if (isFirstLoad && isInitialLoadForThisCall) { showMessage(`Successfully loaded ${newParsedEvents.length} events.`, 'success', 'calendar'); isFirstLoad = false; }
+                const newParsedCompassEvents = parseCalendarData(icsData);
+
+                if (isFirstLoad && isInitialLoadForThisCall) {
+                    showMessage(`Successfully loaded ${newParsedCompassEvents.length} Compass events.`, 'success', 'calendar');
+                    isFirstLoad = false;
+                }
                 lastSuccessfulUpdateTime = Date.now(); updateStatusIndicator('live');
-                previousProcessedClassEvents = [...processedClassEvents]; allParsedEvents = newParsedEvents;
-                if (compassWorkerUrl && canvasDomain && canvasToken) { await processCanvasAssignmentsIntoEvents(); }
-                processAndClassifyEvents(allParsedEvents); renderViews();
+
+                // Detect timetable changes for notifications
+                if (!isInitialLoadForThisCall && notificationSettings.timetableChangesEnabled) {
+                    detectAndNotifyTimetableChanges(newParsedCompassEvents, previousProcessedClassEvents);
+                }
+
+                previousProcessedClassEvents = [...processedClassEvents]; // Store Compass classes before merging with Canvas
+                allParsedEvents = newParsedCompassEvents; // Start with fresh Compass events
+
+                if (compassWorkerUrl && canvasDomain && canvasToken) {
+                    await processCanvasAssignmentsIntoEvents(); // This will modify allParsedEvents
+                }
+                processAndClassifyEvents(allParsedEvents);
+                renderViews();
             } catch (error) {
                 console.error('Error fetching/processing Compass data via worker:', error); showMessage(`Error fetching Compass data: ${error.message}.`, 'error', 'calendar'); updateStatusIndicator('failed');
                 if (isInitialLoadForThisCall) isFirstLoad = false;
@@ -622,19 +654,20 @@
         function renderViews() { if (currentViewMode === 'list') { renderListView(); } else { renderWeeklyView(); } renderSidebar(); calendarDisplayList.classList.toggle('hidden', currentViewMode !== 'list'); calendarDisplayWeek.classList.toggle('hidden', currentViewMode !== 'week');}
         function renderListView() {
             clearDisplayAreaOnly('list');
-            const combinedEvents = [...processedClassEvents, ...processedSidebarEvents.filter(e => e.isCanvasAssignment && e.startDate >= new Date())]; // Only upcoming/current Canvas assignments
+            const combinedEvents = [...processedClassEvents, ...processedSidebarEvents.filter(e => e.isCanvasAssignment && e.startDate >= new Date())];
             const eventsToDisplay = filterAndSortEvents(combinedEvents);
             const eventsByDay = groupEventsByDay(eventsToDisplay);
             const sortedDays = Object.keys(eventsByDay).sort((a, b) => new Date(a) - new Date(b));
 
             if (sortedDays.length === 0 && !isFirstLoad) { if (combinedEvents.length > 0 && currentSearchTerm) { showMessage(`No items found matching "${currentSearchTerm}".`, 'info', 'calendar'); } else if (combinedEvents.length === 0 && allParsedEvents.length > 0) { showMessage('No upcoming classes or assignments.', 'info', 'calendar'); } else if (allParsedEvents.length === 0) { if (!localStorage.getItem(CALENDAR_URL_KEY)) { showMessage('Go to Settings to enter your calendar URL.', 'info', 'calendar'); } else if (!calendarMessageArea.textContent.includes('Failed')) { showMessage('No upcoming events found.', 'info', 'calendar');}} return; }
 
+            const now = new Date();
             sortedDays.forEach((dayString, dayIndex) => {
                 const dayEvents = eventsByDay[dayString]; const dayDate = new Date(dayString); const dayHeader = document.createElement('h3'); dayHeader.className = 'text-lg font-semibold text-gray-700 mt-5 mb-2 border-b pb-1'; if (!isAutoRefreshing) { dayHeader.classList.add('fade-in'); dayHeader.style.animationDelay = `${dayIndex * 0.05}s`; } dayHeader.textContent = formatDateHeading(dayDate); calendarDisplayList.appendChild(dayHeader);
                 dayEvents.forEach((event, eventIndex) => {
                     const card = document.createElement('div');
                     card.className = `event-card p-3 rounded-lg border shadow-sm ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''}`;
-                    card.style.backgroundColor = event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff'); // Canvas assignments get a default light red
+                    card.style.backgroundColor = event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff');
                     card.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#e5e7eb'), 15);
                     if (!isAutoRefreshing) { card.classList.add('fade-in'); card.style.animationDelay = `${(dayIndex * 50) + (eventIndex * 30) + 50}ms`; } else { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
 
@@ -647,7 +680,7 @@
                     const assignmentIcon = ICONS.assignment.replace('text-gray-500', iconColor);
 
                     let summaryHtml = event.summary;
-                    const canvasCourseId = canvasCourseMappings[event.summary]; // Use mapped summary for lookup
+                    const canvasCourseId = canvasCourseMappings[event.summary];
                     if (!event.isCanvasAssignment && canvasCourseId && canvasDomain) {
                         const canvasLink = `https://${canvasDomain}/courses/${canvasCourseId}`;
                         summaryHtml = `<a href="${canvasLink}" target="_blank" class="clickable-class-link hover:text-indigo-500">${event.summary}${ICONS.link}</a>`;
@@ -655,8 +688,19 @@
                         summaryHtml = `<a href="${event.html_url}" target="_blank" class="clickable-class-link hover:text-red-500">${event.summary}${ICONS.link}</a>`;
                     }
 
+                    let timeIndicatorHtml = '';
+                    if (now >= event.startDate && now <= event.endDate && !event.isCanvasAssignment) {
+                        timeIndicatorHtml = `<span class="time-indicator time-indicator-now">NOW</span>`;
+                    } else if (event.startDate > now && event.startDate.toDateString() === now.toDateString() && !event.isCanvasAssignment) {
+                        const diffMins = Math.round((event.startDate.getTime() - now.getTime()) / 60000);
+                        if (diffMins > 0 && diffMins <= 240) { // Show for up to 4 hours before
+                             timeIndicatorHtml = `<span class="time-indicator time-indicator-upcoming">In ${diffMins} min${diffMins > 1 ? 's' : ''}</span>`;
+                        }
+                    }
+
+
                     let locationHtml = ''; if (event.oldLocation) { locationHtml += `<span class="text-red-500 line-through mr-1 opacity-80">${event.oldLocation}</span>`; } locationHtml += (event.location || 'N/A');
-                    card.innerHTML = `<div class="flex flex-col sm:flex-row justify-between sm:items-start mb-1"><h4 class="text-md font-semibold ${textColor} flex-grow pr-2">${summaryHtml}</h4><span class="text-xs font-medium ${textColor} mt-1 sm:mt-0 whitespace-nowrap">${event.isCanvasAssignment ? assignmentIcon : clockIcon} ${startTime}${event.isCanvasAssignment ? '' : ' - ' + endTime}</span></div><div class="text-xs ${textColor} space-y-1 opacity-90"><p>${locationIcon} <span class="font-medium">${event.isCanvasAssignment ? 'Course' : 'Room'}:</span> ${locationHtml}</p>${event.teacher && !event.isCanvasAssignment ? `<p>${teacherIcon} <span class="font-medium">Teacher:</span> ${event.teacher}</p>` : ''}</div>`;
+                    card.innerHTML = `<div class="flex flex-col sm:flex-row justify-between sm:items-start mb-1"><h4 class="text-md font-semibold ${textColor} flex-grow pr-2">${summaryHtml} ${timeIndicatorHtml}</h4><span class="text-xs font-medium ${textColor} mt-1 sm:mt-0 whitespace-nowrap">${event.isCanvasAssignment ? assignmentIcon : clockIcon} ${startTime}${event.isCanvasAssignment ? '' : ' - ' + endTime}</span></div><div class="text-xs ${textColor} space-y-1 opacity-90"><p>${locationIcon} <span class="font-medium">${event.isCanvasAssignment ? 'Course' : 'Room'}:</span> ${locationHtml}</p>${event.teacher && !event.isCanvasAssignment ? `<p>${teacherIcon} <span class="font-medium">Teacher:</span> ${event.teacher}</p>` : ''}</div>`;
                     calendarDisplayList.appendChild(card);
                 });
             });
@@ -670,6 +714,7 @@
             const combinedEventsForWeek = [...processedClassEvents, ...processedSidebarEvents.filter(e => e.isCanvasAssignment && e.startDate >= new Date())]
                 .filter(event => event.startDate >= monday && event.startDate <= friday);
 
+            const nowTime = new Date().getTime();
             combinedEventsForWeek.forEach((event, eventIndex) => {
                 const eventDayIndex = (event.startDate.getDay() + 6) % 7;
                 if (eventDayIndex >= 0 && eventDayIndex < 5) {
@@ -678,15 +723,10 @@
                     const eventStartMillis = Math.max(event.startDate.getTime(), new Date(event.startDate).setHours(hourStart, 0, 0, 0)); const eventEndMillis = Math.min(event.endDate.getTime(), new Date(event.startDate).setHours(hourEnd, 0, 0, 0));
                     const durationMinutes = Math.max(15, (eventEndMillis - eventStartMillis) / (1000 * 60)); const heightPx = (durationMinutes / 60) * slotHeight;
                     if (eventEndMillis > new Date(event.startDate).setHours(hourStart, 0, 0, 0) && eventStartMillis < new Date(event.startDate).setHours(hourEnd, 0, 0, 0)) {
-                        const eventDiv = document.createElement('div'); // Default to div
-                        let isClickable = false;
-                        let linkUrl = '';
-
-                        if (event.isCanvasAssignment && event.html_url) {
-                            isClickable = true; linkUrl = event.html_url;
-                        } else if (!event.isCanvasAssignment && canvasCourseMappings[event.summary] && canvasDomain) {
-                            isClickable = true; linkUrl = `https://${canvasDomain}/courses/${canvasCourseMappings[event.summary]}`;
-                        }
+                        const eventDiv = document.createElement('div');
+                        let isClickable = false; let linkUrl = '';
+                        if (event.isCanvasAssignment && event.html_url) { isClickable = true; linkUrl = event.html_url;
+                        } else if (!event.isCanvasAssignment && canvasCourseMappings[event.summary] && canvasDomain) { isClickable = true; linkUrl = `https://${canvasDomain}/courses/${canvasCourseMappings[event.summary]}`; }
 
                         eventDiv.className = `week-event ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''} ${isClickable ? 'clickable-week-event' : ''}`;
                         eventDiv.style.top = `${topPx}px`; eventDiv.style.height = `${heightPx}px`;
@@ -700,13 +740,19 @@
                         let summaryText = event.summary;
                         if(isClickable) summaryText += ` ${ICONS.link.replace('text-blue-500', textColor).replace('hover:text-blue-700', '')}`;
 
-                        eventDiv.innerHTML = `<strong class="${textColor}">${summaryText}</strong><br><span class="text-xs ${textColor} opacity-80">${locationHtml}</span>`;
-                        eventDiv.title = `${event.summary}\n${formatTime(event.startDate)} - ${formatTime(event.endDate)}\nRoom: ${event.location || 'N/A'}${event.teacher ? '\nTeacher: ' + event.teacher : ''}`;
-
-                        if (isClickable) {
-                            eventDiv.onclick = () => window.open(linkUrl, '_blank');
+                        let timeIndicatorHtml = '';
+                        if (nowTime >= event.startDate.getTime() && nowTime <= event.endDate.getTime() && !event.isCanvasAssignment) {
+                            timeIndicatorHtml = `<span class="time-indicator time-indicator-now !text-xs !px-1 !py-0.5">NOW</span>`;
+                        } else if (event.startDate.getTime() > nowTime && event.startDate.toDateString() === new Date(nowTime).toDateString() && !event.isCanvasAssignment) {
+                            const diffMins = Math.round((event.startDate.getTime() - nowTime) / 60000);
+                            if (diffMins > 0 && diffMins <= 240) {
+                                 timeIndicatorHtml = `<span class="time-indicator time-indicator-upcoming !text-xs !px-1 !py-0.5">In ${diffMins}m</span>`;
+                            }
                         }
 
+                        eventDiv.innerHTML = `<strong class="${textColor}">${summaryText} ${timeIndicatorHtml}</strong><br><span class="text-xs ${textColor} opacity-80">${locationHtml}</span>`;
+                        eventDiv.title = `${event.summary}\n${formatTime(event.startDate)} - ${formatTime(event.endDate)}\nRoom: ${event.location || 'N/A'}${event.teacher ? '\nTeacher: ' + event.teacher : ''}`;
+                        if (isClickable) { eventDiv.onclick = () => window.open(linkUrl, '_blank'); }
                         const targetContainer = dayContentContainers[eventDayIndex]; if (targetContainer) { targetContainer.appendChild(eventDiv); }
                     }
                 }
@@ -714,7 +760,7 @@
         }
         function renderSidebar() {
             sidebarEventsDiv.innerHTML = '';
-            const relevantSidebarEvents = processedSidebarEvents.filter(e => e.startDate >= new Date()); // Show only upcoming/current
+            const relevantSidebarEvents = processedSidebarEvents.filter(e => e.startDate >= new Date());
             if (relevantSidebarEvents.length === 0) { sidebarEventsDiv.innerHTML = '<p class="text-sm text-gray-500 italic">No other events or due dates found.</p>'; sidebar.classList.add('hidden'); return; }
             sidebar.classList.remove('hidden');
             relevantSidebarEvents.forEach((event, index) => {
@@ -750,7 +796,7 @@
 
         async function processCanvasAssignmentsIntoEvents() {
             if (!compassWorkerUrl || !canvasDomain || !canvasToken) return;
-            const courses = await fetchCanvasCourses(); // This populates fetchedCanvasCourses
+            const courses = await fetchCanvasCourses();
             if (!courses || courses.length === 0) return;
             let newCanvasAssignmentEvents = [];
             for (const course of courses) {
@@ -762,27 +808,27 @@
                             newCanvasAssignmentEvents.push({
                                 id: `canvas-asgn-${assignment.id}`,
                                 summary: `(Canvas) ${assignment.name}`,
-                                originalSummary: `(Canvas) ${assignment.name} - ${course.name}`, // For potential classification
+                                originalSummary: `(Canvas) ${assignment.name} - ${course.name}`,
                                 startDate: dueDate,
-                                endDate: new Date(dueDate.getTime() + 30 * 60000), // 30 min duration for display
-                                location: `Canvas: ${course.name}`, // Use course name as location
+                                endDate: new Date(dueDate.getTime() + 30 * 60000),
+                                location: `Canvas: ${course.name}`,
                                 description: assignment.html_url,
                                 isCanvasAssignment: true,
                                 html_url: assignment.html_url,
-                                color: '#FFCDD2' // Distinct color for Canvas assignments
+                                color: '#FFCDD2'
                             });
                         }
                     });
                 }
             }
-            allParsedEvents = allParsedEvents.filter(event => !event.isCanvasAssignment); // Remove old
-            allParsedEvents.push(...newCanvasAssignmentEvents); // Add new
+            allParsedEvents = allParsedEvents.filter(event => !event.isCanvasAssignment);
+            allParsedEvents.push(...newCanvasAssignmentEvents);
         }
 
-        async function fetchCanvasData() { // For Canvas Tab
+        async function fetchCanvasData() {
             if (!compassWorkerUrl || !canvasDomain || !canvasToken) { showMessageForCanvas('Please set Worker URL, Canvas Domain and API Token in Settings.', 'info'); return; }
             showMessageForCanvas('Loading Canvas data for Canvas Tab...', 'loading');
-            const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses(); // Use already fetched if available
+            const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses();
             if (!courses || courses.length === 0) { if (!canvasDataMessageArea.textContent.includes('Error')) { showMessageForCanvas('No active Canvas courses found or failed to load courses.', 'info');} return; }
             canvasCoursesDisplay.innerHTML = ''; let assignmentsFound = 0;
             for (const course of courses) {
@@ -814,6 +860,7 @@
             notifyAssignmentsLeadTime1Input.value = notificationSettings.assignmentsLeadTime1;
             notifyAssignmentsEnabled2Checkbox.checked = notificationSettings.assignmentsEnabled2;
             notifyAssignmentsLeadTime2Input.value = notificationSettings.assignmentsLeadTime2;
+            notifyTimetableChangesEnabledCheckbox.checked = notificationSettings.timetableChangesEnabled; // New
             updateNotificationPermissionStatus();
         }
 
@@ -824,7 +871,8 @@
             notificationSettings.assignmentsLeadTime1 = parseInt(notifyAssignmentsLeadTime1Input.value) || 60;
             notificationSettings.assignmentsEnabled2 = notifyAssignmentsEnabled2Checkbox.checked;
             notificationSettings.assignmentsLeadTime2 = parseInt(notifyAssignmentsLeadTime2Input.value) || 5;
-            saveSettings(true, 'notifications'); // Pass 'notifications' type
+            notificationSettings.timetableChangesEnabled = notifyTimetableChangesEnabledCheckbox.checked; // New
+            saveSettings(true, 'notifications');
         }
 
         function setupNotificationPermission() {
@@ -833,8 +881,7 @@
                 return;
             }
             updateNotificationPermissionStatus();
-            // If user tries to enable notifications but permission is default, prompt them.
-            [notifyClassesEnabledCheckbox, notifyAssignmentsEnabled1Checkbox, notifyAssignmentsEnabled2Checkbox].forEach(cb => {
+            [notifyClassesEnabledCheckbox, notifyAssignmentsEnabled1Checkbox, notifyAssignmentsEnabled2Checkbox, notifyTimetableChangesEnabledCheckbox].forEach(cb => {
                 cb.addEventListener('change', () => {
                     if (cb.checked && Notification.permission === 'default') {
                         requestNotificationPermission();
@@ -866,6 +913,68 @@
             }
         }
 
+        function sendBrowserNotification(title, body, tag = null) {
+            if (notificationPermission !== 'granted') return;
+            const options = { body: body, icon: './favicon.ico' }; // Replace with your actual icon if you have one
+            if (tag) options.tag = tag; // Tag helps replace existing notifications with the same tag
+            new Notification(title, options);
+        }
+
+
+        function detectAndNotifyTimetableChanges(newEvents, oldEvents) {
+            if (!notificationSettings.timetableChangesEnabled || notificationPermission !== 'granted') return;
+
+            const oldEventsMap = new Map(oldEvents.map(e => [e.id, e]));
+            const newEventsMap = new Map(newEvents.map(e => [e.id, e]));
+
+            // Check for changed or cancelled events
+            oldEvents.forEach(oldEvent => {
+                if (oldEvent.isCanvasAssignment) return; // Only for Compass classes
+
+                const newEvent = newEventsMap.get(oldEvent.id);
+                const notificationIdBase = `tt_change_${oldEvent.id}`;
+
+                if (!newEvent) { // Event cancelled
+                    const notificationId = `${notificationIdBase}_cancelled`;
+                    if (!sentNotifications.has(notificationId)) {
+                        sendBrowserNotification(
+                            "Class Cancelled",
+                            `${oldEvent.summary} at ${formatTime(oldEvent.startDate)} has been cancelled.`,
+                            notificationId
+                        );
+                        sentNotifications.add(notificationId);
+                    }
+                } else {
+                    // Room Change
+                    if (oldEvent.location !== newEvent.location) {
+                        const notificationId = `${notificationIdBase}_room_${newEvent.location}`;
+                         if (!sentNotifications.has(notificationId)) {
+                            sendBrowserNotification(
+                                "Room Change",
+                                `${newEvent.summary} at ${formatTime(newEvent.startDate)} is now in ${newEvent.location || 'N/A'} (was ${oldEvent.location || 'N/A'}).`,
+                                notificationId
+                            );
+                            sentNotifications.add(notificationId);
+                        }
+                    }
+                    // Time Change (start or end)
+                    if (oldEvent.startDate.getTime() !== newEvent.startDate.getTime() || oldEvent.endDate.getTime() !== newEvent.endDate.getTime()) {
+                        const notificationId = `${notificationIdBase}_time_${newEvent.startDate.getTime()}`;
+                        if (!sentNotifications.has(notificationId)) {
+                            sendBrowserNotification(
+                                "Class Time Change",
+                                `${newEvent.summary} is now at ${formatTime(newEvent.startDate)} - ${formatTime(newEvent.endDate)} (was ${formatTime(oldEvent.startDate)} - ${formatTime(oldEvent.endDate)}).`,
+                                notificationId
+                            );
+                            sentNotifications.add(notificationId);
+                        }
+                    }
+                }
+            });
+             // Optional: Check for newly added classes (not implemented here to avoid too many notifications)
+        }
+
+
         function checkAndSendNotifications() {
             if (notificationPermission !== 'granted') return;
 
@@ -881,44 +990,43 @@
                     const notifyTime = eventTime - (notificationSettings.classesLeadTime * 60000);
                     const notificationId = `${eventIdBase}_class_${notificationSettings.classesLeadTime}`;
                     if (now >= notifyTime && now < eventTime && !sentNotifications.has(notificationId)) {
-                        new Notification("Class Starting Soon!", {
-                            body: `${event.summary} at ${formatTime(event.startDate)}${event.location ? ' in ' + event.location : ''}`,
-                            icon: './favicon.ico' // Optional: Add an icon URL
-                        });
+                        sendBrowserNotification(
+                            "Class Starting Soon!",
+                            `${event.summary} at ${formatTime(event.startDate)}${event.location ? ' in ' + event.location : ''}`,
+                            notificationId
+                        );
                         sentNotifications.add(notificationId);
                     }
                 }
 
                 // Assignment notifications
                 if (event.isCanvasAssignment) {
-                    // Reminder 1
                     if (notificationSettings.assignmentsEnabled1) {
                         const notifyTime1 = eventTime - (notificationSettings.assignmentsLeadTime1 * 60000);
                         const notificationId1 = `${eventIdBase}_assign1_${notificationSettings.assignmentsLeadTime1}`;
                         if (now >= notifyTime1 && now < eventTime && !sentNotifications.has(notificationId1)) {
-                            new Notification("Assignment Due Soon!", {
-                                body: `${event.summary} is due at ${formatTime(event.startDate)} (${notificationSettings.assignmentsLeadTime1} mins).`,
-                                icon: './favicon.ico'
-                            });
+                            sendBrowserNotification(
+                                "Assignment Due Soon!",
+                                `${event.summary} is due at ${formatTime(event.startDate)} (${notificationSettings.assignmentsLeadTime1} mins).`,
+                                notificationId1
+                            );
                             sentNotifications.add(notificationId1);
                         }
                     }
-                    // Reminder 2
                     if (notificationSettings.assignmentsEnabled2) {
                         const notifyTime2 = eventTime - (notificationSettings.assignmentsLeadTime2 * 60000);
                         const notificationId2 = `${eventIdBase}_assign2_${notificationSettings.assignmentsLeadTime2}`;
                         if (now >= notifyTime2 && now < eventTime && !sentNotifications.has(notificationId2)) {
-                            new Notification("Assignment Due Very Soon!", {
-                                body: `${event.summary} is due at ${formatTime(event.startDate)} (${notificationSettings.assignmentsLeadTime2} mins!).`,
-                                icon: './favicon.ico'
-                            });
+                           sendBrowserNotification(
+                                "Assignment Due Very Soon!",
+                                `${event.summary} is due at ${formatTime(event.startDate)} (${notificationSettings.assignmentsLeadTime2} mins!).`,
+                                notificationId2
+                            );
                             sentNotifications.add(notificationId2);
                         }
                     }
                 }
             });
-            // Clean up sentNotifications for past events (optional, to prevent set from growing indefinitely)
-            // This could be done less frequently or based on event end times.
         }
 
         function startNotificationChecker() {
