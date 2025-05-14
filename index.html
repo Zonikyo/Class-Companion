@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class=""> {/* Start with no specific theme, JS will apply it */}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,100 +10,130 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            /* background-color will be set by Tailwind theme classes */
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            transition: background-image 0.5s ease-in-out;
+            transition: background-image 0.5s ease-in-out, background-color 0.3s ease-in-out;
         }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4f46e5;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+        /* Light theme (default) */
+        :root {
+            --bg-color: #f3f4f6; /* gray-100 */
+            --content-bg-color: rgba(255, 255, 255, 0.97);
+            --text-color: #1f2937; /* gray-800 */
+            --text-muted-color: #6b7280; /* gray-500 */
+            --border-color: #e5e7eb; /* gray-200 */
+            --header-bg-color: #eef2ff; /* indigo-50 */
+            --item-bg-color: #ffffff;
+            --sidebar-item-bg-color: #f3f4f6; /* gray-100 */
+            --link-color: #4f46e5; /* indigo-600 */
+            --link-hover-color: #3b82f6; /* blue-500 */
         }
+
+        /* Dark theme */
+        .dark {
+            --bg-color: #111827; /* gray-900 */
+            --content-bg-color: rgba(31, 41, 55, 0.97); /* gray-800 with opacity */
+            --text-color: #f3f4f6; /* gray-100 */
+            --text-muted-color: #9ca3af; /* gray-400 */
+            --border-color: #374151; /* gray-700 */
+            --header-bg-color: #312e81; /* indigo-900 */
+            --item-bg-color: #1f2937; /* gray-800 */
+            --sidebar-item-bg-color: #374151; /* gray-700 */
+            --link-color: #818cf8; /* indigo-400 */
+            --link-hover-color: #60a5fa; /* blue-400 */
+        }
+
+        body { background-color: var(--bg-color); color: var(--text-color); }
+        .content-bg { background-color: var(--content-bg-color); border: 1px solid var(--border-color); }
+        .nav-link { color: var(--text-muted-color); }
+        .nav-link.active { border-bottom: 2px solid var(--link-color); color: var(--link-color); }
+        .nav-link:hover { color: var(--link-color); }
+        nav { background-color: var(--item-bg-color); }
+        h2, h3 { color: var(--text-color); }
+        label, .text-xs.text-gray-500, .text-sm.text-gray-500, .text-sm.text-gray-600 { color: var(--text-muted-color); }
+        input[type="text"], input[type="url"], input[type="password"], input[type="number"], select {
+            background-color: var(--item-bg-color);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        input::placeholder { color: var(--text-muted-color); opacity: 0.7;}
+        .event-card, .canvas-item-card { background-color: var(--item-bg-color); border-color: var(--border-color); }
+        .sidebar-event-card { background-color: var(--sidebar-item-bg-color); border-left-color: var(--text-muted-color); }
+        .sidebar-event-card.canvas-assignment { border-left-color: #e53e3e; background-color: var(--item-bg-color); } /* Keep distinct */
+        .dark .sidebar-event-card.canvas-assignment { background-color: #452323; } /* Darker red for dark mode */
+
+
+        .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--link-color); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .event-card, .sidebar-event-card, .week-event, .canvas-item-card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, opacity 0.3s ease-in-out, background-color 0.3s;
-        }
-        .event-card:hover, .sidebar-event-card:hover, .week-event:hover, .canvas-item-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        }
+        .event-card, .sidebar-event-card, .week-event, .canvas-item-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, opacity 0.3s ease-in-out, background-color 0.3s; }
+        .event-card:hover, .sidebar-event-card:hover, .week-event:hover, .canvas-item-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); }
         .fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
         .fade-out { animation: fadeOutAnimation 0.5s ease-out forwards; }
         @keyframes fadeInAnimation { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOutAnimation { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
 
-        .content-bg { background-color: rgba(255, 255, 255, 0.97); }
-        .nav-link.active { border-bottom: 2px solid #4f46e5; color: #4f46e5; }
-        .view-toggle-btn.active { background-color: #4f46e5; color: white; }
+        .view-toggle-btn.active { background-color: var(--link-color); color: white; }
+        .dark .view-toggle-btn.active { background-color: var(--link-color); }
+
 
         #calendarDisplayWeek { overflow-x: auto; }
         .weekly-grid-container { position: relative; padding-top: 40px; }
-        .weekly-grid { display: grid; grid-template-columns: 60px repeat(5, minmax(100px, 1fr)); grid-auto-rows: 60px; gap: 1px; background-color: #e5e7eb; border: 1px solid #e5e7eb; border-radius: 4px; }
-        .grid-header { font-weight: 600; text-align: center; padding: 8px 4px; background-color: #eef2ff; font-size: 0.875rem; position: sticky; top: 0; z-index: 20; height: 40px; }
-        .time-slot { font-size: 0.75rem; text-align: right; padding: 0 4px; color: #6b7280; background-color: #f9fafb; display: flex; align-items: center; justify-content: flex-end; border-top: 1px solid #e5e7eb; grid-column: 1 / 2; }
-        .day-column-bg { background-color: #ffffff; border-top: 1px solid #e5e7eb; }
-        .day-column-content { grid-column: span 1; grid-row: 1 / -1; position: relative; border-left: 1px solid #e5e7eb; background-color: transparent; }
+        .weekly-grid { display: grid; grid-template-columns: 60px repeat(5, minmax(100px, 1fr)); grid-auto-rows: 60px; gap: 1px; background-color: var(--border-color); border: 1px solid var(--border-color); border-radius: 4px; }
+        .grid-header { font-weight: 600; text-align: center; padding: 8px 4px; background-color: var(--header-bg-color); font-size: 0.875rem; position: sticky; top: 0; z-index: 20; height: 40px; color: var(--text-color); }
+        .time-slot { font-size: 0.75rem; text-align: right; padding: 0 4px; color: var(--text-muted-color); background-color: var(--item-bg-color); display: flex; align-items: center; justify-content: flex-end; border-top: 1px solid var(--border-color); grid-column: 1 / 2; }
+        .day-column-bg { background-color: var(--item-bg-color); border-top: 1px solid var(--border-color); }
+        .day-column-content { grid-column: span 1; grid-row: 1 / -1; position: relative; border-left: 1px solid var(--border-color); background-color: transparent; }
         .day-column-content[data-day-index="0"] { grid-column: 2 / 3; } .day-column-content[data-day-index="1"] { grid-column: 3 / 4; } .day-column-content[data-day-index="2"] { grid-column: 4 / 5; } .day-column-content[data-day-index="3"] { grid-column: 5 / 6; } .day-column-content[data-day-index="4"] { grid-column: 6 / 7; }
         .week-event { position: absolute; left: 2px; right: 2px; font-size: 0.7rem; line-height: 1.2; padding: 2px 4px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); overflow: hidden; cursor: default; box-shadow: 0 1px 3px rgba(0,0,0,0.05); z-index: 10; opacity: 1; transform: translateY(0); }
         .week-event.clickable-week-event { cursor: pointer; }
         .week-event.fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
         .week-event:hover { filter: brightness(1.1); }
         .week-event.canvas-assignment-event { border-left: 3px solid #e53e3e; background-color: #fed7d7 !important; }
+        .dark .week-event.canvas-assignment-event { background-color: #452323 !important; }
 
 
         .mapping-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .mapping-item input[type="text"], .mapping-item input[type="color"], .mapping-item select { padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; }
+        .mapping-item input[type="text"], .mapping-item input[type="color"], .mapping-item select { padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.875rem; }
         .mapping-item input[type="color"] { height: 34px; width: 40px; padding: 2px; cursor: pointer; }
         .mapping-item button { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem; }
         .mapping-item button:hover { color: #dc2626; }
 
         #sidebar { width: 250px; flex-shrink: 0; }
-        .sidebar-event-card { background-color: #f3f4f6; border-left: 4px solid #6b7280; }
-        .sidebar-event-card.canvas-assignment { border-left-color: #e53e3e; background-color: #fee2e2; }
-
 
         .status-indicator { display: flex; align-items: center; font-size: 0.8rem; margin-top: -1rem; margin-bottom: 1rem; }
         .status-icon { width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
         .status-icon.live { background-color: #10b981; }
         .status-icon.failed svg { width: 12px; height: 12px; color: #f97316; }
-        .status-text { color: #6b7280; }
+        .status-text { color: var(--text-muted-color); }
         .status-text.failed { color: #f97316; font-weight: 500; }
 
-        .canvas-item-card { background-color: #fff; border: 1px solid #e5e7eb; }
-        .clickable-class-link { color: inherit; text-decoration: none; }
-        .clickable-class-link:hover { text-decoration: underline; color: #3b82f6; }
+        .canvas-item-card { background-color: var(--item-bg-color); border: 1px solid var(--border-color); }
+        .clickable-class-link { color: var(--text-color); text-decoration: none; }
+        .clickable-class-link:hover { text-decoration: underline; color: var(--link-hover-color); }
 
-        /* Notification Settings */
         .notification-preference { display: flex; align-items: center; margin-bottom: 0.5rem; }
-        .notification-preference label { margin-right: 0.5rem; min-width: 150px; }
+        .notification-preference label { margin-right: 0.5rem; min-width: 150px; color: var(--text-color); }
         .notification-preference input[type="checkbox"] { margin-right: 0.5rem; }
-        .notification-preference input[type="number"] { width: 70px; padding: 0.25rem 0.5rem; }
+        .notification-preference input[type="number"] { width: 70px; padding: 0.25rem 0.5rem; background-color: var(--item-bg-color); border-color: var(--border-color); color: var(--text-color); }
 
-        /* "NOW" and "In X mins" indicators */
-        .time-indicator {
-            font-size: 0.7rem;
-            font-weight: 500;
-            padding: 0.1rem 0.3rem;
-            border-radius: 0.25rem;
-            margin-left: 0.5rem;
-        }
-        .time-indicator-now {
-            background-color: #facc15; /* yellow-400 */
-            color: #713f12; /* yellow-800 */
-        }
-        .time-indicator-upcoming {
-            background-color: #a7f3d0; /* green-200 */
-            color: #047857; /* green-700 */
-        }
+        .time-indicator { font-size: 0.7rem; font-weight: 500; padding: 0.1rem 0.3rem; border-radius: 0.25rem; margin-left: 0.5rem; }
+        .time-indicator-now { background-color: #facc15; color: #713f12; }
+        .time-indicator-upcoming { background-color: #a7f3d0; color: #047857; }
+        .dark .time-indicator-now { background-color: #fde047; color: #422006; } /* Brighter yellow for dark */
+        .dark .time-indicator-upcoming { background-color: #10b981; color: #dcfce7; } /* Brighter green for dark */
+
+        #currentTimeDisplay { font-size: 0.9rem; font-weight: 500; margin-bottom: 0.75rem; color: var(--text-muted-color); text-align: center; }
+        .sidebar-section-title { font-size: 0.8rem; text-transform: uppercase; font-weight: 600; color: var(--text-muted-color); margin-top: 1rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.25rem; }
+        .sidebar-canvas-course { font-size: 0.875rem; margin-bottom: 0.25rem; }
+        .sidebar-canvas-course a { color: var(--link-color); text-decoration: none; }
+        .sidebar-canvas-course a:hover { text-decoration: underline; }
+        .sidebar-next-class-time { font-size: 0.75rem; color: var(--text-muted-color); margin-left: 0.5rem; }
+
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen"> {/* Default light theme */}
 
     <nav class="bg-white shadow-md sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -112,9 +142,12 @@
                     <span class="text-xl font-bold text-indigo-600">Class Companion</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button data-section="calendar" class="nav-link text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out active">Calendar</button>
+                    <button data-section="home" class="nav-link text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out active">Home</button> {/* Renamed */}
                     <button data-section="canvas" class="nav-link text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">Canvas</button>
                     <button data-section="settings" class="nav-link text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">Settings</button>
+                    <button id="darkModeToggle" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                        {/* SVG Icon for theme toggle - will be populated by JS */}
+                    </button>
                 </div>
             </div>
         </div>
@@ -123,13 +156,13 @@
     <main class="max-w-7xl mx-auto p-4 md:p-8">
 
         <section id="settingsSection" class="content-bg rounded-lg shadow-lg p-6 md:p-8 mb-8 hidden fade-in">
+            {/* Settings content remains largely the same, just add Notification section */}
             <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 border-b pb-2">Settings</h2>
 
             <div class="mb-8 pb-6 border-b">
                 <h3 class="text-lg font-semibold text-gray-700 mb-3">Proxy & Compass Feed</h3>
                  <label for="workerUrl" class="block text-sm font-medium text-gray-700 mb-2">Cloudflare Worker URL:</label>
                 <input type="url" id="workerUrl" placeholder="https://your-worker.your-name.workers.dev" class="block w-full px-3 py-2 mb-3 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-
                 <label for="calendarUrl" class="block text-sm font-medium text-gray-700 mb-2">Compass Calendar Feed URL (.ics):</label>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="url" id="calendarUrl" placeholder="https://your-school.compass.education/..." class="flex-grow block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -183,8 +216,12 @@
 
             <div class="mb-8 pb-6 border-b">
                 <h3 class="text-lg font-semibold text-gray-700 mb-3">Notifications</h3>
+                <div class="notification-preference mb-3">
+                    <input type="checkbox" id="masterNotificationsEnabled">
+                    <label for="masterNotificationsEnabled" class="font-medium text-gray-700 !min-w-0">Enable All Notifications</label>
+                </div>
                 <div id="notificationPermissionStatus" class="text-sm text-gray-600 mb-3"></div>
-                <div class="space-y-3">
+                <div id="individualNotificationSettings" class="space-y-3"> {/* Container for individual settings */}
                     <div class="notification-preference">
                         <input type="checkbox" id="notifyClassesEnabled">
                         <label for="notifyClassesEnabled" class="font-medium text-gray-700">Class Reminders:</label>
@@ -227,7 +264,7 @@
              <div id="settingsMessageArea" class="text-center my-4"></div>
         </section>
 
-        <section id="calendarSection" class="hidden fade-in">
+        <section id="homeSection" class="hidden fade-in"> {/* Renamed from calendarSection */}
              <div class="flex flex-col lg:flex-row gap-6">
                  <div class="flex-grow content-bg rounded-lg shadow-lg p-6 md:p-8 overflow-hidden">
                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
@@ -267,8 +304,13 @@
                      </div>
                  </div>
                  <aside id="sidebar" class="content-bg rounded-lg shadow-lg p-4 lg:sticky lg:top-24 lg:self-start">
-                     <h3 class="text-lg font-semibold text-gray-700 mb-4 border-b pb-2">Other Events & Due Dates</h3>
-                     <div id="sidebarEvents" class="space-y-3 max-h-[70vh] overflow-y-auto"></div>
+                     <div id="currentTimeDisplay" class="text-center"></div>
+                     <div id="sidebarCanvasCourses" class="mb-4">
+                        <h3 class="sidebar-section-title">My Canvas Courses</h3>
+                        <div id="sidebarCanvasCoursesList" class="space-y-1"></div>
+                     </div>
+                     <h3 class="sidebar-section-title">Other Events & Due Dates</h3>
+                     <div id="sidebarEvents" class="space-y-3 max-h-[calc(70vh-100px)] overflow-y-auto"></div> {/* Adjusted max-height */}
                  </aside>
              </div>
         </section>
@@ -295,14 +337,16 @@
         const CANVAS_TOKEN_KEY = 'canvasToken';
         const CANVAS_COURSE_MAPPINGS_KEY = 'canvasCourseMappings';
         const NOTIFICATION_SETTINGS_KEY = 'classCompanionNotificationSettings';
+        const THEME_KEY = 'classCompanionTheme'; // For dark mode
 
         const DEFAULT_WORKER_URL = 'https://class-companion.thebestmate100.workers.dev';
         const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
         const REFRESH_INTERVAL = 10000;
         const STATUS_UPDATE_INTERVAL = 1000;
-        const NOTIFICATION_CHECK_INTERVAL = 30000;
+        const NOTIFICATION_CHECK_INTERVAL = 30000; // Check for notifications every 30 seconds
+        const CURRENT_TIME_UPDATE_INTERVAL = 1000; // Update current time display every second
 
-        const PASTEL_COLORS = [
+        const PASTEL_COLORS = [ /* ... same as before ... */
             { name: 'Mint', value: '#a2d2ff' }, { name: 'Lavender', value: '#bde0fe' },
             { name: 'Peach', value: '#ffafcc' }, { name: 'Sky Blue', value: '#cdb4db' },
             { name: 'Baby Pink', value: '#ffc8dd' }, { name: 'Periwinkle', value: '#a0c4ff' },
@@ -324,7 +368,7 @@
         const sortOrderSelect = document.getElementById('sortOrder');
         const navLinks = document.querySelectorAll('.nav-link');
         const settingsSection = document.getElementById('settingsSection');
-        const calendarSection = document.getElementById('calendarSection');
+        const homeSection = document.getElementById('calendarSection'); // Renamed ID in JS
         const canvasSection = document.getElementById('canvasSection');
         const listControls = document.getElementById('listControls');
         const listViewBtn = document.getElementById('listViewBtn');
@@ -337,6 +381,8 @@
         const newMappingPastelColorSelect = document.getElementById('newMappingPastelColor');
 
         const sidebarEventsDiv = document.getElementById('sidebarEvents');
+        const sidebarCanvasCoursesListDiv = document.getElementById('sidebarCanvasCoursesList'); // New
+        const currentTimeDisplayDiv = document.getElementById('currentTimeDisplay'); // New
         const sidebar = document.getElementById('sidebar');
         const backgroundUrlInput = document.getElementById('backgroundUrl');
         const saveBackgroundBtn = document.getElementById('saveBackgroundBtn');
@@ -344,6 +390,7 @@
         const statusIndicatorDiv = document.getElementById('statusIndicator');
         const statusIconSpan = document.getElementById('statusIcon');
         const statusTextSpan = document.getElementById('statusText');
+        const darkModeToggleBtn = document.getElementById('darkModeToggle'); // New
 
         const canvasDomainInput = document.getElementById('canvasDomain');
         const canvasTokenInput = document.getElementById('canvasToken');
@@ -355,6 +402,8 @@
         const canvasCourseIdForMappingInput = document.getElementById('canvasCourseIdForMapping');
         const addCanvasCourseMappingBtn = document.getElementById('addCanvasCourseMappingBtn');
 
+        const masterNotificationsEnabledCheckbox = document.getElementById('masterNotificationsEnabled'); // New
+        const individualNotificationSettingsDiv = document.getElementById('individualNotificationSettings'); // New container
         const notificationPermissionStatusDiv = document.getElementById('notificationPermissionStatus');
         const notifyClassesEnabledCheckbox = document.getElementById('notifyClassesEnabled');
         const notifyClassesLeadTimeInput = document.getElementById('notifyClassesLeadTime');
@@ -362,12 +411,13 @@
         const notifyAssignmentsLeadTime1Input = document.getElementById('notifyAssignmentsLeadTime1');
         const notifyAssignmentsEnabled2Checkbox = document.getElementById('notifyAssignmentsEnabled2');
         const notifyAssignmentsLeadTime2Input = document.getElementById('notifyAssignmentsLeadTime2');
-        const notifyTimetableChangesEnabledCheckbox = document.getElementById('notifyTimetableChangesEnabled'); // New
+        const notifyTimetableChangesEnabledCheckbox = document.getElementById('notifyTimetableChangesEnabled');
         const saveNotificationSettingsBtn = document.getElementById('saveNotificationSettingsBtn');
 
 
         let compassWorkerUrl = DEFAULT_WORKER_URL;
         let allParsedEvents = [];
+        let previousCompassEvents = []; // Specifically for Compass timetable change detection
         let previousProcessedClassEvents = [];
         let processedClassEvents = [];
         let processedSidebarEvents = [];
@@ -382,14 +432,16 @@
         let canvasCourseMappings = {};
         let fetchedCanvasCourses = [];
         let notificationSettings = {
+            masterEnabled: true, // New master toggle
             classesEnabled: false, classesLeadTime: 5,
             assignmentsEnabled1: false, assignmentsLeadTime1: 60,
             assignmentsEnabled2: false, assignmentsLeadTime2: 5,
-            timetableChangesEnabled: false // New
+            timetableChangesEnabled: false
         };
         let notificationPermission = Notification.permission;
         let sentNotifications = new Set();
         let notificationCheckIntervalId = null;
+        let currentTimeIntervalId = null; // For current time display
 
         let messageTimeout = null;
         let refreshIntervalId = null;
@@ -398,6 +450,7 @@
         let isAutoRefreshing = false;
         let lastSuccessfulUpdateTime = null;
         let currentStatus = 'idle';
+        let currentTheme = 'light'; // 'light' or 'dark'
 
         const ICONS = { /* ... same as before ... */
              clock: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
@@ -406,7 +459,9 @@
              event: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`,
              assignment: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>`,
              cloudError: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`,
-             link: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-blue-500 hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`
+             link: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-blue-500 hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`,
+             sun: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700 dark:text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`,
+             moon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>`
         };
 
         loadButton.addEventListener('click', handleSaveAndLoad);
@@ -424,24 +479,29 @@
         canvasCourseMappingsListDiv.addEventListener('click', handleCanvasMappingListClick);
         newMappingPastelColorSelect.addEventListener('change', () => { if (newMappingPastelColorSelect.value) { newMappingColorInput.value = newMappingPastelColorSelect.value; }});
         saveNotificationSettingsBtn.addEventListener('click', handleSaveNotificationSettings);
+        darkModeToggleBtn.addEventListener('click', toggleTheme);
+        masterNotificationsEnabledCheckbox.addEventListener('change', toggleIndividualNotificationSettings);
         document.addEventListener('DOMContentLoaded', initializeApp);
 
         function initializeApp() {
             populatePastelColorOptions();
             loadSettings();
             applyBackground();
+            applyTheme(); // Apply saved theme
             renderMappingsList();
             renderCanvasCourseMappingsList();
             renderNotificationSettings();
             initializeStatusIndicator();
             setupNotificationPermission();
             startNotificationChecker();
+            startCurrentTimeUpdater(); // Start current time display
 
             const savedCompassUrl = localStorage.getItem(CALENDAR_URL_KEY);
             if (compassWorkerUrl && savedCompassUrl) { urlInput.value = savedCompassUrl; startAutoRefresh(savedCompassUrl);
             } else if (!compassWorkerUrl) { showMessage('Please set your Cloudflare Worker URL in Settings.', 'error', 'settings'); updateStatusIndicator('idle');
             } else if (!savedCompassUrl) { showMessage('Go to Settings to enter your Compass calendar URL.', 'info', 'calendar'); updateStatusIndicator('idle'); }
-            switchSection('calendar'); switchViewMode(currentViewMode);
+            switchSection('home'); // Default to home
+            switchViewMode(currentViewMode);
         }
 
         function populatePastelColorOptions() { PASTEL_COLORS.forEach(color => { const option = document.createElement('option'); option.value = color.value; option.textContent = color.name; option.style.backgroundColor = color.value; newMappingPastelColorSelect.appendChild(option); }); }
@@ -462,6 +522,7 @@
              if (savedNotificationSettings) {
                 notificationSettings = { ...notificationSettings, ...savedNotificationSettings };
              }
+             currentTheme = localStorage.getItem(THEME_KEY) || 'light';
         }
 
         function saveSettings(showMsg = true, type = 'general') {
@@ -474,9 +535,11 @@
             localStorage.setItem(CANVAS_TOKEN_KEY, canvasTokenInput.value.trim());
             localStorage.setItem(CANVAS_COURSE_MAPPINGS_KEY, JSON.stringify(canvasCourseMappings));
             localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(notificationSettings));
+            localStorage.setItem(THEME_KEY, currentTheme);
 
-            loadSettings();
+            loadSettings(); // Reload all settings
             applyBackground();
+            applyTheme(); // Re-apply theme in case it changed
 
             if (showMsg) showMessage('Settings saved.', 'success', 'settings');
 
@@ -496,11 +559,12 @@
                     startAutoRefresh(currentCompassUrl);
                 }
             } else if (type === 'notifications') {
-                if (notificationSettings.classesEnabled || notificationSettings.assignmentsEnabled1 || notificationSettings.assignmentsEnabled2 || notificationSettings.timetableChangesEnabled) {
+                if (notificationSettings.masterEnabled && (notificationSettings.classesEnabled || notificationSettings.assignmentsEnabled1 || notificationSettings.assignmentsEnabled2 || notificationSettings.timetableChangesEnabled)) {
                     requestNotificationPermission();
                 }
             }
         }
+
         function applyBackground() { document.body.style.backgroundImage = `url('${backgroundUrl || DEFAULT_BACKGROUND_URL}')`; }
         function handleSaveBackground() { const newUrl = backgroundUrlInput.value.trim(); localStorage.setItem(BACKGROUND_URL_KEY, newUrl); backgroundUrl = newUrl || DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background saved.', 'success', 'settings'); }
         function handleResetBackground() { backgroundUrlInput.value = ''; localStorage.removeItem(BACKGROUND_URL_KEY); backgroundUrl = DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background reset to default.', 'success', 'settings'); }
@@ -546,7 +610,7 @@
 
         function handleNavClick(event) { const section = event.target.getAttribute('data-section'); switchSection(section); }
         function switchSection(section) {
-            isAutoRefreshing = false; settingsSection.classList.add('hidden'); calendarSection.classList.add('hidden'); canvasSection.classList.add('hidden'); navLinks.forEach(link => link.classList.remove('active'));
+            isAutoRefreshing = false; settingsSection.classList.add('hidden'); homeSection.classList.add('hidden'); canvasSection.classList.add('hidden'); navLinks.forEach(link => link.classList.remove('active'));
             let activeNavLink = document.querySelector(`.nav-link[data-section="${section}"]`);
             if (activeNavLink) activeNavLink.classList.add('active');
 
@@ -555,8 +619,8 @@
                 canvasSection.classList.remove('hidden');
                 if (compassWorkerUrl && canvasDomain && canvasToken) { fetchCanvasData(); }
                 else { showMessageForCanvas('Please set Worker URL, Canvas Domain, and API Token in Settings.', 'info'); }
-            } else {
-                calendarSection.classList.remove('hidden');
+            } else { // 'home' or default
+                homeSection.classList.remove('hidden');
                 if (allParsedEvents.length > 0) { renderViews(); }
                 else { const savedUrl = localStorage.getItem(CALENDAR_URL_KEY); if (!savedUrl && !compassWorkerUrl) showMessage('Go to Settings to enter Worker & Compass URLs.', 'info', 'calendar'); }
             }
@@ -599,12 +663,11 @@
                 }
                 lastSuccessfulUpdateTime = Date.now(); updateStatusIndicator('live');
 
-                // Detect timetable changes for notifications
-                if (!isInitialLoadForThisCall && notificationSettings.timetableChangesEnabled) {
-                    detectAndNotifyTimetableChanges(newParsedCompassEvents, previousProcessedClassEvents);
+                if (!isInitialLoadForThisCall && notificationSettings.timetableChangesEnabled && notificationSettings.masterEnabled) {
+                    detectAndNotifyTimetableChanges(newParsedCompassEvents, previousCompassEvents); // Compare with only previous Compass events
                 }
+                previousCompassEvents = newParsedCompassEvents.map(e => ({...e})); // Store a deep copy for next comparison
 
-                previousProcessedClassEvents = [...processedClassEvents]; // Store Compass classes before merging with Canvas
                 allParsedEvents = newParsedCompassEvents; // Start with fresh Compass events
 
                 if (compassWorkerUrl && canvasDomain && canvasToken) {
@@ -636,11 +699,11 @@
              return '#e5e7eb';
          }
         function processAndClassifyEvents(events) {
-            const newProcessedClasses = []; const newProcessedSidebar = []; const prevEventMap = new Map(previousProcessedClassEvents.map(e => [e.id, e]));
+            const newProcessedClasses = []; const newProcessedSidebar = [];
+            // No need for prevEventMap here for room change as it's handled in fetchAndProcessCalendar for Compass
             events.forEach(event => {
                 const newEvent = { ...event };
                 if (!newEvent.isCanvasAssignment) { newEvent.summary = applyMappings(newEvent.originalSummary); newEvent.color = getClassColor(newEvent.originalSummary, newEvent.summary); }
-                const previousEvent = prevEventMap.get(newEvent.id); if (previousEvent && previousEvent.location !== newEvent.location) { newEvent.oldLocation = previousEvent.location; } else { delete newEvent.oldLocation; }
                 const summaryLower = newEvent.summary.toLowerCase(); const originalSummaryLower = newEvent.originalSummary.toLowerCase();
                 const containsNonClassKeyword = /\b(due|assignment|meeting|event|holiday|assembly|whole school|carnival)\b/i;
                 const isLikelyClass = newEvent.location && !containsNonClassKeyword.test(summaryLower) && !containsNonClassKeyword.test(originalSummaryLower) && !newEvent.isCanvasAssignment;
@@ -651,7 +714,7 @@
         }
 
 
-        function renderViews() { if (currentViewMode === 'list') { renderListView(); } else { renderWeeklyView(); } renderSidebar(); calendarDisplayList.classList.toggle('hidden', currentViewMode !== 'list'); calendarDisplayWeek.classList.toggle('hidden', currentViewMode !== 'week');}
+        function renderViews() { if (currentViewMode === 'list') { renderListView(); } else { renderWeeklyView(); } renderSidebar(); homeSection.querySelector('#calendarDisplayList').classList.toggle('hidden', currentViewMode !== 'list'); homeSection.querySelector('#calendarDisplayWeek').classList.toggle('hidden', currentViewMode !== 'week');}
         function renderListView() {
             clearDisplayAreaOnly('list');
             const combinedEvents = [...processedClassEvents, ...processedSidebarEvents.filter(e => e.isCanvasAssignment && e.startDate >= new Date())];
@@ -663,17 +726,17 @@
 
             const now = new Date();
             sortedDays.forEach((dayString, dayIndex) => {
-                const dayEvents = eventsByDay[dayString]; const dayDate = new Date(dayString); const dayHeader = document.createElement('h3'); dayHeader.className = 'text-lg font-semibold text-gray-700 mt-5 mb-2 border-b pb-1'; if (!isAutoRefreshing) { dayHeader.classList.add('fade-in'); dayHeader.style.animationDelay = `${dayIndex * 0.05}s`; } dayHeader.textContent = formatDateHeading(dayDate); calendarDisplayList.appendChild(dayHeader);
+                const dayEvents = eventsByDay[dayString]; const dayDate = new Date(dayString); const dayHeader = document.createElement('h3'); dayHeader.className = 'text-lg font-semibold text-gray-800 mt-5 mb-2 border-b pb-1 dark:text-gray-200 dark:border-gray-700'; if (!isAutoRefreshing) { dayHeader.classList.add('fade-in'); dayHeader.style.animationDelay = `${dayIndex * 0.05}s`; } dayHeader.textContent = formatDateHeading(dayDate); calendarDisplayList.appendChild(dayHeader);
                 dayEvents.forEach((event, eventIndex) => {
                     const card = document.createElement('div');
                     card.className = `event-card p-3 rounded-lg border shadow-sm ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''}`;
-                    card.style.backgroundColor = event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff');
-                    card.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#e5e7eb'), 15);
+                    card.style.backgroundColor = event.color || (event.isCanvasAssignment ? (currentTheme === 'dark' ? '#452323' : '#fed7d7') : 'var(--item-bg-color)');
+                    card.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? (currentTheme === 'dark' ? '#452323' : '#fed7d7') : 'var(--border-color)'), 15);
                     if (!isAutoRefreshing) { card.classList.add('fade-in'); card.style.animationDelay = `${(dayIndex * 50) + (eventIndex * 30) + 50}ms`; } else { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
 
                     const startTime = formatTime(event.startDate); const endTime = formatTime(event.endDate);
-                    const textColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff')) ? 'text-white' : 'text-gray-800';
-                    const iconColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff')) ? 'text-gray-300' : 'text-gray-500';
+                    const textColor = isColorDark(event.color || (event.isCanvasAssignment ? (currentTheme === 'dark' ? '#452323' : '#fed7d7') : 'var(--item-bg-color)')) ? 'text-white dark:text-gray-100' : 'text-gray-800 dark:text-gray-200';
+                    const iconColor = isColorDark(event.color || (event.isCanvasAssignment ? (currentTheme === 'dark' ? '#452323' : '#fed7d7') : 'var(--item-bg-color)')) ? 'text-gray-300 dark:text-gray-400' : 'text-gray-500 dark:text-gray-400';
                     const clockIcon = ICONS.clock.replace('text-gray-500', iconColor);
                     const locationIcon = ICONS.location.replace('text-gray-500', iconColor);
                     const teacherIcon = ICONS.teacher.replace('text-gray-500', iconColor);
@@ -683,9 +746,9 @@
                     const canvasCourseId = canvasCourseMappings[event.summary];
                     if (!event.isCanvasAssignment && canvasCourseId && canvasDomain) {
                         const canvasLink = `https://${canvasDomain}/courses/${canvasCourseId}`;
-                        summaryHtml = `<a href="${canvasLink}" target="_blank" class="clickable-class-link hover:text-indigo-500">${event.summary}${ICONS.link}</a>`;
+                        summaryHtml = `<a href="${canvasLink}" target="_blank" class="clickable-class-link hover:text-indigo-500 dark:hover:text-indigo-400">${event.summary}${ICONS.link.replace('text-blue-500', 'var(--link-color)')}</a>`;
                     } else if (event.isCanvasAssignment && event.html_url) {
-                        summaryHtml = `<a href="${event.html_url}" target="_blank" class="clickable-class-link hover:text-red-500">${event.summary}${ICONS.link}</a>`;
+                        summaryHtml = `<a href="${event.html_url}" target="_blank" class="clickable-class-link hover:text-red-500 dark:hover:text-red-400">${event.summary}${ICONS.link.replace('text-blue-500', 'var(--link-color)')}</a>`;
                     }
 
                     let timeIndicatorHtml = '';
@@ -693,11 +756,10 @@
                         timeIndicatorHtml = `<span class="time-indicator time-indicator-now">NOW</span>`;
                     } else if (event.startDate > now && event.startDate.toDateString() === now.toDateString() && !event.isCanvasAssignment) {
                         const diffMins = Math.round((event.startDate.getTime() - now.getTime()) / 60000);
-                        if (diffMins > 0 && diffMins <= 240) { // Show for up to 4 hours before
+                        if (diffMins > 0 && diffMins <= 240) {
                              timeIndicatorHtml = `<span class="time-indicator time-indicator-upcoming">In ${diffMins} min${diffMins > 1 ? 's' : ''}</span>`;
                         }
                     }
-
 
                     let locationHtml = ''; if (event.oldLocation) { locationHtml += `<span class="text-red-500 line-through mr-1 opacity-80">${event.oldLocation}</span>`; } locationHtml += (event.location || 'N/A');
                     card.innerHTML = `<div class="flex flex-col sm:flex-row justify-between sm:items-start mb-1"><h4 class="text-md font-semibold ${textColor} flex-grow pr-2">${summaryHtml} ${timeIndicatorHtml}</h4><span class="text-xs font-medium ${textColor} mt-1 sm:mt-0 whitespace-nowrap">${event.isCanvasAssignment ? assignmentIcon : clockIcon} ${startTime}${event.isCanvasAssignment ? '' : ' - ' + endTime}</span></div><div class="text-xs ${textColor} space-y-1 opacity-90"><p>${locationIcon} <span class="font-medium">${event.isCanvasAssignment ? 'Course' : 'Room'}:</span> ${locationHtml}</p>${event.teacher && !event.isCanvasAssignment ? `<p>${teacherIcon} <span class="font-medium">Teacher:</span> ${event.teacher}</p>` : ''}</div>`;
@@ -730,15 +792,15 @@
 
                         eventDiv.className = `week-event ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''} ${isClickable ? 'clickable-week-event' : ''}`;
                         eventDiv.style.top = `${topPx}px`; eventDiv.style.height = `${heightPx}px`;
-                        eventDiv.style.backgroundColor = event.color || (event.isCanvasAssignment ? '#fed7d7' : '#e5e7eb');
-                        eventDiv.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#e5e7eb'), 15);
-                        const textColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff')) ? 'text-white' : 'text-gray-800';
+                        eventDiv.style.backgroundColor = event.color || (event.isCanvasAssignment ? (currentTheme === 'dark' ? '#452323' : '#fed7d7') : 'var(--item-bg-color)');
+                        eventDiv.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? (currentTheme === 'dark' ? '#452323' : '#fed7d7') : 'var(--border-color)'), 15);
+                        const textColor = isColorDark(event.color || (event.isCanvasAssignment ? (currentTheme === 'dark' ? '#452323' : '#fed7d7') : 'var(--item-bg-color)')) ? 'text-white dark:text-gray-100' : 'text-gray-800 dark:text-gray-200';
 
                         if (!isAutoRefreshing) { eventDiv.classList.add('fade-in'); eventDiv.style.animationDelay = `${eventIndex * 0.03}s`; } else { eventDiv.style.opacity = '1'; eventDiv.style.transform = 'translateY(0)'; }
 
                         let locationHtml = ''; if (event.oldLocation) { locationHtml += `<span class="text-red-500 line-through mr-1 opacity-80">${event.oldLocation}</span>`; } locationHtml += (event.location || '');
                         let summaryText = event.summary;
-                        if(isClickable) summaryText += ` ${ICONS.link.replace('text-blue-500', textColor).replace('hover:text-blue-700', '')}`;
+                        if(isClickable) summaryText += ` ${ICONS.link.replace('text-blue-500', 'var(--link-color)')}`;
 
                         let timeIndicatorHtml = '';
                         if (nowTime >= event.startDate.getTime() && nowTime <= event.endDate.getTime() && !event.isCanvasAssignment) {
@@ -760,9 +822,57 @@
         }
         function renderSidebar() {
             sidebarEventsDiv.innerHTML = '';
+            sidebarCanvasCoursesListDiv.innerHTML = ''; // Clear canvas courses list
+
+            // Display Current Time
+            updateCurrentTimeDisplay(); // Call it once to set initial time
+
+            // Display Canvas Courses
+            if (fetchedCanvasCourses.length > 0 && canvasDomain) {
+                fetchedCanvasCourses.forEach(course => {
+                    const courseItem = document.createElement('div');
+                    courseItem.className = 'sidebar-canvas-course';
+                    let nextClassTimeHtml = '';
+
+                    // Find next occurrence of this Canvas course based on Compass schedule
+                    const mappedCompassClassName = Object.keys(canvasCourseMappings).find(key => canvasCourseMappings[key] === String(course.id));
+                    if (mappedCompassClassName) {
+                        const now = new Date();
+                        const nextOccurrence = processedClassEvents
+                            .filter(ce => ce.summary === mappedCompassClassName && ce.startDate > now)
+                            .sort((a,b) => a.startDate - b.startDate)[0];
+
+                        if (nextOccurrence) {
+                            const diffMillis = nextOccurrence.startDate.getTime() - now.getTime();
+                            const diffDays = Math.floor(diffMillis / (1000 * 60 * 60 * 24));
+                            const diffHours = Math.floor((diffMillis % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const diffMins = Math.floor((diffMillis % (1000 * 60 * 60)) / (1000 * 60));
+                            let timeText = "Next: ";
+                            if (diffDays > 0) timeText += `${diffDays}d `;
+                            if (diffHours > 0) timeText += `${diffHours}h `;
+                            if (diffMins > 0 || (diffDays === 0 && diffHours === 0)) timeText += `${diffMins}m`;
+                            nextClassTimeHtml = `<span class="sidebar-next-class-time">(${timeText})</span>`;
+                        }
+                    }
+
+                    courseItem.innerHTML = `<a href="https://${canvasDomain}/courses/${course.id}" target="_blank">${course.name} ${ICONS.link}</a> ${nextClassTimeHtml}`;
+                    sidebarCanvasCoursesListDiv.appendChild(courseItem);
+                });
+            } else if (canvasDomain && canvasToken) { // If settings are there but no courses yet
+                 sidebarCanvasCoursesListDiv.innerHTML = '<p class="text-xs text-gray-500 italic dark:text-gray-400">Loading Canvas courses...</p>';
+            } else {
+                 sidebarCanvasCoursesListDiv.innerHTML = '<p class="text-xs text-gray-500 italic dark:text-gray-400">Set Canvas details in Settings to see courses.</p>';
+            }
+
+
             const relevantSidebarEvents = processedSidebarEvents.filter(e => e.startDate >= new Date());
-            if (relevantSidebarEvents.length === 0) { sidebarEventsDiv.innerHTML = '<p class="text-sm text-gray-500 italic">No other events or due dates found.</p>'; sidebar.classList.add('hidden'); return; }
-            sidebar.classList.remove('hidden');
+            if (relevantSidebarEvents.length === 0 && fetchedCanvasCourses.length === 0) {
+                sidebarEventsDiv.innerHTML = '<p class="text-sm text-gray-500 italic dark:text-gray-400">No other events or due dates found.</p>';
+                // sidebar.classList.add('hidden'); // Don't hide sidebar if time or courses are shown
+                // return;
+            }
+            // sidebar.classList.remove('hidden'); // Ensure sidebar is visible if there's content
+
             relevantSidebarEvents.forEach((event, index) => {
                 const card = document.createElement('div');
                 card.className = `sidebar-event-card p-2.5 rounded-md border shadow-sm ${event.isCanvasAssignment ? 'canvas-assignment' : ''}`;
@@ -774,7 +884,7 @@
                 if (event.isCanvasAssignment && event.html_url) {
                     summaryHtml = `<a href="${event.html_url}" target="_blank" class="hover:underline">${event.summary}${ICONS.link}</a>`;
                 }
-                card.innerHTML = `<h4 class="text-sm font-semibold text-gray-800 mb-1">${summaryHtml}</h4><p class="text-xs text-gray-600">${icon} ${startDateStr} ${event.startDate.getHours() !== 0 || event.startDate.getMinutes() !== 0 ? 'at ' + startTime : ''}</p>${event.location ? `<p class="text-xs text-gray-600">${ICONS.location} ${event.location}</p>` : ''}`;
+                card.innerHTML = `<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-1">${summaryHtml}</h4><p class="text-xs text-gray-600 dark:text-gray-300">${icon} ${startDateStr} ${event.startDate.getHours() !== 0 || event.startDate.getMinutes() !== 0 ? 'at ' + startTime : ''}</p>${event.location ? `<p class="text-xs text-gray-600 dark:text-gray-300">${ICONS.location} ${event.location}</p>` : ''}`;
                 sidebarEventsDiv.appendChild(card);
             });
         }
@@ -791,12 +901,12 @@
                 return await response.json();
             } catch (error) { console.error('Canvas API Fetch Error via Worker:', error); showMessageForCanvas(`Error fetching from Canvas: ${error.message}. Check worker logs if issue persists.`, 'error'); return null; }
         }
-        async function fetchCanvasCourses() { const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&per_page=50'); if (courses) { fetchedCanvasCourses = courses.map(course => ({ id: course.id, name: course.name, course_code: course.course_code })); return fetchedCanvasCourses; } return []; }
+        async function fetchCanvasCourses() { const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&per_page=50'); if (courses) { fetchedCanvasCourses = courses.map(course => ({ id: course.id, name: course.name, course_code: course.course_code })); renderSidebar(); return fetchedCanvasCourses; } return []; } // Update sidebar after fetching courses
         async function fetchAssignmentsForCourse(courseId) { const assignments = await fetchCanvasAPI(`api/v1/courses/${courseId}/assignments?order_by=due_at&bucket=upcoming&per_page=50`); return assignments || []; }
 
         async function processCanvasAssignmentsIntoEvents() {
             if (!compassWorkerUrl || !canvasDomain || !canvasToken) return;
-            const courses = await fetchCanvasCourses();
+            const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses(); // Use cached if available
             if (!courses || courses.length === 0) return;
             let newCanvasAssignmentEvents = [];
             for (const course of courses) {
@@ -825,7 +935,7 @@
             allParsedEvents.push(...newCanvasAssignmentEvents);
         }
 
-        async function fetchCanvasData() {
+        async function fetchCanvasData() { // For Canvas Tab
             if (!compassWorkerUrl || !canvasDomain || !canvasToken) { showMessageForCanvas('Please set Worker URL, Canvas Domain and API Token in Settings.', 'info'); return; }
             showMessageForCanvas('Loading Canvas data for Canvas Tab...', 'loading');
             const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses();
@@ -847,33 +957,47 @@
         }
         function showMessageForCanvas(msg, type = 'info') {
             canvasDataMessageArea.innerHTML = ''; const msgElement = document.createElement('div'); let bgColor, textColor, borderColor, loader = ''; let autoDismiss = (type === 'success' || type === 'info');
-            switch (type) { case 'error': bgColor = 'bg-red-100'; textColor = 'text-red-700'; borderColor = 'border-red-500'; break; case 'success': bgColor = 'bg-green-100'; textColor = 'text-green-700'; borderColor = 'border-green-500'; break; case 'loading': bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500';}
+            switch (type) { case 'error': bgColor = 'bg-red-100 dark:bg-red-900'; textColor = 'text-red-700 dark:text-red-300'; borderColor = 'border-red-500 dark:border-red-700'; break; case 'success': bgColor = 'bg-green-100 dark:bg-green-900'; textColor = 'text-green-700 dark:text-green-300'; borderColor = 'border-green-500 dark:border-green-700'; break; case 'loading': bgColor = 'bg-blue-100 dark:bg-blue-900'; textColor = 'text-blue-700 dark:text-blue-300'; borderColor = 'border-blue-500 dark:border-blue-700'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100 dark:bg-blue-900'; textColor = 'text-blue-700 dark:text-blue-300'; borderColor = 'border-blue-500 dark:border-blue-700';}
             msgElement.className = `p-3 ${bgColor} border-l-4 ${borderColor} ${textColor} rounded-md shadow-sm text-sm fade-in`; msgElement.innerHTML = loader + msg; canvasDataMessageArea.appendChild(msgElement);
             if (autoDismiss) { setTimeout(() => { if (canvasDataMessageArea.contains(msgElement)) { msgElement.classList.remove('fade-in'); msgElement.classList.add('fade-out'); msgElement.addEventListener('animationend', () => { if(canvasDataMessageArea.contains(msgElement)) canvasDataMessageArea.removeChild(msgElement); }, { once: true }); } }, 3000); }
         }
 
         // --- Notification Functions ---
         function renderNotificationSettings() {
+            masterNotificationsEnabledCheckbox.checked = notificationSettings.masterEnabled;
             notifyClassesEnabledCheckbox.checked = notificationSettings.classesEnabled;
             notifyClassesLeadTimeInput.value = notificationSettings.classesLeadTime;
             notifyAssignmentsEnabled1Checkbox.checked = notificationSettings.assignmentsEnabled1;
             notifyAssignmentsLeadTime1Input.value = notificationSettings.assignmentsLeadTime1;
             notifyAssignmentsEnabled2Checkbox.checked = notificationSettings.assignmentsEnabled2;
             notifyAssignmentsLeadTime2Input.value = notificationSettings.assignmentsLeadTime2;
-            notifyTimetableChangesEnabledCheckbox.checked = notificationSettings.timetableChangesEnabled; // New
+            notifyTimetableChangesEnabledCheckbox.checked = notificationSettings.timetableChangesEnabled;
+            toggleIndividualNotificationSettings(); // Update disabled state based on master
             updateNotificationPermissionStatus();
         }
 
         function handleSaveNotificationSettings() {
+            notificationSettings.masterEnabled = masterNotificationsEnabledCheckbox.checked;
             notificationSettings.classesEnabled = notifyClassesEnabledCheckbox.checked;
             notificationSettings.classesLeadTime = parseInt(notifyClassesLeadTimeInput.value) || 5;
             notificationSettings.assignmentsEnabled1 = notifyAssignmentsEnabled1Checkbox.checked;
             notificationSettings.assignmentsLeadTime1 = parseInt(notifyAssignmentsLeadTime1Input.value) || 60;
             notificationSettings.assignmentsEnabled2 = notifyAssignmentsEnabled2Checkbox.checked;
             notificationSettings.assignmentsLeadTime2 = parseInt(notifyAssignmentsLeadTime2Input.value) || 5;
-            notificationSettings.timetableChangesEnabled = notifyTimetableChangesEnabledCheckbox.checked; // New
+            notificationSettings.timetableChangesEnabled = notifyTimetableChangesEnabledCheckbox.checked;
             saveSettings(true, 'notifications');
         }
+
+        function toggleIndividualNotificationSettings() {
+            const isMasterEnabled = masterNotificationsEnabledCheckbox.checked;
+            individualNotificationSettingsDiv.style.opacity = isMasterEnabled ? '1' : '0.5';
+            [notifyClassesEnabledCheckbox, notifyClassesLeadTimeInput,
+             notifyAssignmentsEnabled1Checkbox, notifyAssignmentsLeadTime1Input,
+             notifyAssignmentsEnabled2Checkbox, notifyAssignmentsLeadTime2Input,
+             notifyTimetableChangesEnabledCheckbox
+            ].forEach(el => el.disabled = !isMasterEnabled);
+        }
+
 
         function setupNotificationPermission() {
             if (!("Notification" in window)) {
@@ -881,12 +1005,11 @@
                 return;
             }
             updateNotificationPermissionStatus();
-            [notifyClassesEnabledCheckbox, notifyAssignmentsEnabled1Checkbox, notifyAssignmentsEnabled2Checkbox, notifyTimetableChangesEnabledCheckbox].forEach(cb => {
-                cb.addEventListener('change', () => {
-                    if (cb.checked && Notification.permission === 'default') {
-                        requestNotificationPermission();
-                    }
-                });
+            masterNotificationsEnabledCheckbox.addEventListener('change', () => {
+                if (masterNotificationsEnabledCheckbox.checked && Notification.permission === 'default') {
+                    requestNotificationPermission();
+                }
+                toggleIndividualNotificationSettings(); // Also toggle disabled state
             });
         }
 
@@ -903,75 +1026,57 @@
         function updateNotificationPermissionStatus() {
             if (Notification.permission === "granted") {
                 notificationPermissionStatusDiv.textContent = "Notifications are enabled.";
-                notificationPermissionStatusDiv.className = "text-sm text-green-600 mb-3";
+                notificationPermissionStatusDiv.className = "text-sm text-green-600 mb-3 dark:text-green-400";
             } else if (Notification.permission === "denied") {
                 notificationPermissionStatusDiv.textContent = "Notifications are disabled by browser. Please enable them in your browser settings.";
-                notificationPermissionStatusDiv.className = "text-sm text-red-600 mb-3";
+                notificationPermissionStatusDiv.className = "text-sm text-red-600 mb-3 dark:text-red-400";
             } else {
-                notificationPermissionStatusDiv.textContent = "Click 'Save Notification Preferences' after enabling to request permission.";
-                notificationPermissionStatusDiv.className = "text-sm text-gray-600 mb-3";
+                notificationPermissionStatusDiv.textContent = "Enable master switch and save to request permission.";
+                notificationPermissionStatusDiv.className = "text-sm text-gray-600 mb-3 dark:text-gray-400";
             }
         }
 
         function sendBrowserNotification(title, body, tag = null) {
-            if (notificationPermission !== 'granted') return;
-            const options = { body: body, icon: './favicon.ico' }; // Replace with your actual icon if you have one
-            if (tag) options.tag = tag; // Tag helps replace existing notifications with the same tag
+            if (notificationPermission !== 'granted' || !notificationSettings.masterEnabled) return;
+            const options = { body: body, icon: './favicon.ico' };
+            if (tag) options.tag = tag;
             new Notification(title, options);
         }
 
 
-        function detectAndNotifyTimetableChanges(newEvents, oldEvents) {
-            if (!notificationSettings.timetableChangesEnabled || notificationPermission !== 'granted') return;
+        function detectAndNotifyTimetableChanges(newCompassEvents, oldCompassEvents) {
+            if (!notificationSettings.timetableChangesEnabled || notificationPermission !== 'granted' || !notificationSettings.masterEnabled) return;
 
-            const oldEventsMap = new Map(oldEvents.map(e => [e.id, e]));
-            const newEventsMap = new Map(newEvents.map(e => [e.id, e]));
+            const oldEventsMap = new Map(oldCompassEvents.map(e => [e.id, e]));
+            const newEventsMap = new Map(newCompassEvents.map(e => [e.id, e]));
 
-            // Check for changed or cancelled events
-            oldEvents.forEach(oldEvent => {
-                if (oldEvent.isCanvasAssignment) return; // Only for Compass classes
-
+            oldCompassEvents.forEach(oldEvent => {
                 const newEvent = newEventsMap.get(oldEvent.id);
                 const notificationIdBase = `tt_change_${oldEvent.id}`;
 
-                if (!newEvent) { // Event cancelled
+                if (!newEvent) {
                     const notificationId = `${notificationIdBase}_cancelled`;
                     if (!sentNotifications.has(notificationId)) {
-                        sendBrowserNotification(
-                            "Class Cancelled",
-                            `${oldEvent.summary} at ${formatTime(oldEvent.startDate)} has been cancelled.`,
-                            notificationId
-                        );
+                        sendBrowserNotification("Class Cancelled", `${oldEvent.summary} at ${formatTime(oldEvent.startDate)} has been cancelled.`, notificationId);
                         sentNotifications.add(notificationId);
                     }
                 } else {
-                    // Room Change
                     if (oldEvent.location !== newEvent.location) {
                         const notificationId = `${notificationIdBase}_room_${newEvent.location}`;
                          if (!sentNotifications.has(notificationId)) {
-                            sendBrowserNotification(
-                                "Room Change",
-                                `${newEvent.summary} at ${formatTime(newEvent.startDate)} is now in ${newEvent.location || 'N/A'} (was ${oldEvent.location || 'N/A'}).`,
-                                notificationId
-                            );
+                            sendBrowserNotification("Room Change", `${newEvent.summary} at ${formatTime(newEvent.startDate)} is now in ${newEvent.location || 'N/A'} (was ${oldEvent.location || 'N/A'}).`, notificationId);
                             sentNotifications.add(notificationId);
                         }
                     }
-                    // Time Change (start or end)
                     if (oldEvent.startDate.getTime() !== newEvent.startDate.getTime() || oldEvent.endDate.getTime() !== newEvent.endDate.getTime()) {
                         const notificationId = `${notificationIdBase}_time_${newEvent.startDate.getTime()}`;
                         if (!sentNotifications.has(notificationId)) {
-                            sendBrowserNotification(
-                                "Class Time Change",
-                                `${newEvent.summary} is now at ${formatTime(newEvent.startDate)} - ${formatTime(newEvent.endDate)} (was ${formatTime(oldEvent.startDate)} - ${formatTime(oldEvent.endDate)}).`,
-                                notificationId
-                            );
+                            sendBrowserNotification("Class Time Change", `${newEvent.summary} is now at ${formatTime(newEvent.startDate)} - ${formatTime(newEvent.endDate)} (was ${formatTime(oldEvent.startDate)} - ${formatTime(oldEvent.endDate)}).`, notificationId);
                             sentNotifications.add(notificationId);
                         }
                     }
                 }
             });
-             // Optional: Check for newly added classes (not implemented here to avoid too many notifications)
         }
 
 
