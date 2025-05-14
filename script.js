@@ -8,12 +8,15 @@ const CANVAS_DOMAIN_KEY = 'canvasDomain';
 const CANVAS_TOKEN_KEY = 'canvasToken';
 const CANVAS_COURSE_MAPPINGS_KEY = 'canvasCourseMappings';
 const NOTIFICATION_SETTINGS_KEY = 'classCompanionNotificationSettings';
+const DARK_MODE_KEY = 'classCompanionDarkMode';
 
 const DEFAULT_WORKER_URL = 'https://class-companion.thebestmate100.workers.dev';
 const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
-const REFRESH_INTERVAL = 10000; // 10 seconds
-const STATUS_UPDATE_INTERVAL = 1000; // 1 second for 'ago' text
-const NOTIFICATION_CHECK_INTERVAL = 30000; // Check for notifications every 30 seconds
+const REFRESH_INTERVAL = 10000;
+const STATUS_UPDATE_INTERVAL = 1000;
+const NOTIFICATION_CHECK_INTERVAL = 30000;
+const CLOCK_UPDATE_INTERVAL = 1000;
+
 
 const PASTEL_COLORS = [
     { name: 'Mint', value: '#a2d2ff' }, { name: 'Lavender', value: '#bde0fe' },
@@ -23,6 +26,17 @@ const PASTEL_COLORS = [
     { name: 'Coral', value: '#ffb3a7' }, { name: 'Lilac', value: '#dcb0ff' }
 ];
 
+const ICONS = {
+     clock: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+     location: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
+     teacher: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>`,
+     event: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`,
+     assignment: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>`,
+     cloudError: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`,
+     link: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-blue-500 hover:text-blue-700 dark:text-indigo-400 dark:hover:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`,
+     sun: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>`,
+     moon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>`
+};
 
 const workerUrlInput = document.getElementById('workerUrl');
 const urlInput = document.getElementById('calendarUrl');
@@ -31,7 +45,6 @@ const calendarDisplayList = document.getElementById('calendarDisplayList');
 const calendarDisplayWeek = document.getElementById('calendarDisplayWeek');
 const weeklyViewGrid = document.getElementById('weeklyViewGrid');
 const calendarMessageArea = document.getElementById('calendarMessageArea');
-
 const settingsMessageArea = document.getElementById('settingsMessageArea');
 const searchBox = document.getElementById('searchBox');
 const sortOrderSelect = document.getElementById('sortOrder');
@@ -48,7 +61,6 @@ const newMappingCodeInput = document.getElementById('newMappingCode');
 const newMappingNameInput = document.getElementById('newMappingName');
 const newMappingColorInput = document.getElementById('newMappingColor');
 const newMappingPastelColorSelect = document.getElementById('newMappingPastelColor');
-
 const sidebarEventsDiv = document.getElementById('sidebarEvents');
 const sidebar = document.getElementById('sidebar');
 const backgroundUrlInput = document.getElementById('backgroundUrl');
@@ -57,7 +69,6 @@ const resetBackgroundBtn = document.getElementById('resetBackgroundBtn');
 const statusIndicatorDiv = document.getElementById('statusIndicator');
 const statusIconSpan = document.getElementById('statusIcon');
 const statusTextSpan = document.getElementById('statusText');
-
 const canvasDomainInput = document.getElementById('canvasDomain');
 const canvasTokenInput = document.getElementById('canvasToken');
 const saveCanvasSettingsBtn = document.getElementById('saveCanvasSettingsBtn');
@@ -67,7 +78,6 @@ const canvasCourseMappingsListDiv = document.getElementById('canvasCourseMapping
 const compassClassNameForCanvasInput = document.getElementById('compassClassNameForCanvas');
 const canvasCourseIdForMappingInput = document.getElementById('canvasCourseIdForMapping');
 const addCanvasCourseMappingBtn = document.getElementById('addCanvasCourseMappingBtn');
-
 const notificationPermissionStatusDiv = document.getElementById('notificationPermissionStatus');
 const notifyClassesEnabledCheckbox = document.getElementById('notifyClassesEnabled');
 const notifyClassesLeadTimeInput = document.getElementById('notifyClassesLeadTime');
@@ -77,6 +87,9 @@ const notifyAssignmentsEnabled2Checkbox = document.getElementById('notifyAssignm
 const notifyAssignmentsLeadTime2Input = document.getElementById('notifyAssignmentsLeadTime2');
 const notifyTimetableChangesEnabledCheckbox = document.getElementById('notifyTimetableChangesEnabled');
 const saveNotificationSettingsBtn = document.getElementById('saveNotificationSettingsBtn');
+const darkModeToggle = document.getElementById('darkModeToggle');
+const liveClockDiv = document.getElementById('liveClock');
+const canvasClassListContainer = document.getElementById('canvasClassListContainer');
 
 
 let compassWorkerUrl = DEFAULT_WORKER_URL;
@@ -103,6 +116,7 @@ let notificationSettings = {
 let notificationPermission = Notification.permission;
 let sentNotifications = new Set();
 let notificationCheckIntervalId = null;
+let clockIntervalId = null;
 
 let messageTimeout = null;
 let refreshIntervalId = null;
@@ -112,65 +126,114 @@ let isAutoRefreshing = false;
 let lastSuccessfulUpdateTime = null;
 let currentStatus = 'idle';
 
-const ICONS = {
-     clock: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
-     location: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
-     teacher: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>`,
-     event: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`,
-     assignment: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>`,
-     cloudError: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`,
-     link: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-blue-500 hover:text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`
-};
 
-loadButton.addEventListener('click', handleSaveAndLoad);
-searchBox.addEventListener('input', handleSearch);
-sortOrderSelect.addEventListener('change', handleSort);
-navLinks.forEach(link => link.addEventListener('click', handleNavClick));
-listViewBtn.addEventListener('click', () => switchViewMode('list'));
-weekViewBtn.addEventListener('click', () => switchViewMode('week'));
-addMappingBtn.addEventListener('click', handleAddMapping);
-mappingsListDiv.addEventListener('click', handleMappingListClick);
-saveBackgroundBtn.addEventListener('click', handleSaveBackground);
-resetBackgroundBtn.addEventListener('click', handleResetBackground);
-saveCanvasSettingsBtn.addEventListener('click', handleSaveCanvasSettings);
-addCanvasCourseMappingBtn.addEventListener('click', handleAddCanvasCourseMapping);
-canvasCourseMappingsListDiv.addEventListener('click', handleCanvasMappingListClick);
-newMappingPastelColorSelect.addEventListener('change', () => { if (newMappingPastelColorSelect.value) { newMappingColorInput.value = newMappingPastelColorSelect.value; }});
-saveNotificationSettingsBtn.addEventListener('click', handleSaveNotificationSettings);
+// --- Event Listeners ---
+if (loadButton) loadButton.addEventListener('click', handleSaveAndLoad);
+if (searchBox) searchBox.addEventListener('input', handleSearch);
+if (sortOrderSelect) sortOrderSelect.addEventListener('change', handleSort);
+if (navLinks) navLinks.forEach(link => link.addEventListener('click', handleNavClick));
+if (listViewBtn) listViewBtn.addEventListener('click', () => switchViewMode('list'));
+if (weekViewBtn) weekViewBtn.addEventListener('click', () => switchViewMode('week'));
+if (addMappingBtn) addMappingBtn.addEventListener('click', handleAddMapping);
+if (mappingsListDiv) mappingsListDiv.addEventListener('click', handleMappingListClick);
+if (saveBackgroundBtn) saveBackgroundBtn.addEventListener('click', handleSaveBackground);
+if (resetBackgroundBtn) resetBackgroundBtn.addEventListener('click', handleResetBackground);
+if (saveCanvasSettingsBtn) saveCanvasSettingsBtn.addEventListener('click', handleSaveCanvasSettings);
+if (addCanvasCourseMappingBtn) addCanvasCourseMappingBtn.addEventListener('click', handleAddCanvasCourseMapping);
+if (canvasCourseMappingsListDiv) canvasCourseMappingsListDiv.addEventListener('click', handleCanvasMappingListClick);
+if (newMappingPastelColorSelect) newMappingPastelColorSelect.addEventListener('change', () => { if (newMappingPastelColorSelect.value && newMappingColorInput) { newMappingColorInput.value = newMappingPastelColorSelect.value; }});
+if (saveNotificationSettingsBtn) saveNotificationSettingsBtn.addEventListener('click', handleSaveNotificationSettings);
+if (darkModeToggle) darkModeToggle.addEventListener('click', toggleDarkMode);
+
 document.addEventListener('DOMContentLoaded', initializeApp);
 
+// --- Initialization ---
 function initializeApp() {
     populatePastelColorOptions();
-    loadSettings();
+    loadSettings(); // Also loads notification settings & dark mode
     applyBackground();
+    applyDarkModePreference(); // Apply dark mode based on saved preference
     renderMappingsList();
     renderCanvasCourseMappingsList();
     renderNotificationSettings();
     initializeStatusIndicator();
     setupNotificationPermission();
     startNotificationChecker();
+    startLiveClock();
+    renderCanvasClassListSidebar(); // Initial render (might be empty)
+
 
     const savedCompassUrl = localStorage.getItem(CALENDAR_URL_KEY);
-    if (compassWorkerUrl && savedCompassUrl) { urlInput.value = savedCompassUrl; startAutoRefresh(savedCompassUrl);
-    } else if (!compassWorkerUrl) { showMessage('Please set your Cloudflare Worker URL in Settings.', 'error', 'settings'); updateStatusIndicator('idle');
-    } else if (!savedCompassUrl) { showMessage('Go to Settings to enter your Compass calendar URL.', 'info', 'calendar'); updateStatusIndicator('idle'); }
-    switchSection('calendar'); switchViewMode(currentViewMode);
+    if (compassWorkerUrl && savedCompassUrl) {
+        if(urlInput) urlInput.value = savedCompassUrl;
+        startAutoRefresh(savedCompassUrl);
+    } else if (!compassWorkerUrl) {
+        showMessage('Please set your Cloudflare Worker URL in Settings.', 'error', 'settings');
+        updateStatusIndicator('idle');
+    } else if (!savedCompassUrl) {
+         showMessage('Go to Settings to enter your Compass calendar URL.', 'info', 'calendar');
+         updateStatusIndicator('idle');
+    }
+    switchSection('calendar');
+    switchViewMode(currentViewMode);
 }
 
-function populatePastelColorOptions() { PASTEL_COLORS.forEach(color => { const option = document.createElement('option'); option.value = color.value; option.textContent = color.name; option.style.backgroundColor = color.value; newMappingPastelColorSelect.appendChild(option); }); }
+// --- Dark Mode ---
+function applyDarkModePreference() {
+    const isDarkMode = localStorage.getItem(DARK_MODE_KEY) === 'true';
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    if (darkModeToggle) {
+        darkModeToggle.innerHTML = isDarkMode ? ICONS.sun : ICONS.moon;
+    }
+}
+function toggleDarkMode() {
+    const isDarkMode = document.documentElement.classList.toggle('dark');
+    localStorage.setItem(DARK_MODE_KEY, isDarkMode);
+    if (darkModeToggle) {
+        darkModeToggle.innerHTML = isDarkMode ? ICONS.sun : ICONS.moon;
+    }
+}
+
+// --- Live Clock ---
+function startLiveClock() {
+    if (clockIntervalId) clearInterval(clockIntervalId);
+    updateLiveClock(); // Initial update
+    clockIntervalId = setInterval(updateLiveClock, CLOCK_UPDATE_INTERVAL);
+}
+function updateLiveClock() {
+    if (!liveClockDiv) return;
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const dateString = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+    liveClockDiv.innerHTML = `<div class="text-3xl">${timeString}</div><div class="text-xs">${dateString}</div>`;
+}
+
+
+function populatePastelColorOptions() {
+    if (!newMappingPastelColorSelect) return;
+    PASTEL_COLORS.forEach(color => {
+        const option = document.createElement('option');
+        option.value = color.value;
+        option.textContent = color.name;
+        option.style.backgroundColor = color.value;
+        newMappingPastelColorSelect.appendChild(option);
+    });
+}
 
 function loadSettings() {
      compassWorkerUrl = localStorage.getItem(WORKER_URL_KEY) || DEFAULT_WORKER_URL;
-     workerUrlInput.value = compassWorkerUrl;
+     if(workerUrlInput) workerUrlInput.value = compassWorkerUrl;
+
      classMappings = JSON.parse(localStorage.getItem(CLASS_MAPPINGS_KEY) || '{}');
      classColors = JSON.parse(localStorage.getItem(CLASS_COLORS_KEY) || '{}');
      backgroundUrl = localStorage.getItem(BACKGROUND_URL_KEY) || DEFAULT_BACKGROUND_URL;
-     backgroundUrlInput.value = localStorage.getItem(BACKGROUND_URL_KEY) || '';
+     if(backgroundUrlInput) backgroundUrlInput.value = localStorage.getItem(BACKGROUND_URL_KEY) || '';
      canvasDomain = localStorage.getItem(CANVAS_DOMAIN_KEY) || '';
      canvasToken = localStorage.getItem(CANVAS_TOKEN_KEY) || '';
      canvasCourseMappings = JSON.parse(localStorage.getItem(CANVAS_COURSE_MAPPINGS_KEY) || '{}');
-     canvasDomainInput.value = canvasDomain;
-     canvasTokenInput.value = canvasToken;
+     if(canvasDomainInput) canvasDomainInput.value = canvasDomain;
+     if(canvasTokenInput) canvasTokenInput.value = canvasToken;
+
      const savedNotificationSettings = JSON.parse(localStorage.getItem(NOTIFICATION_SETTINGS_KEY));
      if (savedNotificationSettings) {
         notificationSettings = { ...notificationSettings, ...savedNotificationSettings };
@@ -178,13 +241,13 @@ function loadSettings() {
 }
 
 function saveSettings(showMsg = true, type = 'general') {
-    localStorage.setItem(WORKER_URL_KEY, workerUrlInput.value.trim());
-    localStorage.setItem(CALENDAR_URL_KEY, urlInput.value.trim());
+    if(workerUrlInput) localStorage.setItem(WORKER_URL_KEY, workerUrlInput.value.trim());
+    if(urlInput) localStorage.setItem(CALENDAR_URL_KEY, urlInput.value.trim());
     localStorage.setItem(CLASS_MAPPINGS_KEY, JSON.stringify(classMappings));
     localStorage.setItem(CLASS_COLORS_KEY, JSON.stringify(classColors));
-    localStorage.setItem(BACKGROUND_URL_KEY, backgroundUrlInput.value.trim());
-    localStorage.setItem(CANVAS_DOMAIN_KEY, canvasDomainInput.value.trim());
-    localStorage.setItem(CANVAS_TOKEN_KEY, canvasTokenInput.value.trim());
+    if(backgroundUrlInput) localStorage.setItem(BACKGROUND_URL_KEY, backgroundUrlInput.value.trim());
+    if(canvasDomainInput) localStorage.setItem(CANVAS_DOMAIN_KEY, canvasDomainInput.value.trim());
+    if(canvasTokenInput) localStorage.setItem(CANVAS_TOKEN_KEY, canvasTokenInput.value.trim());
     localStorage.setItem(CANVAS_COURSE_MAPPINGS_KEY, JSON.stringify(canvasCourseMappings));
     localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(notificationSettings));
 
@@ -200,10 +263,10 @@ function saveSettings(showMsg = true, type = 'general') {
         renderViews();
     } else if (type === 'canvasAuth' || type === 'canvasMap') {
         if (compassWorkerUrl && canvasDomain && canvasToken) {
-            fetchCanvasData();
+            fetchCanvasData(); // This will also trigger re-render of sidebar canvas list
         }
     } else if (type === 'compass') {
-        const currentCompassUrl = urlInput.value.trim();
+        const currentCompassUrl = urlInput ? urlInput.value.trim() : null;
         if (compassWorkerUrl && currentCompassUrl) {
             isFirstLoad = true;
             startAutoRefresh(currentCompassUrl);
@@ -216,7 +279,7 @@ function saveSettings(showMsg = true, type = 'general') {
 }
 function applyBackground() { document.body.style.backgroundImage = `url('${backgroundUrl || DEFAULT_BACKGROUND_URL}')`; }
 function handleSaveBackground() { const newUrl = backgroundUrlInput.value.trim(); localStorage.setItem(BACKGROUND_URL_KEY, newUrl); backgroundUrl = newUrl || DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background saved.', 'success', 'settings'); }
-function handleResetBackground() { backgroundUrlInput.value = ''; localStorage.removeItem(BACKGROUND_URL_KEY); backgroundUrl = DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background reset to default.', 'success', 'settings'); }
+function handleResetBackground() { if(backgroundUrlInput) backgroundUrlInput.value = ''; localStorage.removeItem(BACKGROUND_URL_KEY); backgroundUrl = DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background reset to default.', 'success', 'settings'); }
 function handleSaveCanvasSettings() {
     saveSettings(true, 'canvasAuth');
     if (compassWorkerUrl && canvasDomainInput.value.trim() && canvasTokenInput.value.trim()) {
@@ -227,13 +290,15 @@ function handleSaveCanvasSettings() {
  }
 
 function renderMappingsList() {
+    if (!mappingsListDiv) return;
     mappingsListDiv.innerHTML = ''; const sortedCodes = Object.keys(classMappings).sort();
-    sortedCodes.forEach(code => { const name = classMappings[code]; const color = classColors[name] || '#e5e7eb'; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-gray-50';
-        item.innerHTML = `<input type="text" value="${code}" data-code="${code}" class="mapping-code bg-gray-200 w-20" readonly><span>&rarr;</span><input type="text" value="${name}" data-code="${code}" class="mapping-name flex-grow"><input type="color" value="${color}" data-code="${code}" data-name="${name}" class="mapping-color"><button data-action="remove" data-code="${code}" title="Remove Mapping">&times;</button>`;
+    sortedCodes.forEach(code => { const name = classMappings[code]; const color = classColors[name] || '#e5e7eb'; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-gray-50 dark:bg-slate-700 dark:border-slate-600';
+        item.innerHTML = `<input type="text" value="${code}" data-code="${code}" class="mapping-code bg-gray-200 dark:bg-slate-600 w-20" readonly><span>&rarr;</span><input type="text" value="${name}" data-code="${code}" class="mapping-name input-field flex-grow"><input type="color" value="${color}" data-code="${code}" data-name="${name}" class="mapping-color"><button data-action="remove" data-code="${code}" title="Remove Mapping">&times;</button>`;
         mappingsListDiv.appendChild(item); });
     mappingsListDiv.querySelectorAll('.mapping-name, .mapping-color').forEach(input => input.addEventListener('change', handleMappingEdit));
 }
 function handleAddMapping() {
+    if (!newMappingCodeInput || !newMappingNameInput || !newMappingColorInput || !newMappingPastelColorSelect) return;
     const code = newMappingCodeInput.value.trim().toUpperCase();
     const name = newMappingNameInput.value.trim();
     let color = newMappingColorInput.value;
@@ -247,38 +312,44 @@ function handleAddMapping() {
 function handleMappingListClick(event) { const target = event.target; const action = target.getAttribute('data-action'); const code = target.getAttribute('data-code'); if (action === 'remove' && code) { const name = classMappings[code]; delete classMappings[code]; delete classColors[name]; renderMappingsList(); saveSettings(true, 'general'); } }
 function handleMappingEdit(event) { const input = event.target; const code = input.getAttribute('data-code'); const originalName = classMappings[code]; if (input.classList.contains('mapping-name')) { const newName = input.value.trim(); if (newName && newName !== originalName) { classMappings[code] = newName; if (classColors[originalName]) { classColors[newName] = classColors[originalName]; delete classColors[originalName]; } const colorInput = input.closest('.mapping-item').querySelector('.mapping-color'); if(colorInput) colorInput.setAttribute('data-name', newName); renderMappingsList(); saveSettings(true, 'general'); } else { input.value = originalName; } } else if (input.classList.contains('mapping-color')) { const name = input.getAttribute('data-name'); const newColor = input.value; if (name) { classColors[name] = newColor; saveSettings(true, 'general'); } } }
 function renderCanvasCourseMappingsList() {
+    if (!canvasCourseMappingsListDiv) return;
     canvasCourseMappingsListDiv.innerHTML = ''; const sortedCompassNames = Object.keys(canvasCourseMappings).sort();
-    sortedCompassNames.forEach(compassName => { const canvasId = canvasCourseMappings[compassName]; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-gray-50';
-        item.innerHTML = `<input type="text" value="${compassName}" data-compass-name="${compassName}" class="canvas-map-compass-name bg-gray-200 flex-grow" readonly><span>&rarr;</span><input type="text" value="${canvasId}" data-compass-name="${compassName}" class="canvas-map-id w-32"><button data-action="remove-canvas-map" data-compass-name="${compassName}" title="Remove Mapping">&times;</button>`;
+    sortedCompassNames.forEach(compassName => { const canvasId = canvasCourseMappings[compassName]; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-gray-50 dark:bg-slate-700 dark:border-slate-600';
+        item.innerHTML = `<input type="text" value="${compassName}" data-compass-name="${compassName}" class="canvas-map-compass-name bg-gray-200 dark:bg-slate-600 flex-grow" readonly><span>&rarr;</span><input type="text" value="${canvasId}" data-compass-name="${compassName}" class="canvas-map-id input-field w-32"><button data-action="remove-canvas-map" data-compass-name="${compassName}" title="Remove Mapping">&times;</button>`;
         canvasCourseMappingsListDiv.appendChild(item); });
     canvasCourseMappingsListDiv.querySelectorAll('.canvas-map-id').forEach(input => input.addEventListener('change', handleCanvasMappingEdit));
 }
-function handleAddCanvasCourseMapping() { const compassName = compassClassNameForCanvasInput.value.trim(); const canvasId = canvasCourseIdForMappingInput.value.trim(); if (!compassName || !canvasId) { showMessage('Compass Class Name and Canvas Course ID are required.', 'error', 'settings'); return; } if (canvasCourseMappings[compassName]) { showMessage(`Mapping for "${compassName}" already exists.`, 'error', 'settings'); return; } canvasCourseMappings[compassName] = canvasId; compassClassNameForCanvasInput.value = ''; canvasCourseIdForMappingInput.value = ''; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); }
+function handleAddCanvasCourseMapping() { if (!compassClassNameForCanvasInput || !canvasCourseIdForMappingInput) return; const compassName = compassClassNameForCanvasInput.value.trim(); const canvasId = canvasCourseIdForMappingInput.value.trim(); if (!compassName || !canvasId) { showMessage('Compass Class Name and Canvas Course ID are required.', 'error', 'settings'); return; } if (canvasCourseMappings[compassName]) { showMessage(`Mapping for "${compassName}" already exists.`, 'error', 'settings'); return; } canvasCourseMappings[compassName] = canvasId; compassClassNameForCanvasInput.value = ''; canvasCourseIdForMappingInput.value = ''; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); }
 function handleCanvasMappingListClick(event) { const target = event.target; const action = target.getAttribute('data-action'); const compassName = target.getAttribute('data-compass-name'); if (action === 'remove-canvas-map' && compassName) { delete canvasCourseMappings[compassName]; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); } }
 function handleCanvasMappingEdit(event) { const input = event.target; const compassName = input.getAttribute('data-compass-name'); const newCanvasId = input.value.trim(); if (compassName && newCanvasId) { canvasCourseMappings[compassName] = newCanvasId; saveSettings(true, 'canvasMap'); } else if (compassName && !newCanvasId) { delete canvasCourseMappings[compassName]; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); } }
 
 function handleNavClick(event) { const section = event.target.getAttribute('data-section'); switchSection(section); }
 function switchSection(section) {
-    isAutoRefreshing = false; settingsSection.classList.add('hidden'); calendarSection.classList.add('hidden'); canvasSection.classList.add('hidden'); navLinks.forEach(link => link.classList.remove('active'));
+    isAutoRefreshing = false;
+    if(settingsSection) settingsSection.classList.add('hidden');
+    if(calendarSection) calendarSection.classList.add('hidden');
+    if(canvasSection) canvasSection.classList.add('hidden');
+    if(navLinks) navLinks.forEach(link => link.classList.remove('active'));
+
     let activeNavLink = document.querySelector(`.nav-link[data-section="${section}"]`);
     if (activeNavLink) activeNavLink.classList.add('active');
 
-    if (section === 'settings') { settingsSection.classList.remove('hidden');
-    } else if (section === 'canvas') {
+    if (section === 'settings' && settingsSection) { settingsSection.classList.remove('hidden');
+    } else if (section === 'canvas' && canvasSection) {
         canvasSection.classList.remove('hidden');
         if (compassWorkerUrl && canvasDomain && canvasToken) { fetchCanvasData(); }
         else { showMessageForCanvas('Please set Worker URL, Canvas Domain, and API Token in Settings.', 'info'); }
-    } else {
+    } else if (calendarSection) { // Default to calendar
         calendarSection.classList.remove('hidden');
         if (allParsedEvents.length > 0) { renderViews(); }
         else { const savedUrl = localStorage.getItem(CALENDAR_URL_KEY); if (!savedUrl && !compassWorkerUrl) showMessage('Go to Settings to enter Worker & Compass URLs.', 'info', 'calendar'); }
     }
 }
-function switchViewMode(mode) { currentViewMode = mode; listViewBtn.classList.toggle('active', mode === 'list'); weekViewBtn.classList.toggle('active', mode === 'week'); calendarDisplayList.classList.toggle('hidden', mode !== 'list'); calendarDisplayWeek.classList.toggle('hidden', mode !== 'week'); listControls.classList.toggle('hidden', mode !== 'list'); isAutoRefreshing = false; renderViews(); }
+function switchViewMode(mode) { currentViewMode = mode; if(listViewBtn) listViewBtn.classList.toggle('active', mode === 'list'); if(weekViewBtn) weekViewBtn.classList.toggle('active', mode === 'week'); if(calendarDisplayList) calendarDisplayList.classList.toggle('hidden', mode !== 'list'); if(calendarDisplayWeek) calendarDisplayWeek.classList.toggle('hidden', mode !== 'week'); if(listControls) listControls.classList.toggle('hidden', mode !== 'list'); isAutoRefreshing = false; renderViews(); }
 
 function handleSaveAndLoad() {
-    const workerURLValue = workerUrlInput.value.trim();
-    const compassURLValue = urlInput.value.trim();
+    const workerURLValue = workerUrlInput ? workerUrlInput.value.trim() : '';
+    const compassURLValue = urlInput ? urlInput.value.trim() : '';
     if (!workerURLValue) { showMessage('Cloudflare Worker URL is required.', 'error', 'settings'); return; }
     if (!compassURLValue) { showMessage('Compass Calendar Feed URL is required.', 'error', 'settings'); return; }
     try { new URL(workerURLValue); new URL(compassURLValue); }
@@ -316,7 +387,7 @@ async function fetchAndProcessCalendar(compassCalUrl, isInitialLoadForThisCall =
             detectAndNotifyTimetableChanges(newParsedCompassEvents, previousProcessedClassEvents);
         }
 
-        previousProcessedClassEvents = newParsedCompassEvents.filter(e => !e.isCanvasAssignment); // Store only Compass events
+        previousProcessedClassEvents = newParsedCompassEvents.filter(e => !e.isCanvasAssignment);
         allParsedEvents = newParsedCompassEvents;
 
         if (compassWorkerUrl && canvasDomain && canvasToken) {
@@ -363,8 +434,9 @@ function processAndClassifyEvents(events) {
 }
 
 
-function renderViews() { if (currentViewMode === 'list') { renderListView(); } else { renderWeeklyView(); } renderSidebar(); calendarDisplayList.classList.toggle('hidden', currentViewMode !== 'list'); calendarDisplayWeek.classList.toggle('hidden', currentViewMode !== 'week');}
+function renderViews() { if (currentViewMode === 'list') { renderListView(); } else { renderWeeklyView(); } renderSidebar(); if(calendarDisplayList) calendarDisplayList.classList.toggle('hidden', currentViewMode !== 'list'); if(calendarDisplayWeek) calendarDisplayWeek.classList.toggle('hidden', currentViewMode !== 'week');}
 function renderListView() {
+    if (!calendarDisplayList) return;
     clearDisplayAreaOnly('list');
     const combinedEvents = [...processedClassEvents, ...processedSidebarEvents.filter(e => e.isCanvasAssignment && e.startDate >= new Date())];
     const eventsToDisplay = filterAndSortEvents(combinedEvents);
@@ -375,29 +447,33 @@ function renderListView() {
 
     const now = new Date();
     sortedDays.forEach((dayString, dayIndex) => {
-        const dayEvents = eventsByDay[dayString]; const dayDate = new Date(dayString); const dayHeader = document.createElement('h3'); dayHeader.className = 'text-lg font-semibold text-gray-700 mt-5 mb-2 border-b pb-1'; if (!isAutoRefreshing) { dayHeader.classList.add('fade-in'); dayHeader.style.animationDelay = `${dayIndex * 0.05}s`; } dayHeader.textContent = formatDateHeading(dayDate); calendarDisplayList.appendChild(dayHeader);
+        const dayEvents = eventsByDay[dayString]; const dayDate = new Date(dayString); const dayHeader = document.createElement('h3'); dayHeader.className = 'text-lg font-semibold text-gray-700 dark:text-gray-200 mt-5 mb-2 border-b border-gray-300 dark:border-gray-700 pb-1'; if (!isAutoRefreshing) { dayHeader.classList.add('fade-in'); dayHeader.style.animationDelay = `${dayIndex * 0.05}s`; } dayHeader.textContent = formatDateHeading(dayDate); calendarDisplayList.appendChild(dayHeader);
         dayEvents.forEach((event, eventIndex) => {
             const card = document.createElement('div');
             card.className = `event-card p-3 rounded-lg border shadow-sm ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''}`;
-            card.style.backgroundColor = event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff');
-            card.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#e5e7eb'), 15);
+            card.style.backgroundColor = event.color || (event.isCanvasAssignment ? '#fed7d7' : 'rgb(var(--surface-light))');
+            card.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? '#fed7d7' : 'rgb(var(--border-light))'), 15);
             if (!isAutoRefreshing) { card.classList.add('fade-in'); card.style.animationDelay = `${(dayIndex * 50) + (eventIndex * 30) + 50}ms`; } else { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
 
             const startTime = formatTime(event.startDate); const endTime = formatTime(event.endDate);
-            const textColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff')) ? 'text-white' : 'text-gray-800';
-            const iconColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff')) ? 'text-gray-300' : 'text-gray-500';
-            const clockIcon = ICONS.clock.replace('text-gray-500', iconColor);
-            const locationIcon = ICONS.location.replace('text-gray-500', iconColor);
-            const teacherIcon = ICONS.teacher.replace('text-gray-500', iconColor);
-            const assignmentIcon = ICONS.assignment.replace('text-gray-500', iconColor);
+            const isDark = document.documentElement.classList.contains('dark');
+            const baseTextColor = isDark ? 'text-gray-100' : 'text-gray-800';
+            const baseIconColor = isDark ? 'text-gray-400' : 'text-gray-500';
+            const textColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : (isDark ? 'rgb(var(--surface-dark))' : 'rgb(var(--surface-light))'))) ? 'text-white' : baseTextColor;
+            const iconColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : (isDark ? 'rgb(var(--surface-dark))' : 'rgb(var(--surface-light))'))) ? (isDark ? 'text-gray-300' : 'text-gray-100') : baseIconColor;
+
+            const clockIcon = ICONS.clock.replace('text-gray-500 dark:text-gray-400', iconColor);
+            const locationIcon = ICONS.location.replace('text-gray-500 dark:text-gray-400', iconColor);
+            const teacherIcon = ICONS.teacher.replace('text-gray-500 dark:text-gray-400', iconColor);
+            const assignmentIcon = ICONS.assignment.replace('text-gray-500 dark:text-gray-400', iconColor);
 
             let summaryHtml = event.summary;
             const canvasCourseId = canvasCourseMappings[event.summary];
             if (!event.isCanvasAssignment && canvasCourseId && canvasDomain) {
                 const canvasLink = `https://${canvasDomain}/courses/${canvasCourseId}`;
-                summaryHtml = `<a href="${canvasLink}" target="_blank" class="clickable-class-link hover:text-indigo-500">${event.summary}${ICONS.link}</a>`;
+                summaryHtml = `<a href="${canvasLink}" target="_blank" class="clickable-class-link hover:text-indigo-500 dark:hover:text-indigo-400">${event.summary}${ICONS.link}</a>`;
             } else if (event.isCanvasAssignment && event.html_url) {
-                summaryHtml = `<a href="${event.html_url}" target="_blank" class="clickable-class-link hover:text-red-500">${event.summary}${ICONS.link}</a>`;
+                summaryHtml = `<a href="${event.html_url}" target="_blank" class="clickable-class-link hover:text-red-500 dark:hover:text-red-400">${event.summary}${ICONS.link}</a>`;
             }
 
             let timeIndicatorHtml = '';
@@ -417,6 +493,7 @@ function renderListView() {
     });
 }
 function renderWeeklyView() {
+    if (!weeklyViewGrid) return;
     clearDisplayAreaOnly('week'); weeklyViewGrid.innerHTML = ''; const hourStart = 8; const hourEnd = 16; const slotHeight = 60;
     for (let h = hourStart; h < hourEnd; h++) { const timeDiv = document.createElement('div'); timeDiv.className = 'time-slot'; timeDiv.textContent = formatTime(new Date(0,0,0, h, 0)); timeDiv.style.gridRow = `${h - hourStart + 1} / span 1`; weeklyViewGrid.appendChild(timeDiv); for(let dayIndex=0; dayIndex < 5; dayIndex++) { const cell = document.createElement('div'); cell.className = 'day-column-bg'; cell.style.gridRow = `${h - hourStart + 1} / span 1`; cell.style.gridColumn = `${dayIndex + 2} / span 1`; weeklyViewGrid.appendChild(cell); } }
     const dayContentContainers = []; for(let dayIndex=0; dayIndex < 5; dayIndex++) { const container = document.createElement('div'); container.className = 'day-column-content'; container.setAttribute('data-day-index', dayIndex.toString()); weeklyViewGrid.appendChild(container); dayContentContainers.push(container); }
@@ -441,9 +518,12 @@ function renderWeeklyView() {
 
                 eventDiv.className = `week-event ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''} ${isClickable ? 'clickable-week-event' : ''}`;
                 eventDiv.style.top = `${topPx}px`; eventDiv.style.height = `${heightPx}px`;
-                eventDiv.style.backgroundColor = event.color || (event.isCanvasAssignment ? '#fed7d7' : '#e5e7eb');
-                eventDiv.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#e5e7eb'), 15);
-                const textColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : '#ffffff')) ? 'text-white' : 'text-gray-800';
+                eventDiv.style.backgroundColor = event.color || (event.isCanvasAssignment ? '#fed7d7' : 'rgb(var(--surface-light))');
+                eventDiv.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? '#fed7d7' : 'rgb(var(--border-light))'), 15);
+                const isDark = document.documentElement.classList.contains('dark');
+                const baseTextColor = isDark ? 'text-gray-100' : 'text-gray-800';
+                const textColor = isColorDark(event.color || (event.isCanvasAssignment ? '#fed7d7' : (isDark ? 'rgb(var(--surface-dark))' : 'rgb(var(--surface-light))'))) ? 'text-white' : baseTextColor;
+
 
                 if (!isAutoRefreshing) { eventDiv.classList.add('fade-in'); eventDiv.style.animationDelay = `${eventIndex * 0.03}s`; } else { eventDiv.style.opacity = '1'; eventDiv.style.transform = 'translateY(0)'; }
 
@@ -470,10 +550,17 @@ function renderWeeklyView() {
     });
 }
 function renderSidebar() {
+    if (!sidebarEventsDiv || !sidebar || !canvasClassListContainer) return;
     sidebarEventsDiv.innerHTML = '';
     const relevantSidebarEvents = processedSidebarEvents.filter(e => e.startDate >= new Date());
-    if (relevantSidebarEvents.length === 0) { sidebarEventsDiv.innerHTML = '<p class="text-sm text-gray-500 italic">No other events or due dates found.</p>'; sidebar.classList.add('hidden'); return; }
-    sidebar.classList.remove('hidden');
+    if (relevantSidebarEvents.length === 0 && fetchedCanvasCourses.length === 0) { // Check if canvas courses also empty
+        sidebarEventsDiv.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 italic">No other events or due dates found.</p>';
+        // sidebar.classList.add('hidden'); // Don't hide sidebar if canvas classes might be shown
+    } else if (relevantSidebarEvents.length > 0) {
+        sidebar.classList.remove('hidden');
+    }
+
+
     relevantSidebarEvents.forEach((event, index) => {
         const card = document.createElement('div');
         card.className = `sidebar-event-card p-2.5 rounded-md border shadow-sm ${event.isCanvasAssignment ? 'canvas-assignment' : ''}`;
@@ -485,9 +572,10 @@ function renderSidebar() {
         if (event.isCanvasAssignment && event.html_url) {
             summaryHtml = `<a href="${event.html_url}" target="_blank" class="hover:underline">${event.summary}${ICONS.link}</a>`;
         }
-        card.innerHTML = `<h4 class="text-sm font-semibold text-gray-800 mb-1">${summaryHtml}</h4><p class="text-xs text-gray-600">${icon} ${startDateStr} ${event.startDate.getHours() !== 0 || event.startDate.getMinutes() !== 0 ? 'at ' + startTime : ''}</p>${event.location ? `<p class="text-xs text-gray-600">${ICONS.location} ${event.location}</p>` : ''}`;
+        card.innerHTML = `<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-1">${summaryHtml}</h4><p class="text-xs text-gray-600 dark:text-gray-300">${icon} ${startDateStr} ${event.startDate.getHours() !== 0 || event.startDate.getMinutes() !== 0 ? 'at ' + startTime : ''}</p>${event.location ? `<p class="text-xs text-gray-600 dark:text-gray-300">${ICONS.location} ${event.location}</p>` : ''}`;
         sidebarEventsDiv.appendChild(card);
     });
+    renderCanvasClassListSidebar(); // Update Canvas class list in sidebar
 }
 
 async function fetchCanvasAPI(canvasApiEndpointWithPathAndQuery) {
@@ -502,12 +590,12 @@ async function fetchCanvasAPI(canvasApiEndpointWithPathAndQuery) {
         return await response.json();
     } catch (error) { console.error('Canvas API Fetch Error via Worker:', error); showMessageForCanvas(`Error fetching from Canvas: ${error.message}. Check worker logs if issue persists.`, 'error'); return null; }
 }
-async function fetchCanvasCourses() { const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&per_page=50'); if (courses) { fetchedCanvasCourses = courses.map(course => ({ id: course.id, name: course.name, course_code: course.course_code })); return fetchedCanvasCourses; } return []; }
+async function fetchCanvasCourses() { const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&per_page=50'); if (courses) { fetchedCanvasCourses = courses.map(course => ({ id: course.id, name: course.name, course_code: course.course_code, start_at: course.start_at ? new Date(course.start_at) : null })); return fetchedCanvasCourses; } return []; }
 async function fetchAssignmentsForCourse(courseId) { const assignments = await fetchCanvasAPI(`api/v1/courses/${courseId}/assignments?order_by=due_at&bucket=upcoming&per_page=50`); return assignments || []; }
 
 async function processCanvasAssignmentsIntoEvents() {
     if (!compassWorkerUrl || !canvasDomain || !canvasToken) return;
-    const courses = await fetchCanvasCourses();
+    const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses(); // Use cached if available
     if (!courses || courses.length === 0) return;
     let newCanvasAssignmentEvents = [];
     for (const course of courses) {
@@ -536,34 +624,110 @@ async function processCanvasAssignmentsIntoEvents() {
     allParsedEvents.push(...newCanvasAssignmentEvents);
 }
 
-async function fetchCanvasData() {
+async function fetchCanvasData() { // For Canvas Tab & Sidebar List
     if (!compassWorkerUrl || !canvasDomain || !canvasToken) { showMessageForCanvas('Please set Worker URL, Canvas Domain and API Token in Settings.', 'info'); return; }
-    showMessageForCanvas('Loading Canvas data for Canvas Tab...', 'loading');
-    const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses();
+    showMessageForCanvas('Loading Canvas data...', 'loading');
+    const courses = await fetchCanvasCourses(); // This populates fetchedCanvasCourses
+    renderCanvasClassListSidebar(); // Update sidebar immediately with course list
+
     if (!courses || courses.length === 0) { if (!canvasDataMessageArea.textContent.includes('Error')) { showMessageForCanvas('No active Canvas courses found or failed to load courses.', 'info');} return; }
-    canvasCoursesDisplay.innerHTML = ''; let assignmentsFound = 0;
+    if(canvasCoursesDisplay) canvasCoursesDisplay.innerHTML = ''; // Clear only for canvas tab
+    let assignmentsFound = 0;
     for (const course of courses) {
-        const courseDiv = document.createElement('div'); courseDiv.className = 'canvas-item-card p-4 rounded-lg shadow mb-4';
-        courseDiv.innerHTML = `<h3 class="text-lg font-semibold text-indigo-700 mb-2">${course.name} <span class="text-sm text-gray-500">(${course.course_code || 'ID: ' + course.id})</span></h3>`;
-        const assignmentsList = document.createElement('ul'); assignmentsList.className = 'list-disc list-inside space-y-1 pl-2 text-sm';
-        const assignments = await fetchAssignmentsForCourse(course.id);
-        if (assignments && assignments.length > 0) {
-            assignmentsFound += assignments.length;
-            assignments.forEach(assignment => { const li = document.createElement('li'); const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour:'numeric', minute:'2-digit' }) : 'No due date'; li.innerHTML = `<a href="${assignment.html_url}" target="_blank" class="text-blue-600 hover:underline">${assignment.name}${ICONS.link}</a> - Due: ${dueDate}`; assignmentsList.appendChild(li); });
-        } else { assignmentsList.innerHTML = '<li class="text-gray-500 italic">No upcoming assignments.</li>'; }
-        courseDiv.appendChild(assignmentsList); canvasCoursesDisplay.appendChild(courseDiv);
+        if(canvasCoursesDisplay) { // Only build for canvas tab
+            const courseDiv = document.createElement('div'); courseDiv.className = 'canvas-item-card p-4 rounded-lg shadow mb-4';
+            courseDiv.innerHTML = `<h3 class="text-lg font-semibold text-indigo-700 dark:text-indigo-400 mb-2">${course.name} <span class="text-sm text-gray-500 dark:text-gray-400">(${course.course_code || 'ID: ' + course.id})</span></h3>`;
+            const assignmentsList = document.createElement('ul'); assignmentsList.className = 'list-disc list-inside space-y-1 pl-2 text-sm';
+            const assignments = await fetchAssignmentsForCourse(course.id);
+            if (assignments && assignments.length > 0) {
+                assignmentsFound += assignments.length;
+                assignments.forEach(assignment => { const li = document.createElement('li'); const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour:'numeric', minute:'2-digit' }) : 'No due date'; li.innerHTML = `<a href="${assignment.html_url}" target="_blank" class="text-blue-600 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300">${assignment.name}${ICONS.link}</a> - Due: ${dueDate}`; assignmentsList.appendChild(li); });
+            } else { assignmentsList.innerHTML = '<li class="text-gray-500 dark:text-gray-400 italic">No upcoming assignments.</li>'; }
+            courseDiv.appendChild(assignmentsList); canvasCoursesDisplay.appendChild(courseDiv);
+        }
     }
-    if (assignmentsFound > 0) { showMessageForCanvas(`Loaded ${courses.length} courses and ${assignmentsFound} upcoming assignments.`, 'success');
-    } else if (courses.length > 0) { showMessageForCanvas(`Loaded ${courses.length} courses. No upcoming assignments found for these courses.`, 'info'); }
+    if (assignmentsFound > 0 && canvasCoursesDisplay) { showMessageForCanvas(`Loaded ${courses.length} courses and ${assignmentsFound} upcoming assignments.`, 'success');
+    } else if (courses.length > 0 && canvasCoursesDisplay) { showMessageForCanvas(`Loaded ${courses.length} courses. No upcoming assignments found for these courses.`, 'info'); }
 }
 function showMessageForCanvas(msg, type = 'info') {
+    if(!canvasDataMessageArea) return;
     canvasDataMessageArea.innerHTML = ''; const msgElement = document.createElement('div'); let bgColor, textColor, borderColor, loader = ''; let autoDismiss = (type === 'success' || type === 'info');
-    switch (type) { case 'error': bgColor = 'bg-red-100'; textColor = 'text-red-700'; borderColor = 'border-red-500'; break; case 'success': bgColor = 'bg-green-100'; textColor = 'text-green-700'; borderColor = 'border-green-500'; break; case 'loading': bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500';}
+    switch (type) { case 'error': bgColor = 'bg-red-100 dark:bg-red-900'; textColor = 'text-red-700 dark:text-red-300'; borderColor = 'border-red-500 dark:border-red-700'; break; case 'success': bgColor = 'bg-green-100 dark:bg-green-900'; textColor = 'text-green-700 dark:text-green-300'; borderColor = 'border-green-500 dark:border-green-700'; break; case 'loading': bgColor = 'bg-blue-100 dark:bg-blue-900'; textColor = 'text-blue-700 dark:text-blue-300'; borderColor = 'border-blue-500 dark:border-blue-700'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100 dark:bg-blue-900'; textColor = 'text-blue-700 dark:text-blue-300'; borderColor = 'border-blue-500 dark:border-blue-700';}
     msgElement.className = `p-3 ${bgColor} border-l-4 ${borderColor} ${textColor} rounded-md shadow-sm text-sm fade-in`; msgElement.innerHTML = loader + msg; canvasDataMessageArea.appendChild(msgElement);
     if (autoDismiss) { setTimeout(() => { if (canvasDataMessageArea.contains(msgElement)) { msgElement.classList.remove('fade-in'); msgElement.classList.add('fade-out'); msgElement.addEventListener('animationend', () => { if(canvasDataMessageArea.contains(msgElement)) canvasDataMessageArea.removeChild(msgElement); }, { once: true }); } }, 3000); }
 }
 
+function renderCanvasClassListSidebar() {
+    if (!canvasClassListContainer || !canvasDomain) return;
+    canvasClassListContainer.innerHTML = ''; // Clear existing
+
+    if (fetchedCanvasCourses.length === 0) {
+        canvasClassListContainer.innerHTML = '<p class="text-xs text-gray-500 dark:text-gray-400 italic">No Canvas courses loaded or none found. Check settings.</p>';
+        return;
+    }
+
+    const now = new Date();
+    fetchedCanvasCourses
+        .sort((a,b) => (a.name || "").localeCompare(b.name || "")) // Sort by name
+        .forEach(course => {
+        const courseLink = document.createElement('a');
+        courseLink.href = `https://${canvasDomain}/courses/${course.id}`;
+        courseLink.target = "_blank";
+        courseLink.className = "block p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors duration-150";
+
+        let nextClassTimeStr = "";
+        // Find next occurrence of this class in Compass schedule (if mapped)
+        const mappedCompassName = Object.keys(canvasCourseMappings).find(key => canvasCourseMappings[key] === String(course.id));
+        if(mappedCompassName) {
+            const upcomingInstances = allParsedEvents.filter(e => !e.isCanvasAssignment && e.summary === mappedCompassName && e.startDate > now)
+                                               .sort((a,b) => a.startDate - b.startDate);
+            if(upcomingInstances.length > 0) {
+                const nextInstance = upcomingInstances[0].startDate;
+                const diffMs = nextInstance.getTime() - now.getTime();
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                if (diffMs > 0) {
+                    nextClassTimeStr = ` (Next: `;
+                    if (diffDays > 0) nextClassTimeStr += `${diffDays}d `;
+                    if (diffHours > 0) nextClassTimeStr += `${diffHours}h `;
+                    nextClassTimeStr += `${diffMins}m)`;
+                }
+            }
+        }
+
+        courseLink.innerHTML = `
+            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">${course.name}</span>
+            ${nextClassTimeStr ? `<span class="canvas-class-next-time">${nextClassTimeStr}</span>` : ''}
+            ${ICONS.link}
+        `;
+        canvasClassListContainer.appendChild(courseLink);
+    });
+}
+
+
+function handleSearch(event) { currentSearchTerm = event.target.value.toLowerCase(); renderListView(); }
+function handleSort(event) { currentSortOrder = event.target.value; renderListView(); }
+function filterAndSortEvents(events) { const filtered = events.filter(event => { if (!currentSearchTerm) return true; const teacherMatch = event.teacher ? event.teacher.toLowerCase().includes(currentSearchTerm) : false; return ( event.summary.toLowerCase().includes(currentSearchTerm) || event.originalSummary.toLowerCase().includes(currentSearchTerm) || (event.location && event.location.toLowerCase().includes(currentSearchTerm)) || teacherMatch ); }); return filtered; }
+function groupEventsByDay(events) { const grouped = {}; events.forEach(event => { const dayKey = event.startDate.toDateString(); if (!grouped[dayKey]) grouped[dayKey] = []; grouped[dayKey].push(event); }); for (const dayKey in grouped) { grouped[dayKey].sort((a, b) => { switch (currentSortOrder) { case 'name': return a.summary.localeCompare(b.summary); case 'location': return (a.location || '').localeCompare(b.location || ''); case 'time': default: return a.startDate - b.startDate; } }); } return grouped; }
+
+function initializeStatusIndicator() { if (statusUpdateIntervalId) clearInterval(statusUpdateIntervalId); statusUpdateIntervalId = setInterval(updateAgoText, STATUS_UPDATE_INTERVAL); updateStatusIndicator(currentStatus); }
+function updateStatusIndicator(status) { currentStatus = status; if(statusIndicatorDiv) statusIndicatorDiv.classList.remove('hidden'); let iconHtml = ''; let textPrefix = ''; let textClass = 'status-text'; let iconClass = 'status-icon'; switch (status) { case 'live': iconHtml = ''; iconClass += ' live'; textPrefix = 'LIVE'; break; case 'failed': iconHtml = ICONS.cloudError; iconClass += ' failed'; textClass += ' failed'; textPrefix = 'FAILED'; break; case 'loading': iconHtml = '<div class="loader !w-3 !h-3 !border-2 !border-t-blue-500 !m-0"></div>'; iconClass = ''; textPrefix = 'Loading...'; break; case 'idle': default: if(statusIndicatorDiv) statusIndicatorDiv.classList.add('hidden'); return; } if(statusIconSpan) statusIconSpan.innerHTML = iconHtml; if(statusIconSpan) statusIconSpan.className = iconClass; if(statusTextSpan) statusTextSpan.className = textClass; if(statusTextSpan) statusTextSpan.textContent = `${textPrefix} - ${getAgoText()}`; }
+function updateAgoText() { if (currentStatus === 'live' || currentStatus === 'failed') { if(statusTextSpan) statusTextSpan.textContent = `${currentStatus.toUpperCase()} - ${getAgoText()}`; } else if (currentStatus === 'loading') { if(statusTextSpan) statusTextSpan.textContent = 'Loading...'; } }
+function getAgoText() { if (!lastSuccessfulUpdateTime) return 'never updated'; const now = Date.now(); const secondsAgo = Math.round((now - lastSuccessfulUpdateTime) / 1000); if (secondsAgo < 5) return 'updated just now'; if (secondsAgo < 60) return `updated ${secondsAgo}s ago`; const minutesAgo = Math.floor(secondsAgo / 60); if (minutesAgo < 60) return `updated ${minutesAgo}m ago`; const hoursAgo = Math.floor(minutesAgo / 60); return `updated ${hoursAgo}h ago`; }
+
+function clearDisplay() { if(calendarDisplayList) calendarDisplayList.innerHTML = ''; if(weeklyViewGrid) weeklyViewGrid.innerHTML = ''; if(sidebarEventsDiv) sidebarEventsDiv.innerHTML = ''; if(canvasCoursesDisplay) canvasCoursesDisplay.innerHTML = ''; if(canvasDataMessageArea) canvasDataMessageArea.innerHTML = '';}
+function clearDisplayAreaOnly(view = 'list') { if (view === 'list' && calendarDisplayList) calendarDisplayList.innerHTML = ''; else if (view === 'week' && weeklyViewGrid) weeklyViewGrid.innerHTML = ''; else if (view === 'canvas' && canvasCoursesDisplay) canvasCoursesDisplay.innerHTML = '';}
+function showMessage(msg, type = 'info', location = 'calendar') { const targetMessageArea = location === 'settings' ? settingsMessageArea : calendarMessageArea; if(!targetMessageArea) return; if (messageTimeout && targetMessageArea.contains(messageTimeout.element)) { clearTimeout(messageTimeout.id); if (messageTimeout.element && targetMessageArea.contains(messageTimeout.element)) {targetMessageArea.removeChild(messageTimeout.element);} } targetMessageArea.innerHTML = ''; const msgElement = document.createElement('div'); let bgColor, textColor, borderColor, loader = ''; let autoDismiss = false; switch (type) { case 'error': bgColor = 'bg-red-100 dark:bg-red-900'; textColor = 'text-red-700 dark:text-red-300'; borderColor = 'border-red-500 dark:border-red-700'; break; case 'success': bgColor = 'bg-green-100 dark:bg-green-900'; textColor = 'text-green-700 dark:text-green-300'; borderColor = 'border-green-500 dark:border-green-700'; autoDismiss = true; break; case 'loading': bgColor = 'bg-blue-100 dark:bg-blue-900'; textColor = 'text-blue-700 dark:text-blue-300'; borderColor = 'border-blue-500 dark:border-blue-700'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100 dark:bg-blue-900'; textColor = 'text-blue-700 dark:text-blue-300'; borderColor = 'border-blue-500 dark:border-blue-700'; autoDismiss = true;} msgElement.className = `p-3 ${bgColor} border-l-4 ${borderColor} ${textColor} rounded-md shadow-sm text-sm fade-in`; msgElement.innerHTML = loader + msg; targetMessageArea.appendChild(msgElement); if (autoDismiss) { const timeoutId = setTimeout(() => { if (targetMessageArea.contains(msgElement)) { msgElement.classList.remove('fade-in'); msgElement.classList.add('fade-out'); msgElement.addEventListener('animationend', () => { if(targetMessageArea.contains(msgElement)) {targetMessageArea.removeChild(msgElement);} }, { once: true }); } if (messageTimeout && messageTimeout.id === timeoutId) { messageTimeout = null; } }, 3000); messageTimeout = { id: timeoutId, element: msgElement }; } else { messageTimeout = { id: null, element: msgElement }; } }
+function formatTime(date) { return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); }
+function formatDateHeading(date) { const options = { weekday: 'long', month: 'long', day: 'numeric' }; return date.toLocaleDateString(undefined, options); }
+function extractTeacher(description) { const lines = description.split('\\n'); let teacherLine = lines.find(line => /^\s*teacher:/i.test(line)); if (teacherLine) return teacherLine.replace(/^\s*teacher:/i, '').trim(); return null; }
+function isColorDark(hexColor) { if (!hexColor || hexColor.length < 4) return false; hexColor = hexColor.substring(1); if (hexColor.length === 3) hexColor = hexColor.split('').map(c => c + c).join(''); const r = parseInt(hexColor.substring(0, 2), 16); const g = parseInt(hexColor.substring(2, 4), 16); const b = parseInt(hexColor.substring(4, 6), 16); const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b)); return hsp < 127.5; }
+function darkenColor(hexColor, percent) { if (!hexColor || hexColor.length < 4) return '#cccccc'; let R = parseInt(hexColor.substring(1,3),16); let G = parseInt(hexColor.substring(3,5),16); let B = parseInt(hexColor.substring(5,7),16); R = parseInt(R * (100 - percent) / 100); G = parseInt(G * (100 - percent) / 100); B = parseInt(B * (100 - percent) / 100); R = (R<0)?0:R; G = (G<0)?0:G; B = (B<0)?0:B; const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16)); const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16)); const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16)); return "#"+RR+GG+BB; }
+
+// --- Notification Functions ---
 function renderNotificationSettings() {
+    if(!notifyClassesEnabledCheckbox) return; // Guard against missing elements
     notifyClassesEnabledCheckbox.checked = notificationSettings.classesEnabled;
     notifyClassesLeadTimeInput.value = notificationSettings.classesLeadTime;
     notifyAssignmentsEnabled1Checkbox.checked = notificationSettings.assignmentsEnabled1;
@@ -573,7 +737,9 @@ function renderNotificationSettings() {
     notifyTimetableChangesEnabledCheckbox.checked = notificationSettings.timetableChangesEnabled;
     updateNotificationPermissionStatus();
 }
+
 function handleSaveNotificationSettings() {
+    if(!notifyClassesEnabledCheckbox) return;
     notificationSettings.classesEnabled = notifyClassesEnabledCheckbox.checked;
     notificationSettings.classesLeadTime = parseInt(notifyClassesLeadTimeInput.value) || 5;
     notificationSettings.assignmentsEnabled1 = notifyAssignmentsEnabled1Checkbox.checked;
@@ -583,25 +749,33 @@ function handleSaveNotificationSettings() {
     notificationSettings.timetableChangesEnabled = notifyTimetableChangesEnabledCheckbox.checked;
     saveSettings(true, 'notifications');
 }
+
 function setupNotificationPermission() {
-    if (!("Notification" in window)) { notificationPermissionStatusDiv.textContent = "This browser does not support desktop notification."; return; }
+    if (!notificationPermissionStatusDiv) return;
+    if (!("Notification" in window)) {
+        notificationPermissionStatusDiv.textContent = "This browser does not support desktop notification.";
+        return;
+    }
     updateNotificationPermissionStatus();
-    [notifyClassesEnabledCheckbox, notifyAssignmentsEnabled1Checkbox, notifyAssignmentsEnabled2Checkbox, notifyTimetableChangesEnabledCheckbox].forEach(cb => {
-        cb.addEventListener('change', () => { if (cb.checked && Notification.permission === 'default') { requestNotificationPermission(); } });
+    const checkboxes = [notifyClassesEnabledCheckbox, notifyAssignmentsEnabled1Checkbox, notifyAssignmentsEnabled2Checkbox, notifyTimetableChangesEnabledCheckbox];
+    checkboxes.forEach(cb => {
+        if(cb) cb.addEventListener('change', () => { if (cb.checked && Notification.permission === 'default') { requestNotificationPermission(); } });
     });
 }
+
 function requestNotificationPermission() { Notification.requestPermission().then(permission => { notificationPermission = permission; updateNotificationPermissionStatus(); if (permission === 'granted') { new Notification("Class Companion", { body: "Notifications enabled!" }); } }); }
 function updateNotificationPermissionStatus() {
-    if (Notification.permission === "granted") { notificationPermissionStatusDiv.textContent = "Notifications are enabled."; notificationPermissionStatusDiv.className = "text-sm text-green-600 mb-3";
-    } else if (Notification.permission === "denied") { notificationPermissionStatusDiv.textContent = "Notifications are disabled by browser. Please enable them in your browser settings."; notificationPermissionStatusDiv.className = "text-sm text-red-600 mb-3";
-    } else { notificationPermissionStatusDiv.textContent = "Click 'Save Notification Preferences' after enabling to request permission."; notificationPermissionStatusDiv.className = "text-sm text-gray-600 mb-3"; }
+    if (!notificationPermissionStatusDiv) return;
+    if (Notification.permission === "granted") { notificationPermissionStatusDiv.textContent = "Notifications are enabled."; notificationPermissionStatusDiv.className = "text-sm text-green-600 dark:text-green-400 mb-3";
+    } else if (Notification.permission === "denied") { notificationPermissionStatusDiv.textContent = "Notifications are disabled by browser. Please enable them in your browser settings."; notificationPermissionStatusDiv.className = "text-sm text-red-600 dark:text-red-400 mb-3";
+    } else { notificationPermissionStatusDiv.textContent = "Click 'Save Notification Preferences' after enabling to request permission."; notificationPermissionStatusDiv.className = "text-sm text-gray-600 dark:text-gray-400 mb-3"; }
 }
 function sendBrowserNotification(title, body, tag = null) { if (notificationPermission !== 'granted') return; const options = { body: body, icon: './favicon.ico' }; if (tag) options.tag = tag; new Notification(title, options); }
 
-function detectAndNotifyTimetableChanges(newEvents, oldCompassEvents) { // oldCompassEvents should be just Compass events
+function detectAndNotifyTimetableChanges(newEvents, oldCompassEvents) {
     if (!notificationSettings.timetableChangesEnabled || notificationPermission !== 'granted') return;
     const oldEventsMap = new Map(oldCompassEvents.map(e => [e.id, e]));
-    const newEventsMap = new Map(newEvents.filter(e => !e.isCanvasAssignment).map(e => [e.id, e])); // Only compare new Compass events
+    const newEventsMap = new Map(newEvents.filter(e => !e.isCanvasAssignment).map(e => [e.id, e]));
 
     oldCompassEvents.forEach(oldEvent => {
         const newEvent = newEventsMap.get(oldEvent.id);
@@ -625,7 +799,7 @@ function detectAndNotifyTimetableChanges(newEvents, oldCompassEvents) { // oldCo
 function checkAndSendNotifications() {
     if (notificationPermission !== 'granted') return;
     const now = new Date().getTime();
-    const eventsToCheck = [...processedClassEvents, ...allParsedEvents.filter(e => e.isCanvasAssignment)]; // Use allParsedEvents for Canvas assignments
+    const eventsToCheck = [...processedClassEvents, ...allParsedEvents.filter(e => e.isCanvasAssignment)];
 
     eventsToCheck.forEach(event => {
         const eventTime = event.startDate.getTime();
@@ -651,21 +825,10 @@ function checkAndSendNotifications() {
 }
 function startNotificationChecker() { if (notificationCheckIntervalId) clearInterval(notificationCheckIntervalId); notificationCheckIntervalId = setInterval(checkAndSendNotifications, NOTIFICATION_CHECK_INTERVAL); }
 
-function handleSearch(event) { currentSearchTerm = event.target.value.toLowerCase(); renderListView(); }
-function handleSort(event) { currentSortOrder = event.target.value; renderListView(); }
-function filterAndSortEvents(events) { const filtered = events.filter(event => { if (!currentSearchTerm) return true; const teacherMatch = event.teacher ? event.teacher.toLowerCase().includes(currentSearchTerm) : false; return ( event.summary.toLowerCase().includes(currentSearchTerm) || event.originalSummary.toLowerCase().includes(currentSearchTerm) || (event.location && event.location.toLowerCase().includes(currentSearchTerm)) || teacherMatch ); }); return filtered; }
-function groupEventsByDay(events) { const grouped = {}; events.forEach(event => { const dayKey = event.startDate.toDateString(); if (!grouped[dayKey]) grouped[dayKey] = []; grouped[dayKey].push(event); }); for (const dayKey in grouped) { grouped[dayKey].sort((a, b) => { switch (currentSortOrder) { case 'name': return a.summary.localeCompare(b.summary); case 'location': return (a.location || '').localeCompare(b.location || ''); case 'time': default: return a.startDate - b.startDate; } }); } return grouped; }
-
-function initializeStatusIndicator() { if (statusUpdateIntervalId) clearInterval(statusUpdateIntervalId); statusUpdateIntervalId = setInterval(updateAgoText, STATUS_UPDATE_INTERVAL); updateStatusIndicator(currentStatus); }
-function updateStatusIndicator(status) { currentStatus = status; statusIndicatorDiv.classList.remove('hidden'); let iconHtml = ''; let textPrefix = ''; let textClass = 'status-text'; let iconClass = 'status-icon'; switch (status) { case 'live': iconHtml = ''; iconClass += ' live'; textPrefix = 'LIVE'; break; case 'failed': iconHtml = ICONS.cloudError; iconClass += ' failed'; textClass += ' failed'; textPrefix = 'FAILED'; break; case 'loading': iconHtml = '<div class="loader !w-3 !h-3 !border-2 !border-t-blue-500 !m-0"></div>'; iconClass = ''; textPrefix = 'Loading...'; break; case 'idle': default: statusIndicatorDiv.classList.add('hidden'); return; } statusIconSpan.innerHTML = iconHtml; statusIconSpan.className = iconClass; statusTextSpan.className = textClass; statusTextSpan.textContent = `${textPrefix} - ${getAgoText()}`; }
-function updateAgoText() { if (currentStatus === 'live' || currentStatus === 'failed') { statusTextSpan.textContent = `${currentStatus.toUpperCase()} - ${getAgoText()}`; } else if (currentStatus === 'loading') { statusTextSpan.textContent = 'Loading...'; } }
-function getAgoText() { if (!lastSuccessfulUpdateTime) return 'never updated'; const now = Date.now(); const secondsAgo = Math.round((now - lastSuccessfulUpdateTime) / 1000); if (secondsAgo < 5) return 'updated just now'; if (secondsAgo < 60) return `updated ${secondsAgo}s ago`; const minutesAgo = Math.floor(secondsAgo / 60); if (minutesAgo < 60) return `updated ${minutesAgo}m ago`; const hoursAgo = Math.floor(minutesAgo / 60); return `updated ${hoursAgo}h ago`; }
-
-function clearDisplay() { calendarDisplayList.innerHTML = ''; weeklyViewGrid.innerHTML = ''; sidebarEventsDiv.innerHTML = ''; canvasCoursesDisplay.innerHTML = ''; canvasDataMessageArea.innerHTML = '';}
-function clearDisplayAreaOnly(view = 'list') { if (view === 'list') calendarDisplayList.innerHTML = ''; else if (view === 'week') weeklyViewGrid.innerHTML = ''; else if (view === 'canvas') canvasCoursesDisplay.innerHTML = '';}
-function showMessage(msg, type = 'info', location = 'calendar') { const targetMessageArea = location === 'settings' ? settingsMessageArea : calendarMessageArea; if (messageTimeout && targetMessageArea.contains(messageTimeout.element)) { clearTimeout(messageTimeout.id); if (messageTimeout.element && targetMessageArea.contains(messageTimeout.element)) {targetMessageArea.removeChild(messageTimeout.element);} } targetMessageArea.innerHTML = ''; const msgElement = document.createElement('div'); let bgColor, textColor, borderColor, loader = ''; let autoDismiss = false; switch (type) { case 'error': bgColor = 'bg-red-100'; textColor = 'text-red-700'; borderColor = 'border-red-500'; break; case 'success': bgColor = 'bg-green-100'; textColor = 'text-green-700'; borderColor = 'border-green-500'; autoDismiss = true; break; case 'loading': bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; loader = '<div class="loader !w-5 !h-5 !border-2 !inline-block !mr-2 !align-middle"></div>'; break; default: bgColor = 'bg-blue-100'; textColor = 'text-blue-700'; borderColor = 'border-blue-500'; autoDismiss = true;} msgElement.className = `p-3 ${bgColor} border-l-4 ${borderColor} ${textColor} rounded-md shadow-sm text-sm fade-in`; msgElement.innerHTML = loader + msg; targetMessageArea.appendChild(msgElement); if (autoDismiss) { const timeoutId = setTimeout(() => { if (targetMessageArea.contains(msgElement)) { msgElement.classList.remove('fade-in'); msgElement.classList.add('fade-out'); msgElement.addEventListener('animationend', () => { if(targetMessageArea.contains(msgElement)) {targetMessageArea.removeChild(msgElement);} }, { once: true }); } if (messageTimeout && messageTimeout.id === timeoutId) { messageTimeout = null; } }, 3000); messageTimeout = { id: timeoutId, element: msgElement }; } else { messageTimeout = { id: null, element: msgElement }; } }
+// Other utility functions (formatTime, formatDateHeading, etc.) remain the same
 function formatTime(date) { return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); }
 function formatDateHeading(date) { const options = { weekday: 'long', month: 'long', day: 'numeric' }; return date.toLocaleDateString(undefined, options); }
 function extractTeacher(description) { const lines = description.split('\\n'); let teacherLine = lines.find(line => /^\s*teacher:/i.test(line)); if (teacherLine) return teacherLine.replace(/^\s*teacher:/i, '').trim(); return null; }
 function isColorDark(hexColor) { if (!hexColor || hexColor.length < 4) return false; hexColor = hexColor.substring(1); if (hexColor.length === 3) hexColor = hexColor.split('').map(c => c + c).join(''); const r = parseInt(hexColor.substring(0, 2), 16); const g = parseInt(hexColor.substring(2, 4), 16); const b = parseInt(hexColor.substring(4, 6), 16); const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b)); return hsp < 127.5; }
 function darkenColor(hexColor, percent) { if (!hexColor || hexColor.length < 4) return '#cccccc'; let R = parseInt(hexColor.substring(1,3),16); let G = parseInt(hexColor.substring(3,5),16); let B = parseInt(hexColor.substring(5,7),16); R = parseInt(R * (100 - percent) / 100); G = parseInt(G * (100 - percent) / 100); B = parseInt(B * (100 - percent) / 100); R = (R<0)?0:R; G = (G<0)?0:G; B = (B<0)?0:B; const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16)); const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16)); const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16)); return "#"+RR+GG+BB; }
+
