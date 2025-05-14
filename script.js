@@ -12,9 +12,9 @@ const DARK_MODE_KEY = 'classCompanionDarkMode';
 
 const DEFAULT_WORKER_URL = 'https://class-companion.thebestmate100.workers.dev';
 const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
-const REFRESH_INTERVAL = 10000;
-const STATUS_UPDATE_INTERVAL = 1000;
-const NOTIFICATION_CHECK_INTERVAL = 30000;
+const REFRESH_INTERVAL = 10000; // 10 seconds
+const STATUS_UPDATE_INTERVAL = 1000; // 1 second for 'ago' text
+const NOTIFICATION_CHECK_INTERVAL = 30000; // Check for notifications every 30 seconds
 const CLOCK_UPDATE_INTERVAL = 1000;
 
 
@@ -150,9 +150,9 @@ document.addEventListener('DOMContentLoaded', initializeApp);
 // --- Initialization ---
 function initializeApp() {
     populatePastelColorOptions();
-    loadSettings(); // Also loads notification settings & dark mode
+    loadSettings();
     applyBackground();
-    applyDarkModePreference(); // Apply dark mode based on saved preference
+    applyDarkModePreference();
     renderMappingsList();
     renderCanvasCourseMappingsList();
     renderNotificationSettings();
@@ -160,7 +160,7 @@ function initializeApp() {
     setupNotificationPermission();
     startNotificationChecker();
     startLiveClock();
-    renderCanvasClassListSidebar(); // Initial render (might be empty)
+    renderCanvasClassListSidebar();
 
 
     const savedCompassUrl = localStorage.getItem(CALENDAR_URL_KEY);
@@ -197,7 +197,7 @@ function toggleDarkMode() {
 // --- Live Clock ---
 function startLiveClock() {
     if (clockIntervalId) clearInterval(clockIntervalId);
-    updateLiveClock(); // Initial update
+    updateLiveClock();
     clockIntervalId = setInterval(updateLiveClock, CLOCK_UPDATE_INTERVAL);
 }
 function updateLiveClock() {
@@ -263,7 +263,7 @@ function saveSettings(showMsg = true, type = 'general') {
         renderViews();
     } else if (type === 'canvasAuth' || type === 'canvasMap') {
         if (compassWorkerUrl && canvasDomain && canvasToken) {
-            fetchCanvasData(); // This will also trigger re-render of sidebar canvas list
+            fetchCanvasData();
         }
     } else if (type === 'compass') {
         const currentCompassUrl = urlInput ? urlInput.value.trim() : null;
@@ -553,11 +553,10 @@ function renderSidebar() {
     if (!sidebarEventsDiv || !sidebar || !canvasClassListContainer) return;
     sidebarEventsDiv.innerHTML = '';
     const relevantSidebarEvents = processedSidebarEvents.filter(e => e.startDate >= new Date());
-    if (relevantSidebarEvents.length === 0 && fetchedCanvasCourses.length === 0) { // Check if canvas courses also empty
+    if (relevantSidebarEvents.length === 0 && fetchedCanvasCourses.length === 0) {
         sidebarEventsDiv.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 italic">No other events or due dates found.</p>';
-        // sidebar.classList.add('hidden'); // Don't hide sidebar if canvas classes might be shown
     } else if (relevantSidebarEvents.length > 0) {
-        sidebar.classList.remove('hidden');
+        if(sidebar) sidebar.classList.remove('hidden');
     }
 
 
@@ -575,7 +574,7 @@ function renderSidebar() {
         card.innerHTML = `<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-1">${summaryHtml}</h4><p class="text-xs text-gray-600 dark:text-gray-300">${icon} ${startDateStr} ${event.startDate.getHours() !== 0 || event.startDate.getMinutes() !== 0 ? 'at ' + startTime : ''}</p>${event.location ? `<p class="text-xs text-gray-600 dark:text-gray-300">${ICONS.location} ${event.location}</p>` : ''}`;
         sidebarEventsDiv.appendChild(card);
     });
-    renderCanvasClassListSidebar(); // Update Canvas class list in sidebar
+    renderCanvasClassListSidebar();
 }
 
 async function fetchCanvasAPI(canvasApiEndpointWithPathAndQuery) {
@@ -595,7 +594,7 @@ async function fetchAssignmentsForCourse(courseId) { const assignments = await f
 
 async function processCanvasAssignmentsIntoEvents() {
     if (!compassWorkerUrl || !canvasDomain || !canvasToken) return;
-    const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses(); // Use cached if available
+    const courses = await fetchCanvasCourses();
     if (!courses || courses.length === 0) return;
     let newCanvasAssignmentEvents = [];
     for (const course of courses) {
@@ -624,17 +623,15 @@ async function processCanvasAssignmentsIntoEvents() {
     allParsedEvents.push(...newCanvasAssignmentEvents);
 }
 
-async function fetchCanvasData() { // For Canvas Tab & Sidebar List
+async function fetchCanvasData() {
     if (!compassWorkerUrl || !canvasDomain || !canvasToken) { showMessageForCanvas('Please set Worker URL, Canvas Domain and API Token in Settings.', 'info'); return; }
-    showMessageForCanvas('Loading Canvas data...', 'loading');
-    const courses = await fetchCanvasCourses(); // This populates fetchedCanvasCourses
-    renderCanvasClassListSidebar(); // Update sidebar immediately with course list
-
+    showMessageForCanvas('Loading Canvas data for Canvas Tab...', 'loading');
+    const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses();
+    renderCanvasClassListSidebar(); // Update sidebar as soon as courses are fetched
     if (!courses || courses.length === 0) { if (!canvasDataMessageArea.textContent.includes('Error')) { showMessageForCanvas('No active Canvas courses found or failed to load courses.', 'info');} return; }
-    if(canvasCoursesDisplay) canvasCoursesDisplay.innerHTML = ''; // Clear only for canvas tab
-    let assignmentsFound = 0;
+    if(canvasCoursesDisplay) canvasCoursesDisplay.innerHTML = ''; let assignmentsFound = 0;
     for (const course of courses) {
-        if(canvasCoursesDisplay) { // Only build for canvas tab
+        if(canvasCoursesDisplay) {
             const courseDiv = document.createElement('div'); courseDiv.className = 'canvas-item-card p-4 rounded-lg shadow mb-4';
             courseDiv.innerHTML = `<h3 class="text-lg font-semibold text-indigo-700 dark:text-indigo-400 mb-2">${course.name} <span class="text-sm text-gray-500 dark:text-gray-400">(${course.course_code || 'ID: ' + course.id})</span></h3>`;
             const assignmentsList = document.createElement('ul'); assignmentsList.className = 'list-disc list-inside space-y-1 pl-2 text-sm';
@@ -659,16 +656,16 @@ function showMessageForCanvas(msg, type = 'info') {
 
 function renderCanvasClassListSidebar() {
     if (!canvasClassListContainer || !canvasDomain) return;
-    canvasClassListContainer.innerHTML = ''; // Clear existing
+    canvasClassListContainer.innerHTML = '';
 
     if (fetchedCanvasCourses.length === 0) {
-        canvasClassListContainer.innerHTML = '<p class="text-xs text-gray-500 dark:text-gray-400 italic">No Canvas courses loaded or none found. Check settings.</p>';
+        canvasClassListContainer.innerHTML = '<p class="text-xs text-gray-500 dark:text-gray-400 italic">No Canvas courses loaded. Check settings or Canvas tab.</p>';
         return;
     }
 
     const now = new Date();
     fetchedCanvasCourses
-        .sort((a,b) => (a.name || "").localeCompare(b.name || "")) // Sort by name
+        .sort((a,b) => (a.name || "").localeCompare(b.name || ""))
         .forEach(course => {
         const courseLink = document.createElement('a');
         courseLink.href = `https://${canvasDomain}/courses/${course.id}`;
@@ -676,7 +673,6 @@ function renderCanvasClassListSidebar() {
         courseLink.className = "block p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors duration-150";
 
         let nextClassTimeStr = "";
-        // Find next occurrence of this class in Compass schedule (if mapped)
         const mappedCompassName = Object.keys(canvasCourseMappings).find(key => canvasCourseMappings[key] === String(course.id));
         if(mappedCompassName) {
             const upcomingInstances = allParsedEvents.filter(e => !e.isCanvasAssignment && e.summary === mappedCompassName && e.startDate > now)
@@ -727,7 +723,7 @@ function darkenColor(hexColor, percent) { if (!hexColor || hexColor.length < 4) 
 
 // --- Notification Functions ---
 function renderNotificationSettings() {
-    if(!notifyClassesEnabledCheckbox) return; // Guard against missing elements
+    if(!notifyClassesEnabledCheckbox || !notifyClassesLeadTimeInput || !notifyAssignmentsEnabled1Checkbox || !notifyAssignmentsLeadTime1Input || !notifyAssignmentsEnabled2Checkbox || !notifyAssignmentsLeadTime2Input || !notifyTimetableChangesEnabledCheckbox) return;
     notifyClassesEnabledCheckbox.checked = notificationSettings.classesEnabled;
     notifyClassesLeadTimeInput.value = notificationSettings.classesLeadTime;
     notifyAssignmentsEnabled1Checkbox.checked = notificationSettings.assignmentsEnabled1;
@@ -825,7 +821,6 @@ function checkAndSendNotifications() {
 }
 function startNotificationChecker() { if (notificationCheckIntervalId) clearInterval(notificationCheckIntervalId); notificationCheckIntervalId = setInterval(checkAndSendNotifications, NOTIFICATION_CHECK_INTERVAL); }
 
-// Other utility functions (formatTime, formatDateHeading, etc.) remain the same
 function formatTime(date) { return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); }
 function formatDateHeading(date) { const options = { weekday: 'long', month: 'long', day: 'numeric' }; return date.toLocaleDateString(undefined, options); }
 function extractTeacher(description) { const lines = description.split('\\n'); let teacherLine = lines.find(line => /^\s*teacher:/i.test(line)); if (teacherLine) return teacherLine.replace(/^\s*teacher:/i, '').trim(); return null; }
