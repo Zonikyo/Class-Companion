@@ -1,0 +1,6 @@
+name = "your-worker-name" # Choose a unique name for your worker
+main = "worker.js"       # Or your script's filename
+compatibility_date = "2024-05-14" # Use a recent date
+
+# Ensure there is NO [site] or [[kv_namespaces]] with "preview_id" if not used,
+# and specifically NO [assets] section if you're not deploying static assets with this worker.
