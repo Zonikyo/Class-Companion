@@ -1,4 +1,4 @@
-name = "your-worker-name" # Choose a unique name for your worker
+name = "class-companion" # Choose a unique name for your worker
 main = "worker.js"       # Or your script's filename
 compatibility_date = "2024-05-14" # Use a recent date
 
