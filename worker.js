@@ -1,11 +1,9 @@
 // Cloudflare Worker Script (e.g., worker.js)
 
-// Configuration: In a real deployment, set a specific origin or list of origins.
-// For development, '*' is often used but is less secure.
 const ALLOWED_ORIGIN = '*'; // Replace with your web app's domain in production
 
 async function handleRequest(request) {
-  const url = new URL(request.url);
+  const requestUrlObj = new URL(request.url); // Use a new URL object for manipulation
 
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
@@ -15,13 +13,13 @@ async function handleRequest(request) {
   // Set CORS headers for actual requests
   const corsHeaders = {
     'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', // Allow POST if you plan to send data
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization', // Allow Authorization for Canvas token
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
   try {
-    if (url.pathname === '/compass') {
-      const compassFeedUrl = url.searchParams.get('url');
+    if (requestUrlObj.pathname === '/compass') {
+      const compassFeedUrl = requestUrlObj.searchParams.get('url');
       if (!compassFeedUrl) {
         return new Response(JSON.stringify({ error: 'Missing Compass URL parameter (url)' }), {
           status: 400,
@@ -30,9 +28,7 @@ async function handleRequest(request) {
       }
 
       const response = await fetch(compassFeedUrl, {
-        headers: {
-          'User-Agent': 'CalendarViewerWorker/1.0' // Good practice to set a User-Agent
-        }
+        headers: { 'User-Agent': 'CalendarViewerWorker/1.0' }
       });
 
       if (!response.ok) {
@@ -47,14 +43,21 @@ async function handleRequest(request) {
         headers: { ...corsHeaders, 'Content-Type': 'text/calendar' },
       });
 
-    } else if (url.pathname.startsWith('/canvas/')) {
-      // Example: /canvas/api/v1/courses or /canvas/api/v1/courses/123/assignments
-      const canvasDomain = url.searchParams.get('domain');
-      const canvasToken = request.headers.get('Authorization'); // Get token from Authorization header
-      const canvasApiEndpoint = url.pathname.substring('/canvas/'.length) + url.search; // Get the rest of the path and query string
+    } else if (requestUrlObj.pathname.startsWith('/canvas/')) {
+      const canvasDomain = requestUrlObj.searchParams.get('domain');
+      const canvasToken = request.headers.get('Authorization');
+
+      // Remove the 'domain' param from searchParams before constructing the Canvas API endpoint query
+      const canvasApiSearchParams = new URLSearchParams(requestUrlObj.search);
+      canvasApiSearchParams.delete('domain');
+
+      const canvasApiPath = requestUrlObj.pathname.substring('/canvas/'.length);
+      const canvasApiQuery = canvasApiSearchParams.toString();
+      const canvasApiEndpoint = canvasApiPath + (canvasApiQuery ? `?${canvasApiQuery}` : '');
+
 
       if (!canvasDomain) {
-        return new Response(JSON.stringify({ error: 'Missing Canvas domain parameter' }), {
+        return new Response(JSON.stringify({ error: 'Missing Canvas domain parameter in worker request' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -65,13 +68,16 @@ async function handleRequest(request) {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (!canvasApiEndpoint) {
-        return new Response(JSON.stringify({ error: 'Missing Canvas API endpoint' }), {
+      if (!canvasApiEndpoint) { // Should not happen if path starts with /canvas/
+        return new Response(JSON.stringify({ error: 'Missing Canvas API endpoint path' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
+      // Construct the full URL to the actual Canvas API
+      // canvasDomain is the base (e.g., https://sfx.instructure.com)
+      // canvasApiEndpoint is the path and its specific query (e.g., api/v1/courses?enrollment_state=active)
       const fullCanvasUrl = new URL(canvasApiEndpoint, canvasDomain).toString();
 
       const canvasResponse = await fetch(fullCanvasUrl, {
@@ -85,7 +91,8 @@ async function handleRequest(request) {
          const errorBody = await canvasResponse.text();
         return new Response(JSON.stringify({
             error: `Canvas API request failed: ${canvasResponse.status} ${canvasResponse.statusText}`,
-            canvas_error: errorBody
+            canvas_error: errorBody,
+            requested_canvas_url: fullCanvasUrl // For debugging
         }), {
           status: canvasResponse.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -98,13 +105,13 @@ async function handleRequest(request) {
       });
 
     } else {
-      return new Response(JSON.stringify({ error: 'Not Found. Use /compass or /canvas endpoints.' }), {
+      return new Response(JSON.stringify({ error: 'Not Found. Use /compass or /canvas/* endpoints.' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
   } catch (error) {
-    console.error('Worker Error:', error);
+    console.error('Worker Error:', error.stack); // Log stack for better debugging
     return new Response(JSON.stringify({ error: 'Internal Worker Error: ' + error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -113,29 +120,21 @@ async function handleRequest(request) {
 }
 
 function handleOptions(request) {
-  // Make sure the necessary headers are present
-  // for this to be a valid pre-flight request
   let headers = request.headers;
   if (
     headers.get('Origin') !== null &&
     headers.get('Access-Control-Request-Method') !== null &&
     headers.get('Access-Control-Request-Headers') !== null
   ) {
-    // Handle CORS pre-flight request.
     let respHeaders = {
       'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': headers.get('Access-Control-Request-Headers'),
-      'Access-Control-Max-Age': '86400', // Cache preflight for 1 day
+      'Access-Control-Max-Age': '86400',
     };
     return new Response(null, { headers: respHeaders });
   } else {
-    // Handle standard OPTIONS request.
-    return new Response(null, {
-      headers: {
-        Allow: 'GET, POST, OPTIONS',
-      },
-    });
+    return new Response(null, { headers: { Allow: 'GET, POST, OPTIONS' } });
   }
 }
 
