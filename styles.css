@@ -1,27 +1,40 @@
 /* --- Base & Variables --- */
 :root {
     --bg-light: 243 244 246; /* gray-100 */
-    --bg-dark: 23 37 84; /* slate-900 (darker blue) */
+    --bg-dark: 15 23 42;    /* slate-900 (a bit darker) */
     --surface-light: 255 255 255; /* white */
     --surface-dark: 30 41 59; /* slate-800 */
+    --surface-dark-secondary: 51 65 85; /* slate-700 for slightly lighter dark elements */
+
     --text-light-primary: 17 24 39; /* gray-900 */
-    --text-dark-primary: 226 232 240; /* slate-100 */
-    --text-light-secondary: 107 114 128; /* gray-500 */
-    --text-dark-secondary: 156 163 175; /* gray-400 */
+    --text-dark-primary: 241 245 249; /* slate-100 (brighter) */
+    --text-light-secondary: 75 85 99; /* gray-600 */
+    --text-dark-secondary: 148 163 184; /* slate-400 (brighter) */
+
     --border-light: 209 213 219; /* gray-300 */
-    --border-dark: 71 85 105; /* slate-600 */
+    --border-dark: 51 65 85; /* slate-700 (lighter border for dark mode) */
+
     --accent-color: 79 70 229; /* indigo-600 */
-    --accent-color-dark: 129 140 248; /* indigo-400 */
+    --accent-color-dark: 99 102 241; /* indigo-500 (brighter for dark mode) */
+    --accent-text-light: 255 255 255; /* white for on accent */
+    --accent-text-dark: 224 231 255; /* indigo-100 for on dark accent */
+
 
     /* Neumorphism Shadows (Light) */
-    --neumorph-shadow-light-outer: 6px 6px 12px rgba(var(--border-light), 0.6), -6px -6px 12px rgba(255,255,255,0.8);
-    --neumorph-shadow-light-inner: inset 4px 4px 8px rgba(var(--border-light), 0.6), inset -4px -4px 8px rgba(255,255,255,0.8);
+    --neumorph-shadow-light-outer: 5px 5px 10px rgba(var(--border-light), 0.5), -5px -5px 10px rgba(255,255,255,0.9);
+    --neumorph-shadow-light-inner: inset 3px 3px 6px rgba(var(--border-light), 0.5), inset -3px -3px 6px rgba(255,255,255,0.9);
     /* Neumorphism Shadows (Dark) */
-    --neumorph-shadow-dark-outer: 6px 6px 12px rgba(0,0,0,0.3), -6px -6px 12px rgba(var(--surface-dark),0.1); /* Adjusted for darker bg */
-    --neumorph-shadow-dark-inner: inset 4px 4px 8px rgba(0,0,0,0.3), inset -4px -4px 8px rgba(var(--surface-dark),0.1);
+    --neumorph-shadow-dark-outer: 5px 5px 10px rgba(0,0,0,0.4), -5px -5px 10px rgba(70,80,100,0.2); /* Softer dark shadows */
+    --neumorph-shadow-dark-inner: inset 3px 3px 6px rgba(0,0,0,0.4), inset -3px -3px 6px rgba(70,80,100,0.2);
 
-    --glass-bg-light: rgba(var(--surface-light), 0.6);
-    --glass-bg-dark: rgba(var(--surface-dark), 0.5);
+    /* Glassmorphism */
+    --glass-blur: 16px; /* Increased blur */
+    --glass-bg-light: rgba(var(--surface-light), 0.65);
+    --glass-bg-dark: rgba(var(--surface-dark), 0.55);
+    --glass-border-light: rgba(var(--surface-light), 0.3);
+    --glass-border-dark: rgba(var(--surface-light), 0.1); /* Lighter border for dark glass */
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    --glass-shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
 }
 
 html.dark {
@@ -46,8 +59,8 @@ body {
 
 /* --- Loader --- */
 .loader {
-    border: 4px solid #f3f3f3; /* Light grey border */
-    border-top: 4px solid rgb(var(--accent-color)); /* Accent color for spinner */
+    border: 4px solid rgba(var(--border-light), 0.3);
+    border-top: 4px solid rgb(var(--accent-color));
     border-radius: 50%;
     width: 30px;
     height: 30px;
@@ -55,6 +68,7 @@ body {
     margin: 20px auto;
 }
 .dark .loader {
+    border: 4px solid rgba(var(--border-dark), 0.3);
     border-top: 4px solid rgb(var(--accent-color-dark));
 }
 @keyframes spin {
@@ -77,17 +91,17 @@ body {
 /* --- Glassmorphism & Neumorphism Base --- */
 .content-bg { /* Main content sections */
     background-color: var(--glass-bg-light);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(var(--border-light), 0.2);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border-light);
     border-radius: 0.75rem; /* 12px */
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); /* Subtle shadow */
-    transition: background-color 0.3s, border-color 0.3s;
+    box-shadow: var(--glass-shadow);
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 .dark .content-bg {
     background-color: var(--glass-bg-dark);
-    border: 1px solid rgba(var(--border-dark), 0.3);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
 }
 
 /* Neumorphic Buttons */
@@ -95,48 +109,53 @@ body {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem; /* 8px */
     font-weight: 500;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.15s ease-in-out;
     background-color: rgb(var(--bg-light));
     color: rgb(var(--text-light-primary));
     box-shadow: var(--neumorph-shadow-light-outer);
-    border: 1px solid transparent; /* For consistency */
+    border: 1px solid transparent;
 }
 .dark .btn {
-    background-color: rgb(var(--surface-dark)); /* Slightly different from main dark bg for depth */
+    background-color: rgb(var(--surface-dark-secondary)); /* Use secondary dark for buttons */
     color: rgb(var(--text-dark-primary));
     box-shadow: var(--neumorph-shadow-dark-outer);
 }
 .btn:hover {
     transform: translateY(-1px);
+    filter: brightness(1.05);
 }
-.btn:active, .btn.active { /* For active state like view toggles */
+.dark .btn:hover {
+    filter: brightness(1.15);
+}
+.btn:active, .btn.active {
     box-shadow: var(--neumorph-shadow-light-inner);
-    background-color: rgba(var(--bg-light), 0.95);
+    transform: translateY(1px);
+    filter: brightness(0.95);
 }
 .dark .btn:active, .dark .btn.active {
     box-shadow: var(--neumorph-shadow-dark-inner);
-    background-color: rgba(var(--surface-dark), 0.95);
+    filter: brightness(0.85);
 }
 
-.btn-primary { background-color: rgb(var(--accent-color)); color: white; }
-.dark .btn-primary { background-color: rgb(var(--accent-color-dark)); color: rgb(var(--text-light-primary)); }
+.btn-primary { background-color: rgb(var(--accent-color)); color: var(--accent-text-light); }
+.dark .btn-primary { background-color: rgb(var(--accent-color-dark)); color: var(--accent-text-dark); }
 .btn-primary:hover { background-color: rgba(var(--accent-color), 0.9); }
 .dark .btn-primary:hover { background-color: rgba(var(--accent-color-dark), 0.9); }
 
-.btn-secondary { background-color: #64748b; color: white; /* slate-500 */ }
-.dark .btn-secondary { background-color: #475569; /* slate-600 */ }
+.btn-secondary { background-color: #64748b; color: white; } /* slate-500 */
+.dark .btn-secondary { background-color: #475569; color: rgb(var(--text-dark-primary));} /* slate-600 */
 .btn-secondary:hover { background-color: #475569; }
-.dark .btn-secondary:hover { background-color: #334155; /* slate-700 */ }
+.dark .btn-secondary:hover { background-color: #334155; }
 
-.btn-success { background-color: #16a34a; color: white; /* green-600 */ }
-.dark .btn-success { background-color: #15803d; /* green-700 */ }
+.btn-success { background-color: #16a34a; color: white; } /* green-600 */
+.dark .btn-success { background-color: #15803d; color: rgb(var(--text-dark-primary));} /* green-700 */
 .btn-success:hover { background-color: #15803d; }
-.dark .btn-success:hover { background-color: #14532d; /* green-900 */ }
+.dark .btn-success:hover { background-color: #14532d; }
 
-.btn-neutral { background-color: #a1a1aa; color: white; /* zinc-400 */ }
-.dark .btn-neutral { background-color: #71717a; /* zinc-500 */ }
+.btn-neutral { background-color: #a1a1aa; color: white; } /* zinc-400 */
+.dark .btn-neutral { background-color: #71717a; color: rgb(var(--text-dark-primary));} /* zinc-500 */
 .btn-neutral:hover { background-color: #71717a; }
-.dark .btn-neutral:hover { background-color: #52525b; /* zinc-600 */ }
+.dark .btn-neutral:hover { background-color: #52525b; }
 
 
 /* Neumorphic Input Fields */
@@ -154,6 +173,9 @@ body {
     border-color: rgba(var(--border-dark), 0.5);
     box-shadow: var(--neumorph-shadow-dark-inner);
 }
+.input-field::placeholder { color: rgb(var(--text-light-secondary)); opacity: 0.7; }
+.dark .input-field::placeholder { color: rgb(var(--text-dark-secondary)); opacity: 0.7; }
+
 .input-field:focus, select.input-field:focus {
     box-shadow: var(--neumorph-shadow-light-outer), 0 0 0 2px rgba(var(--accent-color), 0.3);
     border-color: rgb(var(--accent-color));
@@ -185,15 +207,21 @@ body {
 /* --- Navigation --- */
 #mainNav { /* Glassmorphism */
     background-color: var(--glass-bg-light);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(var(--border-light), 0.1);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-bottom: 1px solid var(--glass-border-light);
+    box-shadow: var(--glass-shadow);
 }
 .dark #mainNav {
     background-color: var(--glass-bg-dark);
-    border-bottom: 1px solid rgba(var(--border-dark), 0.2);
+    border-bottom: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
 }
+.nav-link { color: rgb(var(--text-light-secondary)); }
+.dark .nav-link { color: rgb(var(--text-dark-secondary)); }
+.nav-link:hover { color: rgb(var(--accent-color)); }
+.dark .nav-link:hover { color: rgb(var(--accent-color-dark)); }
+
 .nav-link.active {
     border-bottom: 2px solid rgb(var(--accent-color));
     color: rgb(var(--accent-color));
@@ -203,21 +231,34 @@ body {
     color: rgb(var(--accent-color-dark));
 }
 #darkModeToggle {
-    /* Neumorphism applied via .btn class in HTML, additional styling if needed */
+    background-color: transparent; /* Override .btn */
+    box-shadow: none;
+    color: rgb(var(--text-light-secondary));
 }
+.dark #darkModeToggle {
+    color: rgb(var(--text-dark-secondary));
+}
+#darkModeToggle:hover {
+    background-color: rgba(var(--border-light), 0.3);
+}
+.dark #darkModeToggle:hover {
+    background-color: rgba(var(--border-dark), 0.3);
+}
+
 
 /* --- Event Cards & Sidebar --- */
 .event-card, .sidebar-event-card, .canvas-item-card {
     border-radius: 0.75rem;
-    /* Glassmorphism applied via .content-bg for sections, cards are more opaque */
     background-color: rgba(var(--surface-light), 0.9);
     border: 1px solid rgba(var(--border-light), 0.3);
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    color: rgb(var(--text-light-primary));
 }
 .dark .event-card, .dark .sidebar-event-card, .dark .canvas-item-card {
-    background-color: rgba(var(--surface-dark), 0.8);
+    background-color: rgba(var(--surface-dark-secondary), 0.8); /* Use secondary for cards */
     border: 1px solid rgba(var(--border-dark), 0.4);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    color: rgb(var(--text-dark-primary));
 }
 
 /* --- Weekly View Specifics --- */
@@ -249,18 +290,17 @@ body {
 /* --- Sidebar Specifics --- */
 #sidebar { /* Glassmorphism applied via .content-bg */ }
 .sidebar-event-card { background-color: rgba(var(--surface-light), 0.8); border-left: 4px solid rgb(var(--text-light-secondary)); }
-.dark .sidebar-event-card { background-color: rgba(var(--surface-dark), 0.7); border-left-color: rgb(var(--text-dark-secondary)); }
+.dark .sidebar-event-card { background-color: rgba(var(--surface-dark-secondary), 0.7); border-left-color: rgb(var(--text-dark-secondary)); }
 .sidebar-event-card.canvas-assignment { border-left-color: #e53e3e; background-color: #fee2e2; }
 .dark .sidebar-event-card.canvas-assignment { border-left-color: #ef4444; background-color: #7f1d1d; }
 
 #liveClock {
-    /* Neumorphic appearance for the clock */
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     background-color: rgb(var(--bg-light));
     box-shadow: var(--neumorph-shadow-light-inner);
     color: rgb(var(--accent-color));
-    font-family: 'Courier New', Courier, monospace; /* Monospace for clock feel */
+    font-family: 'Courier New', Courier, monospace;
 }
 .dark #liveClock {
     background-color: rgb(var(--surface-dark));
@@ -309,7 +349,7 @@ body {
 .status-text { color: rgb(var(--text-light-secondary)); }
 .dark .status-text { color: rgb(var(--text-dark-secondary)); }
 .status-text.failed { color: #f97316; font-weight: 500; }
-.dark .status-text.failed { color: #fb923c; /* orange-400 for dark mode */ }
+.dark .status-text.failed { color: #fb923c; }
 
 
 /* --- Notification Settings --- */
@@ -327,7 +367,7 @@ body {
     padding: 0.1rem 0.3rem;
     border-radius: 0.25rem;
     margin-left: 0.5rem;
-    display: inline-block; /* Ensure it flows with text */
+    display: inline-block;
 }
 .time-indicator-now {
     background-color: #facc15; /* yellow-400 */
@@ -352,7 +392,18 @@ select.input-field option {
     color: rgb(var(--text-light-primary));
 }
 .dark select.input-field option {
-    background-color: rgb(var(--surface-dark));
+    background-color: rgb(var(--surface-dark-secondary)); /* Use a slightly lighter dark for options */
     color: rgb(var(--text-dark-primary));
 }
 
+/* General link styling */
+a {
+    color: rgb(var(--accent-color));
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+.dark a {
+    color: rgb(var(--accent-color-dark));
+}
