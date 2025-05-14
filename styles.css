@@ -1,0 +1,268 @@
+body {
+    font-family: 'Inter', sans-serif;
+    /* Background set dynamically by JS */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    transition: background-image 0.5s ease-in-out;
+}
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #4f46e5;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.event-card, .sidebar-event-card, .week-event, .canvas-item-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, opacity 0.3s ease-in-out, background-color 0.3s;
+}
+.event-card:hover, .sidebar-event-card:hover, .week-event:hover, .canvas-item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+.fade-in {
+    animation: fadeInAnimation 0.5s ease-in forwards;
+}
+.fade-out {
+    animation: fadeOutAnimation 0.5s ease-out forwards;
+}
+@keyframes fadeInAnimation {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeOutAnimation {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(10px); }
+}
+
+.content-bg {
+    background-color: rgba(255, 255, 255, 0.97);
+}
+.nav-link.active {
+    border-bottom: 2px solid #4f46e5;
+    color: #4f46e5;
+}
+.view-toggle-btn.active {
+    background-color: #4f46e5;
+    color: white;
+}
+
+/* Weekly View Styles */
+#calendarDisplayWeek {
+     overflow-x: auto;
+}
+.weekly-grid-container {
+    position: relative;
+    padding-top: 40px;
+}
+.weekly-grid {
+    display: grid;
+    grid-template-columns: 60px repeat(5, minmax(100px, 1fr));
+    grid-auto-rows: 60px;
+    gap: 1px;
+    background-color: #e5e7eb;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+ }
+.grid-header {
+    font-weight: 600;
+    text-align: center;
+    padding: 8px 4px;
+    background-color: #eef2ff;
+    font-size: 0.875rem;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    height: 40px;
+}
+.time-slot {
+    font-size: 0.75rem;
+    text-align: right;
+    padding: 0 4px;
+    color: #6b7280;
+    background-color: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    border-top: 1px solid #e5e7eb;
+    grid-column: 1 / 2;
+}
+.day-column-bg {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+}
+.day-column-content {
+     grid-column: span 1;
+     grid-row: 1 / -1;
+     position: relative;
+     border-left: 1px solid #e5e7eb;
+     background-color: transparent;
+}
+.day-column-content[data-day-index="0"] { grid-column: 2 / 3; }
+.day-column-content[data-day-index="1"] { grid-column: 3 / 4; }
+.day-column-content[data-day-index="2"] { grid-column: 4 / 5; }
+.day-column-content[data-day-index="3"] { grid-column: 5 / 6; }
+.day-column-content[data-day-index="4"] { grid-column: 6 / 7; }
+
+.week-event {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.1);
+    overflow: hidden;
+    cursor: default;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    z-index: 10;
+    opacity: 1;
+    transform: translateY(0);
+}
+.week-event.clickable-week-event {
+    cursor: pointer;
+}
+.week-event.fade-in {
+    animation: fadeInAnimation 0.5s ease-in forwards;
+}
+.week-event:hover {
+    filter: brightness(1.1);
+}
+.week-event.canvas-assignment-event {
+    border-left: 3px solid #e53e3e; /* Red border for Canvas assignments */
+    background-color: #fed7d7 !important; /* Light red for canvas assignments */
+}
+
+
+/* Mapping List Styles */
+.mapping-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.mapping-item input[type="text"],
+.mapping-item input[type="color"],
+.mapping-item select {
+    padding: 4px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+.mapping-item input[type="color"] {
+    height: 34px;
+    width: 40px;
+    padding: 2px;
+    cursor: pointer;
+}
+.mapping-item button {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+.mapping-item button:hover {
+    color: #dc2626;
+}
+
+/* Sidebar Styles */
+#sidebar {
+    width: 250px;
+    flex-shrink: 0;
+}
+.sidebar-event-card {
+    background-color: #f3f4f6;
+    border-left: 4px solid #6b7280;
+}
+.sidebar-event-card.canvas-assignment {
+    border-left-color: #e53e3e; /* Red border for Canvas assignments in sidebar */
+    background-color: #fee2e2;
+}
+
+
+/* Status Indicator Styles */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+}
+.status-icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+.status-icon.live {
+    background-color: #10b981; /* Green */
+}
+.status-icon.failed svg {
+    width: 12px;
+    height: 12px;
+    color: #f97316; /* Orange */
+}
+.status-text {
+    color: #6b7280;
+}
+.status-text.failed {
+    color: #f97316;
+    font-weight: 500;
+}
+
+.canvas-item-card {
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+}
+.clickable-class-link {
+    color: inherit;
+    text-decoration: none;
+}
+.clickable-class-link:hover {
+    text-decoration: underline;
+    color: #3b82f6; /* Blue-500 on hover */
+}
+
+/* Notification Settings */
+.notification-preference {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.notification-preference label {
+    margin-right: 0.5rem;
+    min-width: 150px;
+}
+.notification-preference input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+.notification-preference input[type="number"] {
+    width: 70px;
+    padding: 0.25rem 0.5rem;
+}
+
+/* "NOW" and "In X mins" indicators */
+.time-indicator {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+}
+.time-indicator-now {
+    background-color: #facc15; /* yellow-400 */
+    color: #713f12; /* yellow-800 */
+}
+.time-indicator-upcoming {
+    background-color: #a7f3d0; /* green-200 */
+    color: #047857; /* green-700 */
+}
