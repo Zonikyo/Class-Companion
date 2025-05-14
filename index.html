@@ -227,7 +227,6 @@
         const CANVAS_TOKEN_KEY = 'canvasToken';
         const CANVAS_COURSE_MAPPINGS_KEY = 'canvasCourseMappings';
 
-        // Default Worker URL - User can override in settings
         const DEFAULT_WORKER_URL = 'https://class-companion.thebestmate100.workers.dev';
         const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
         const REFRESH_INTERVAL = 10000;
@@ -324,7 +323,7 @@
         document.addEventListener('DOMContentLoaded', initializeApp);
 
         function initializeApp() {
-            loadSettings(); // This will set compassWorkerUrl from localStorage or to DEFAULT_WORKER_URL
+            loadSettings();
             applyBackground();
             renderMappingsList();
             renderCanvasCourseMappingsList();
@@ -332,7 +331,7 @@
 
             const savedCompassUrl = localStorage.getItem(CALENDAR_URL_KEY);
 
-            if (compassWorkerUrl && savedCompassUrl) { // Check if both are available
+            if (compassWorkerUrl && savedCompassUrl) {
                 urlInput.value = savedCompassUrl;
                 startAutoRefresh(savedCompassUrl);
             } else if (!compassWorkerUrl) {
@@ -347,9 +346,8 @@
         }
 
         function loadSettings() {
-             compassWorkerUrl = localStorage.getItem(WORKER_URL_KEY) || DEFAULT_WORKER_URL; // Use default if not set
-             workerUrlInput.value = compassWorkerUrl; // Update input field with loaded or default value
-
+             compassWorkerUrl = localStorage.getItem(WORKER_URL_KEY) || DEFAULT_WORKER_URL;
+             workerUrlInput.value = compassWorkerUrl;
              classMappings = JSON.parse(localStorage.getItem(CLASS_MAPPINGS_KEY) || '{}');
              classColors = JSON.parse(localStorage.getItem(CLASS_COLORS_KEY) || '{}');
              backgroundUrl = localStorage.getItem(BACKGROUND_URL_KEY) || DEFAULT_BACKGROUND_URL;
@@ -371,7 +369,7 @@
             localStorage.setItem(CANVAS_TOKEN_KEY, canvasTokenInput.value.trim());
             localStorage.setItem(CANVAS_COURSE_MAPPINGS_KEY, JSON.stringify(canvasCourseMappings));
 
-            loadSettings(); // Reload all settings, including compassWorkerUrl
+            loadSettings();
             applyBackground();
 
             if (showMsg) showMessage('Settings saved.', 'success', 'settings');
@@ -387,7 +385,7 @@
                 }
             } else if (type === 'compass') {
                 const currentCompassUrl = urlInput.value.trim();
-                if (compassWorkerUrl && currentCompassUrl) { // compassWorkerUrl is now updated via loadSettings()
+                if (compassWorkerUrl && currentCompassUrl) {
                     isFirstLoad = true;
                     startAutoRefresh(currentCompassUrl);
                 }
@@ -452,7 +450,7 @@
             if (!compassURLValue) { showMessage('Compass Calendar Feed URL is required.', 'error', 'settings'); return; }
             try { new URL(workerURLValue); new URL(compassURLValue); }
             catch (_) { showMessage('Invalid URL format for Worker or Compass URL.', 'error', 'settings'); return; }
-            saveSettings(false, 'compass'); // Save all settings, flag as compass type
+            saveSettings(false, 'compass');
             showMessage('Settings saved. Starting auto-refresh...', 'loading', 'settings');
         }
         function startAutoRefresh(compassCalUrl) {
@@ -566,10 +564,13 @@
             });
         }
 
-        async function fetchCanvasAPI(canvasApiEndpoint) {
+        async function fetchCanvasAPI(canvasApiEndpointWithPathAndQuery) {
             if (!compassWorkerUrl) { showMessageForCanvas('Cloudflare Worker URL not set in Settings.', 'error'); return null; }
             if (!canvasDomain || !canvasToken) { showMessageForCanvas('Canvas Domain and API Token not set in Settings.', 'error'); return null; }
-            const workerRequestUrl = `${compassWorkerUrl}/canvas/${canvasApiEndpoint}?domain=${encodeURIComponent(canvasDomain)}`;
+
+            const separator = canvasApiEndpointWithPathAndQuery.includes('?') ? '&' : '?';
+            const workerRequestUrl = `${compassWorkerUrl}/canvas/${canvasApiEndpointWithPathAndQuery}${separator}domain=${encodeURIComponent(canvasDomain)}`;
+
             try {
                 const response = await fetch(workerRequestUrl, { headers: { 'Authorization': `Bearer ${canvasToken}` } });
                 if (!response.ok) { const errorData = await response.json().catch(() => ({ error: `Worker error: ${response.status} ${response.statusText}` })); throw new Error(errorData.error || `Failed to fetch from Canvas via worker: ${response.status}`); }
