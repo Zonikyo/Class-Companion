@@ -1,29 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" class=""> 
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Class Companion</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Ensure Tailwind respects the 'dark' class on <html>
+            theme: {
+                extend: {
+                    // You can extend your theme here if needed
+                }
+            }
+        }
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.4.0/ical.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-   
+  
     <!-- <link rel="icon" href="/favicon.ico" type="image/x-icon"> -->
 </head>
-<body class="bg-gray-100 dark:bg-slate-900 min-h-screen transition-colors duration-300">
+<body class="bg-slate-900 text-slate-100 min-h-screen transition-colors duration-300">
 
-    <nav id="mainNav" class="bg-white/70 dark:bg-slate-800/70 backdrop-blur-md shadow-md sticky top-0 z-30 transition-colors duration-300">
+    <nav id="mainNav" class="bg-slate-800/70 backdrop-blur-md shadow-md sticky top-0 z-30 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-xl font-bold text-indigo-600 dark:text-indigo-400">Class Companion</span>
+                    <span class="text-xl font-bold text-indigo-400">Class Companion</span>
                 </div>
                 <div class="flex items-center space-x-2 sm:space-x-4">
-                    <button data-section="calendar" class="nav-link text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out active">Calendar</button>
-                    <button data-section="canvas" class="nav-link text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">Canvas</button>
-                    <button data-section="settings" class="nav-link text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">Settings</button>
-                    </button>
+                    <button data-section="calendar" class="nav-link text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out active">Calendar</button>
+                    <button data-section="canvas" class="nav-link text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">Canvas</button>
+                    <button data-section="settings" class="nav-link text-gray-300 hover:text-indigo-400 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out">Settings</button>
+                 
                 </div>
             </div>
         </div>
@@ -31,105 +42,120 @@
 
     <main class="max-w-7xl mx-auto p-4 md:p-8">
 
-        <section id="settingsSection" class="content-bg rounded-lg shadow-lg p-6 md:p-8 mb-8 hidden fade-in">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 border-b border-gray-300 dark:border-gray-700 pb-2">Settings</h2>
+        <section id="settingsSection" class="content-bg rounded-lg p-6 md:p-8 mb-8 hidden fade-in">
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-8 border-b border-slate-700 pb-4">Settings</h2>
 
-            <div class="mb-8 pb-6 border-b border-gray-300 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Proxy & Compass Feed</h3>
-                 <label for="workerUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cloudflare Worker URL:</label>
-                <input type="url" id="workerUrl" placeholder="https://your-worker.your-name.workers.dev" class="input-field block w-full px-3 py-2 mb-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-
-                <label for="calendarUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Compass Calendar Feed URL (.ics):</label>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="url" id="calendarUrl" placeholder="https://your-school.compass.education/..." class="input-field flex-grow block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                    <button id="loadCalendarBtn" class="btn btn-primary whitespace-nowrap">
-                        Save & Load Compass
-                    </button>
+           
+            <div class="settings-group mb-10 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-slate-200 mb-4">Proxy & Compass Feed</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="workerUrl" class="block text-sm font-medium text-slate-300 mb-1">Cloudflare Worker URL:</label>
+                        <input type="url" id="workerUrl" placeholder="https://your-worker.your-name.workers.dev" class="input-field block w-full">
+                    </div>
+                    <div>
+                        <label for="calendarUrl" class="block text-sm font-medium text-slate-300 mb-1">Compass Calendar Feed URL (.ics):</label>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input type="url" id="calendarUrl" placeholder="https://your-school.compass.education/..." class="input-field flex-grow block w-full">
+                            <button id="loadCalendarBtn" class="btn btn-primary whitespace-nowrap mt-2 sm:mt-0">
+                                Save & Load Compass
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Your Worker URL and Compass URL are saved locally. Auto-refresh every 10 seconds is enabled.</p>
+                 <p class="mt-3 text-xs text-slate-400">Your Worker URL and Compass URL are saved locally. Auto-refresh every 10 seconds is enabled.</p>
             </div>
 
-            <div class="mb-8 pb-6 border-b border-gray-300 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Class Naming & Coloring (Compass)</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Define short codes found in your Compass class names.</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">If a code is found anywhere within a class name (e.g., 'ENG' in '09ENG1B01'), the <strong class="font-medium">entire original class name</strong> will be replaced with the "Full Name" you provide (e.g., 'English'). Assign colors for identification.</p>
-                <div id="mappingsList" class="mb-4 space-y-2"></div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                     <input type="text" id="newMappingCode" placeholder="Code (e.g., ENG)" class="input-field px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                     <input type="text" id="newMappingName" placeholder="Full Name (e.g., English)" class="input-field flex-grow px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
+           
+            <div class="settings-group mb-10 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-slate-200 mb-4">Class Naming & Coloring (Compass)</h3>
+                <p class="text-sm text-slate-400 mb-1">Define short codes found in your Compass class names.</p>
+                <p class="text-sm text-slate-400 mb-4">If a code is found anywhere within a class name (e.g., 'ENG' in '09ENG1B01'), the <strong class="font-medium text-slate-300">entire original class name</strong> will be replaced with the "Full Name" you provide (e.g., 'English'). Assign colors for identification.</p>
+                <div id="mappingsList" class="mb-4 space-y-3"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                     <input type="text" id="newMappingCode" placeholder="Code (e.g., ENG)" class="input-field">
+                     <input type="text" id="newMappingName" placeholder="Full Name (e.g., English)" class="input-field">
                      <div class="flex items-center gap-2">
-                        <select id="newMappingPastelColor" class="input-field px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
+                        <select id="newMappingPastelColor" class="input-field flex-grow">
                             <option value="">-- Pastel --</option>
                         </select>
-                        <span class="text-sm text-gray-500 dark:text-gray-400">or</span>
-                        <input type="color" id="newMappingColor" value="#e5e7eb" class="h-auto p-1 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm cursor-pointer bg-white dark:bg-slate-700">
+                        <span class="text-sm text-slate-400">or</span>
+                        <input type="color" id="newMappingColor" value="#374151" class="h-10 w-12 p-1 border border-slate-600 rounded-md shadow-sm cursor-pointer bg-slate-700"> 
                      </div>
-                     <button id="addMappingBtn" class="btn btn-success">Add</button>
+                     <button id="addMappingBtn" class="btn btn-success w-full sm:w-auto">Add</button>
                 </div>
             </div>
 
-            <div class="mb-8 pb-6 border-b border-gray-300 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Canvas Integration</h3>
-                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Ensure your Cloudflare Worker URL is set above.</p>
-                 <label for="canvasDomain" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Canvas Domain:</label>
-                <input type="url" id="canvasDomain" placeholder="https://yourinstitution.instructure.com" class="input-field block w-full px-3 py-2 mb-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                <label for="canvasToken" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Canvas API Access Token:</label>
-                <input type="password" id="canvasToken" placeholder="Paste your token here" class="input-field block w-full px-3 py-2 mb-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
+         
+            <div class="settings-group mb-10 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-slate-200 mb-4">Canvas Integration</h3>
+                 <p class="text-sm text-slate-400 mb-2">Ensure your Cloudflare Worker URL is set above.</p>
+                 <div>
+                    <label for="canvasDomain" class="block text-sm font-medium text-slate-300 mb-1">Canvas Domain:</label>
+                    <input type="url" id="canvasDomain" placeholder="https://yourinstitution.instructure.com" class="input-field block w-full mb-3">
+                 </div>
+                 <div>
+                    <label for="canvasToken" class="block text-sm font-medium text-slate-300 mb-1">Canvas API Access Token:</label>
+                    <input type="password" id="canvasToken" placeholder="Paste your token here" class="input-field block w-full mb-3">
+                 </div>
                 <button id="saveCanvasSettingsBtn" class="btn btn-primary text-sm">Save Canvas Settings & Fetch</button>
-                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Your Canvas domain and token are saved locally.</p>
+                <p class="mt-3 text-xs text-slate-400">Your Canvas domain and token are saved locally.</p>
             </div>
 
-            <div class="mb-8 pb-6 border-b border-gray-300 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Compass Class to Canvas Course Mapping</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Link your Compass class names (after your custom naming above is applied) to your Canvas Course IDs. Get Course IDs from the URL of a Canvas course page (e.g., .../courses/COURSE_ID).</p>
-                <div id="canvasCourseMappingsList" class="mb-4 space-y-2"></div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                     <input type="text" id="compassClassNameForCanvas" placeholder="Compass Class Name" class="input-field flex-grow px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm mb-2 sm:mb-0 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                     <input type="text" id="canvasCourseIdForMapping" placeholder="Canvas Course ID" class="input-field flex-grow px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                     <button id="addCanvasCourseMappingBtn" class="btn btn-success text-sm">Add Mapping</button>
+           
+            <div class="settings-group mb-10 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-slate-200 mb-4">Compass Class to Canvas Course Mapping</h3>
+                <p class="text-sm text-slate-400 mb-4">Link your Compass class names (after your custom naming above is applied) to your Canvas Course IDs. Get Course IDs from the URL of a Canvas course page (e.g., .../courses/COURSE_ID).</p>
+                <div id="canvasCourseMappingsList" class="mb-4 space-y-3"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                     <input type="text" id="compassClassNameForCanvas" placeholder="Compass Class Name" class="input-field">
+                     <input type="text" id="canvasCourseIdForMapping" placeholder="Canvas Course ID" class="input-field">
+                     <button id="addCanvasCourseMappingBtn" class="btn btn-success text-sm w-full sm:w-auto">Add Mapping</button>
                 </div>
             </div>
 
-            <div class="mb-8 pb-6 border-b border-gray-300 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Notifications</h3>
-                <div id="notificationPermissionStatus" class="text-sm text-gray-600 dark:text-gray-400 mb-3"></div>
-                <div class="space-y-3">
+          
+            <div class="settings-group mb-10 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-slate-200 mb-4">Notifications</h3>
+                <div id="notificationPermissionStatus" class="text-sm text-slate-400 mb-3"></div>
+                <div class="space-y-4">
                     <div class="notification-preference">
                         <input type="checkbox" id="notifyClassesEnabled" class="form-checkbox">
-                        <label for="notifyClassesEnabled" class="font-medium text-gray-700 dark:text-gray-300">Class Reminders:</label>
-                        <input type="number" id="notifyClassesLeadTime" min="1" class="input-field border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">minutes before</span>
+                        <label for="notifyClassesEnabled" class="font-medium text-slate-300">Class Reminders:</label>
+                        <input type="number" id="notifyClassesLeadTime" min="1" class="input-field">
+                        <span class="ml-2 text-sm text-slate-400">minutes before</span>
                     </div>
                     <div class="notification-preference">
                         <input type="checkbox" id="notifyAssignmentsEnabled1" class="form-checkbox">
-                        <label for="notifyAssignmentsEnabled1" class="font-medium text-gray-700 dark:text-gray-300">Assignment Reminder 1:</label>
-                        <input type="number" id="notifyAssignmentsLeadTime1" min="1" class="input-field border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">minutes before due</span>
+                        <label for="notifyAssignmentsEnabled1" class="font-medium text-slate-300">Assignment Reminder 1:</label>
+                        <input type="number" id="notifyAssignmentsLeadTime1" min="1" class="input-field">
+                        <span class="ml-2 text-sm text-slate-400">minutes before due</span>
                     </div>
                      <div class="notification-preference">
                         <input type="checkbox" id="notifyAssignmentsEnabled2" class="form-checkbox">
-                        <label for="notifyAssignmentsEnabled2" class="font-medium text-gray-700 dark:text-gray-300">Assignment Reminder 2:</label>
-                        <input type="number" id="notifyAssignmentsLeadTime2" min="1" class="input-field border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">minutes before due</span>
+                        <label for="notifyAssignmentsEnabled2" class="font-medium text-slate-300">Assignment Reminder 2:</label>
+                        <input type="number" id="notifyAssignmentsLeadTime2" min="1" class="input-field">
+                        <span class="ml-2 text-sm text-slate-400">minutes before due</span>
                     </div>
                      <div class="notification-preference">
                         <input type="checkbox" id="notifyTimetableChangesEnabled" class="form-checkbox">
-                        <label for="notifyTimetableChangesEnabled" class="font-medium text-gray-700 dark:text-gray-300">Timetable Changes:</label>
-                        <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">(Room, Time, Cancellation)</span>
+                        <label for="notifyTimetableChangesEnabled" class="font-medium text-slate-300">Timetable Changes:</label>
+                        <span class="ml-2 text-sm text-slate-400">(Room, Time, Cancellation)</span>
                     </div>
                 </div>
-                <button id="saveNotificationSettingsBtn" class="btn btn-primary mt-4 text-sm">Save Notification Preferences</button>
+                <button id="saveNotificationSettingsBtn" class="btn btn-primary mt-6 text-sm">Save Notification Preferences</button>
             </div>
 
-             <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Appearance</h3>
-                <label for="backgroundUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Custom Background Image URL:</label>
+     
+             <div class="settings-group p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-slate-200 mb-4">Appearance</h3>
+                <label for="backgroundUrl" class="block text-sm font-medium text-slate-300 mb-1">Custom Background Image URL:</label>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="url" id="backgroundUrl" placeholder="Enter image URL..." class="input-field flex-grow block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
-                    <button id="saveBackgroundBtn" class="btn btn-secondary whitespace-nowrap">Save BG</button>
-                     <button id="resetBackgroundBtn" class="btn btn-neutral whitespace-nowrap">Reset BG</button>
+                    <input type="url" id="backgroundUrl" placeholder="Enter image URL..." class="input-field flex-grow">
+                    <button id="saveBackgroundBtn" class="btn btn-secondary whitespace-nowrap mt-2 sm:mt-0">Save BG</button>
+                     <button id="resetBackgroundBtn" class="btn btn-neutral whitespace-nowrap mt-2 sm:mt-0">Reset BG</button>
                 </div>
-                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Leave blank to use the default background.</p>
+                 <p class="mt-3 text-xs text-slate-400">Leave blank to use the default background.</p>
             </div>
 
              <div id="settingsMessageArea" class="text-center my-4"></div>
@@ -137,10 +163,10 @@
 
         <section id="calendarSection" class="hidden fade-in">
              <div class="flex flex-col lg:flex-row gap-6">
-                 <div class="flex-grow content-bg rounded-lg shadow-lg p-6 md:p-8 overflow-hidden">
+                 <div class="flex-grow content-bg rounded-lg p-6 md:p-8 overflow-hidden">
                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
-                         <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">Your Schedule</h2>
-                         <div class="flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md p-0.5 bg-gray-100 dark:bg-slate-700">
+                         <h2 class="text-xl md:text-2xl font-bold text-slate-100 whitespace-nowrap">Your Schedule</h2>
+                         <div class="flex items-center gap-2 border border-slate-600 rounded-md p-0.5 bg-slate-700">
                              <button id="listViewBtn" data-view="list" class="view-toggle-btn px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out active">List</button>
                              <button id="weekViewBtn" data-view="week" class="view-toggle-btn px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out">Week</button>
                          </div>
@@ -152,11 +178,11 @@
                      <div id="listControls" class="flex flex-col md:flex-row gap-4 mb-6">
                          <div class="flex-grow">
                              <label for="searchBox" class="sr-only">Search Events</label>
-                             <input type="search" id="searchBox" placeholder="Search events (class, room, teacher)..." class="input-field block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100">
+                             <input type="search" id="searchBox" placeholder="Search events (class, room, teacher)..." class="input-field block w-full">
                          </div>
                          <div>
                              <label for="sortOrder" class="sr-only">Sort Events By</label>
-                             <select id="sortOrder" class="input-field block w-full md:w-auto px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 dark:text-gray-100">
+                             <select id="sortOrder" class="input-field block w-full md:w-auto">
                                  <option value="time">Sort by Time</option>
                                  <option value="name">Sort by Class Name</option>
                                  <option value="location">Sort by Location</option>
@@ -174,23 +200,22 @@
                          </div>
                      </div>
                  </div>
-                 <aside id="sidebar" class="content-bg rounded-lg shadow-lg p-4 lg:sticky lg:top-24 lg:self-start">
-                    <div id="liveClock" class="text-center text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4"></div>
+                 <aside id="sidebar" class="content-bg rounded-lg p-4 lg:sticky lg:top-24 lg:self-start">
+                    <div id="liveClock" class="text-center text-2xl font-semibold text-slate-200 mb-4 p-3 rounded-lg"></div>
                     <div id="canvasClassListSidebar" class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3 border-b border-gray-300 dark:border-gray-700 pb-2">Canvas Classes</h3>
+                        <h3 class="text-lg font-semibold text-slate-200 mb-3 border-b border-slate-700 pb-2">Canvas Classes</h3>
                         <div id="canvasClassListContainer" class="space-y-2 max-h-48 overflow-y-auto">
-                           
                         </div>
                     </div>
-                     <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">Other Events & Due Dates</h3>
-                     <div id="sidebarEvents" class="space-y-3 max-h-[calc(70vh-150px)] overflow-y-auto"></div> 
+                     <h3 class="text-lg font-semibold text-slate-200 mb-4 border-b border-slate-700 pb-2">Other Events & Due Dates</h3>
+                     <div id="sidebarEvents" class="space-y-3 max-h-[calc(70vh-150px)] overflow-y-auto"></div>
                  </aside>
              </div>
         </section>
 
         <section id="canvasSection" class="hidden fade-in">
-            <div class="content-bg rounded-lg shadow-lg p-6 md:p-8">
-                <h2 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Canvas Details</h2>
+            <div class="content-bg rounded-lg p-6 md:p-8">
+                <h2 class="text-xl md:text-2xl font-bold text-slate-100 mb-6">Canvas Details</h2>
                 <div id="canvasDataMessageArea" class="text-center my-4"></div>
                 <div id="canvasCoursesDisplay" class="space-y-6">
                     </div>
