@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark"> 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,13 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    
+                    boxShadow: {
+                        'neumorph-outer-dark': '5px 5px 12px rgba(0,0,0,0.5), -5px -5px 12px rgba(65,75,95,0.12)',
+                        'neumorph-inner-dark': 'inset 4px 4px 8px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(65,75,95,0.12)',
+                    },
+                    backdropBlur: {
+                        'xl': '20px',
+                    }
                 }
             }
         }
@@ -18,21 +24,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.4.0/ical.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <!-- <link rel="icon" href="/favicon.ico" type="image/x-icon"> -->
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen transition-colors duration-300">
-    
+
+
     <div id="onboardingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md hidden">
         <div id="onboardingCard" class="content-bg rounded-xl shadow-2xl p-8 w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0">
             <h1 class="text-3xl font-bold text-center text-indigo-400 mb-2">Welcome to Class Companion!</h1>
             <p class="text-center text-slate-400 mb-8">Let's get you set up in a few quick steps.</p>
-            
+
             <div id="stepIndicatorContainer" class="flex justify-center space-x-2 mb-8">
+              
             </div>
-            
+
             <div id="onboardingStep1" class="onboarding-step active-step">
                 <h2 class="text-xl font-semibold text-slate-100 mb-4">Step 1: Proxy Worker</h2>
                 <p class="text-sm text-slate-400 mb-1">This app uses a Cloudflare Worker to securely fetch your data. Please enter its URL.</p>
-                <p class="text-xs text-slate-500 mb-4">If you haven't deployed one, instructions are on the project's GitHub.</p>
+                <p class="text-xs text-slate-500 mb-4">Default is provided. If you haven't deployed one, instructions are on the project's GitHub.</p>
                 <div>
                     <label for="onboardingWorkerUrl" class="block text-sm font-medium text-slate-300 mb-1">Cloudflare Worker URL:</label>
                     <input type="url" id="onboardingWorkerUrl" placeholder="https://your-worker.your-name.workers.dev" class="input-field block w-full">
@@ -78,6 +87,8 @@
             <div id="onboardingErrorMessage" class="mt-4 text-red-400 text-sm text-center"></div>
         </div>
     </div>
+
+
     <nav id="mainNav" class="bg-slate-800/70 backdrop-blur-md shadow-md sticky top-0 z-30 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -97,9 +108,8 @@
 
         <section id="settingsSection" class="content-bg rounded-lg p-6 md:p-8 mb-8 hidden fade-in">
             <h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-8 border-b border-slate-700 pb-4">Settings</h2>
-
            
-            <div class="settings-group mb-10 p-6 rounded-lg">
+             <div class="settings-group mb-10 p-6 rounded-lg">
                 <h3 class="text-xl font-semibold text-slate-200 mb-4">Proxy & Compass Feed</h3>
                 <div class="space-y-4">
                     <div>
@@ -119,7 +129,6 @@
                  <p class="mt-3 text-xs text-slate-400">Your Worker URL and Compass URL are saved locally. Auto-refresh every 10 seconds is enabled.</p>
             </div>
 
-      
             <div class="settings-group mb-10 p-6 rounded-lg">
                 <h3 class="text-xl font-semibold text-slate-200 mb-4">Class Naming & Coloring (Compass)</h3>
                 <p class="text-sm text-slate-400 mb-1">Define short codes found in your Compass class names.</p>
@@ -139,7 +148,6 @@
                 </div>
             </div>
 
-          
             <div class="settings-group mb-10 p-6 rounded-lg">
                 <h3 class="text-xl font-semibold text-slate-200 mb-4">Canvas Integration</h3>
                  <p class="text-sm text-slate-400 mb-2">Ensure your Cloudflare Worker URL is set above.</p>
@@ -155,7 +163,6 @@
                 <p class="mt-3 text-xs text-slate-400">Your Canvas domain and token are saved locally.</p>
             </div>
 
-         
             <div class="settings-group mb-10 p-6 rounded-lg">
                 <h3 class="text-xl font-semibold text-slate-200 mb-4">Compass Class to Canvas Course Mapping</h3>
                 <p class="text-sm text-slate-400 mb-4">Link your Compass class names (after your custom naming above is applied) to your Canvas Course IDs. Get Course IDs from the URL of a Canvas course page (e.g., .../courses/COURSE_ID).</p>
@@ -167,7 +174,6 @@
                 </div>
             </div>
 
-}
             <div class="settings-group mb-10 p-6 rounded-lg">
                 <h3 class="text-xl font-semibold text-slate-200 mb-4">Notifications</h3>
                 <div id="notificationPermissionStatus" class="text-sm text-slate-400 mb-3"></div>
@@ -199,7 +205,6 @@
                 <button id="saveNotificationSettingsBtn" class="btn btn-primary mt-6 text-sm">Save Notification Preferences</button>
             </div>
 
-           
              <div class="settings-group p-6 rounded-lg">
                 <h3 class="text-xl font-semibold text-slate-200 mb-4">Appearance</h3>
                 <label for="backgroundUrl" class="block text-sm font-medium text-slate-300 mb-1">Custom Background Image URL:</label>
@@ -210,8 +215,7 @@
                 </div>
                  <p class="mt-3 text-xs text-slate-400">Leave blank to use the default background.</p>
             </div>
-
-             <div id="settingsMessageArea" class="text-center my-4"></div>
+            <div id="settingsMessageArea" class="text-center my-4"></div>
         </section>
 
         <section id="calendarSection" class="hidden fade-in">
@@ -219,7 +223,8 @@
                  <div class="flex-grow content-bg rounded-lg p-6 md:p-8 overflow-hidden">
                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
                          <h2 class="text-xl md:text-2xl font-bold text-slate-100 whitespace-nowrap">Your Schedule</h2>
-                         <div class="flex items-center gap-2 border border-slate-600 rounded-md p-0.5 bg-slate-700">
+                         <div class="flex items-center gap-1 border border-slate-600 rounded-md p-0.5 bg-slate-700"> 
+                             <button id="dayViewBtn" data-view="day" class="view-toggle-btn px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out">Day</button>
                              <button id="listViewBtn" data-view="list" class="view-toggle-btn px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out active">List</button>
                              <button id="weekViewBtn" data-view="week" class="view-toggle-btn px-3 py-1 rounded-md text-sm font-medium transition duration-150 ease-in-out">Week</button>
                          </div>
@@ -243,6 +248,9 @@
                          </div>
                      </div>
                      <div id="calendarMessageArea" class="text-center my-4"></div>
+                     <div id="calendarDisplayDay" class="space-y-4 hidden">
+                       
+                     </div>
                      <div id="calendarDisplayList" class="space-y-4"></div>
                       <div id="calendarDisplayWeek" class="hidden">
                          <div class="weekly-grid-container">
@@ -271,16 +279,15 @@
                 <h2 class="text-xl md:text-2xl font-bold text-slate-100 mb-6">Canvas Details</h2>
                 <div id="canvasDataMessageArea" class="text-center my-4"></div>
                 <div id="canvasCoursesDisplay" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    
                 </div>
             </div>
         </section>
 
-        <div id="canvasDetailModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-40 hidden transition-opacity duration-300 opacity-0">
-            <div id="canvasDetailModalContent" class="content-bg rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
-            
-                <div class="flex justify-between items-center mb-4">
-                    <h2 id="canvasDetailCourseName" class="text-xl font-bold text-indigo-400">Course Details</h2>
+       
+        <div id="canvasDetailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-lg flex items-center justify-center p-4 z-40 hidden transition-opacity duration-300 opacity-0">
+            <div id="canvasDetailModalContent" class="content-bg rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-3">
+                    <h2 id="canvasDetailCourseName" class="text-2xl font-bold text-indigo-400">Course Details</h2>
                     <button id="closeCanvasDetailModal" class="p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-slate-100 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -288,40 +295,44 @@
                     </button>
                 </div>
 
-             
-                <div class="mb-6">
-                    <p class="text-sm text-slate-400">Course Code: <span id="canvasDetailCourseCode" class="font-medium text-slate-300"></span></p>
-                    <p class="text-sm text-slate-400">Term: <span id="canvasDetailCourseTerm" class="font-medium text-slate-300"></span></p>
-                    <a id="canvasDetailCourseLink" href="#" target="_blank" class="text-sm text-indigo-400 hover:text-indigo-300 hover:underline inline-flex items-center mt-1">
-                        View Course in Canvas
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                    </a>
-                </div>
-
-               
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-slate-200 mb-3 border-b border-slate-700 pb-1">Assignments</h3>
-                    <div id="canvasDetailAssignmentsList" class="space-y-3 max-h-60 overflow-y-auto pr-2">
-                       
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="md:col-span-1">
+                        <img id="canvasDetailCourseImage" src="https://placehold.co/600x400/1e293b/94a3b8?text=Course+Image" alt="Course Image" class="rounded-lg shadow-md w-full h-48 object-cover mb-3">
+                        <p class="text-sm text-slate-400">Code: <span id="canvasDetailCourseCode" class="font-medium text-slate-300"></span></p>
+                        <p class="text-sm text-slate-400">Term: <span id="canvasDetailCourseTerm" class="font-medium text-slate-300"></span></p>
+                        <a id="canvasDetailCourseLink" href="#" target="_blank" class="btn btn-secondary btn-sm mt-3 inline-flex items-center text-xs">
+                            View in Canvas
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        </a>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-slate-200 mb-2 border-b border-slate-700 pb-1">Upcoming Assignments</h3>
+                            <div id="canvasDetailAssignmentsList" class="space-y-2 max-h-48 overflow-y-auto pr-2 text-sm">
+                             
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-200 mb-2 border-b border-slate-700 pb-1">Recent Announcements</h3>
+                            <div id="canvasDetailAnnouncementsList" class="space-y-2 max-h-48 overflow-y-auto pr-2 text-sm">
+                               
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                
-                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-slate-200 mb-3 border-b border-slate-700 pb-1">Recent Announcements</h3>
-                    <div id="canvasDetailAnnouncementsList" class="space-y-2 text-sm text-slate-400">
-                        <p class="italic">Announcements loading or not available...</p>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-200 mb-2 border-b border-slate-700 pb-1">Syllabus / Homepage</h3>
+                    <div id="canvasDetailSyllabus" class="text-sm text-slate-300 prose prose-sm prose-invert max-w-none max-h-60 overflow-y-auto pr-2">
+
+                        <p class="italic">Syllabus or homepage content loading...</p>
                     </div>
                 </div>
-
-                
-
             </div>
         </div>
-
-
     </main>
 
-    <script src="script.js" defer></script>
+    <script src="canvas.js" defer></script>
+    <script src="main.js" defer></script>
 </body>
 </html>
