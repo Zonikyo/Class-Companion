@@ -1,43 +1,49 @@
 /* --- Base & Variables --- */
 :root {
-    --bg-dark: hsl(222, 47%, 11%); /* Slightly desaturated very dark blue */
+    --bg-dark: hsl(222, 47%, 11%); /* Very dark blue */
     --surface-1-dark: hsl(222, 45%, 15%); /* For cards, slightly lighter */
     --surface-2-dark: hsl(222, 40%, 20%); /* For interactive elements or secondary surfaces */
     --surface-glass-dark: hsla(222, 45%, 15%, 0.65); /* Glassmorphism background */
 
     --text-primary-dark: hsl(210, 40%, 98%); /* Almost white */
-    --text-secondary-dark: hsl(215, 20%, 65%); /* Lighter gray */
+    --text-secondary-dark: hsl(215, 25%, 75%); /* Lighter gray for secondary text */
+    --text-placeholder-dark: hsl(215, 20%, 55%); /* For placeholders */
     --text-on-colored-bg: hsl(0, 0%, 0%); /* Black text for on pastel cards */
 
-    --border-dark: hsl(222, 30%, 25%); /* Softer border */
-    --border-glass-dark: hsla(210, 40%, 98%, 0.15); /* Light border for glass */
+    --border-dark: hsl(222, 30%, 28%); /* Softer border, slightly lighter */
+    --border-glass-dark: hsla(210, 40%, 98%, 0.1); /* Light border for glass */
+    --border-input-dark: hsl(222, 30%, 35%); /* Border for inputs */
+
 
     --accent-1: hsl(243, 90%, 66%); /* Indigo-400ish */
     --accent-1-hover: hsl(243, 90%, 70%);
     --accent-2: hsl(190, 80%, 60%); /* Cyanish for highlights */
+    --accent-text-dark: hsl(220, 100%, 95%); /* Very light for on accent buttons */
+
 
     /* Neumorphism Shadows (Dark Mode Only) */
-    /* Outer shadow: one darker, one slightly lighter than element bg */
-    --neumorph-shadow-outer: 6px 6px 16px rgba(0,0,0,0.5), -6px -6px 16px rgba(50,60,80,0.15);
-    /* Inner shadow: one darker, one slightly lighter than element bg, inset */
-    --neumorph-shadow-inner: inset 4px 4px 8px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(50,60,80,0.15);
+    --neumorph-shadow-outer: 6px 6px 14px rgba(0,0,0,0.6), -6px -6px 14px rgba(60,70,90,0.15);
+    --neumorph-shadow-inner: inset 4px 4px 8px rgba(0,0,0,0.6), inset -4px -4px 8px rgba(60,70,90,0.15);
 
     /* Glassmorphism */
     --glass-blur: 20px; /* Increased blur */
     --glass-shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 
-    /* Darker Pastel Options (examples, can add more) */
-    --pastel-dark-mint: hsl(180, 50%, 60%);
-    --pastel-dark-lavender: hsl(240, 50%, 70%);
-    --pastel-dark-peach: hsl(0, 70%, 70%);
-    --pastel-dark-sky-blue: hsl(200, 70%, 70%);
-    --pastel-dark-pink: hsl(330, 70%, 75%);
-    --pastel-dark-yellow: hsl(60, 70%, 70%);
-    --pastel-dark-green: hsl(140, 50%, 65%);
+    /* Darker Pastel Options */
+    --pastel-dark-mint: hsl(180, 40%, 45%);
+    --pastel-dark-lavender: hsl(240, 40%, 60%);
+    --pastel-dark-peach: hsl(15, 70%, 60%);
+    --pastel-dark-sky-blue: hsl(200, 50%, 55%);
+    --pastel-dark-pink: hsl(330, 50%, 60%);
+    --pastel-dark-periwinkle: hsl(220, 50%, 60%);
+    --pastel-dark-gold: hsl(50, 60%, 55%);
+    --pastel-dark-sage: hsl(100, 30%, 50%);
+    --pastel-dark-coral: hsl(0, 60%, 60%);
+    --pastel-dark-plum: hsl(270, 40%, 55%);
 }
 
 html {
-    color-scheme: dark; /* Inform browser this is a dark-themed page */
+    color-scheme: dark;
 }
 
 body {
@@ -79,19 +85,18 @@ body {
 }
 
 /* --- Glassmorphism & Neumorphism Base --- */
-.content-bg { /* Main content sections, sidebar */
+.content-bg {
     background-color: var(--surface-glass-dark);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--border-glass-dark);
-    border-radius: 0.75rem; /* 12px */
+    border-radius: 0.75rem;
     box-shadow: var(--glass-shadow-dark);
     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
-/* Neumorphic Buttons */
 .btn {
-    padding: 0.6rem 1.2rem; /* Slightly larger padding */
+    padding: 0.6rem 1.2rem;
     border-radius: 0.6rem;
     font-weight: 500;
     transition: all 0.15s ease-in-out;
@@ -102,44 +107,70 @@ body {
     text-align: center;
 }
 .btn:hover {
-    transform: translateY(-2px); /* More noticeable hover */
-    filter: brightness(1.2);
+    transform: translateY(-2px);
+    filter: brightness(1.15);
     box-shadow: 8px 8px 20px rgba(0,0,0,0.6), -8px -8px 20px rgba(75,85,100,0.18);
 }
 .btn:active, .btn.active {
     box-shadow: var(--neumorph-shadow-inner);
     transform: translateY(0px);
-    filter: brightness(0.9);
+    filter: brightness(0.85);
 }
 
 .btn-primary { background-color: var(--accent-1); color: var(--accent-text-dark); }
 .btn-primary:hover { background-color: var(--accent-1-hover); }
 .btn-secondary { background-color: var(--surface-dark); color: var(--text-primary-dark); }
 .btn-secondary:hover { background-color: hsl(222, 40%, 25%); }
-.btn-success { background-color: hsl(145, 63%, 42%); color: var(--accent-text-dark); } /* Darker green */
+.btn-success { background-color: hsl(145, 63%, 42%); color: var(--accent-text-dark); }
 .btn-success:hover { background-color: hsl(145, 63%, 49%); }
 .btn-neutral { background-color: hsl(222, 25%, 35%); color: var(--text-primary-dark); }
 .btn-neutral:hover { background-color: hsl(222, 25%, 45%); }
 
 
-/* Neumorphic Input Fields */
-.input-field, .form-checkbox, select.input-field {
+.input-field, select.input-field {
     border-radius: 0.5rem;
     background-color: var(--surface-dark);
     color: var(--text-primary-dark);
-    border: 1px solid var(--border-dark);
+    border: 1px solid var(--border-input-dark);
     box-shadow: var(--neumorph-shadow-inner);
-    padding: 0.6rem 0.75rem; /* Consistent padding */
+    padding: 0.6rem 0.75rem;
     transition: all 0.2s ease-in-out;
 }
-.input-field::placeholder { color: var(--text-secondary-dark); opacity: 0.8; }
-.input-field:focus, select.input-field:focus {
+.form-checkbox { /* Specific styling for checkbox */
+    appearance: none;
+    -webkit-appearance: none;
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: 0.375rem; /* Slightly less rounded than inputs */
+    background-color: var(--surface-dark);
+    border: 1px solid var(--border-input-dark);
+    box-shadow: var(--neumorph-shadow-inner);
+    cursor: pointer;
+    position: relative; /* For checkmark */
+    transition: all 0.2s ease-in-out;
+}
+.input-field::placeholder { color: var(--text-placeholder-dark); opacity: 1; }
+
+.input-field:focus, select.input-field:focus, .form-checkbox:focus {
     box-shadow: var(--neumorph-shadow-outer), 0 0 0 2px rgba(var(--accent-1), 0.4);
     border-color: var(--accent-1);
     outline: none;
 }
-.form-checkbox { appearance: none; -webkit-appearance: none; height: 1.25rem; width: 1.25rem; cursor: pointer; }
-.form-checkbox:checked { background-color: var(--accent-1); border-color: var(--accent-1); box-shadow: var(--neumorph-shadow-inner), inset 0 0 0 3px var(--surface-dark); }
+.form-checkbox:checked {
+    background-color: var(--accent-1);
+    border-color: var(--accent-1);
+    box-shadow: var(--neumorph-shadow-inner), inset 0 0 0 3px var(--surface-dark);
+}
+/* Checkmark for custom checkbox */
+.form-checkbox:checked::after {
+    content: '✔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.8rem;
+    color: var(--accent-text-dark);
+}
 
 
 /* --- Navigation --- */
@@ -158,17 +189,16 @@ body {
 /* --- Event Cards & Sidebar --- */
 .event-card, .sidebar-event-card, .canvas-item-card {
     border-radius: 0.75rem;
-    background-color: var(--surface-1-dark); /* Use primary dark surface */
+    background-color: var(--surface-1-dark);
     border: 1px solid var(--border-dark);
-    box-shadow: 3px 3px 8px rgba(0,0,0,0.3), -3px -3px 8px rgba(70,80,100,0.1); /* Softer neumorphic for cards */
-    color: var(--text-primary-dark); /* Default text on cards */
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.3), -3px -3px 8px rgba(70,80,100,0.1);
+    color: var(--text-primary-dark);
 }
-/* Specific text color for colored event cards */
 .event-card .text-on-color, .week-event .text-on-color {
-    color: var(--text-on-colored-bg) !important; /* Black text for colored cards */
+    color: var(--text-on-colored-bg) !important;
 }
 .event-card .icon-on-color svg, .week-event .icon-on-color svg {
-    color: var(--text-on-colored-bg) !important; /* Black icons for colored cards */
+    color: var(--text-on-colored-bg) !important;
     opacity: 0.7;
 }
 
@@ -190,14 +220,14 @@ body {
 .week-event.clickable-week-event { cursor: pointer; }
 .week-event.fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
 .week-event:hover { filter: brightness(1.2); }
-.week-event.canvas-assignment-event { border-left: 3px solid hsl(0, 70%, 60%); background-color: hsl(0, 50%, 30%) !important; color: var(--text-primary-dark) !important; } /* Darker red for canvas assignments */
-.week-event.canvas-assignment-event .text-on-color { color: var(--text-primary-dark) !important; } /* Ensure text is light on this dark red */
+.week-event.canvas-assignment-event { border-left: 3px solid hsl(0, 70%, 60%); background-color: hsl(0, 50%, 30%) !important; color: var(--text-primary-dark) !important; }
+.week-event.canvas-assignment-event .text-on-color { color: var(--text-primary-dark) !important; }
 .week-event.canvas-assignment-event .icon-on-color svg { color: var(--text-primary-dark) !important; opacity: 0.8; }
 
 
 /* --- Sidebar Specifics --- */
 #sidebar { /* Glassmorphism applied via .content-bg */ }
-.sidebar-event-card { background-color: var(--surface-dark-secondary); border-left: 4px solid var(--text-secondary-dark); }
+.sidebar-event-card { background-color: var(--surface-2-dark); border-left: 4px solid var(--text-secondary-dark); }
 .sidebar-event-card.canvas-assignment { border-left-color: hsl(0, 70%, 60%); background-color: hsl(0, 50%, 30%); }
 .sidebar-event-card h4 { color: var(--text-primary-dark); }
 .sidebar-event-card p { color: var(--text-secondary-dark); }
@@ -244,9 +274,17 @@ body {
 
 /* --- Notification Settings & Settings Page Groups --- */
 .settings-group {
-    background-color: var(--surface-dark); /* Slightly different from main bg */
+    background-color: var(--surface-dark);
     box-shadow: var(--neumorph-shadow-outer);
     border: 1px solid var(--border-dark);
+    margin-bottom: 2.5rem; /* Increased spacing */
+    padding: 1.5rem; /* Increased padding */
+    border-radius: 0.75rem; /* Consistent with .content-bg */
+}
+.settings-group h3 {
+    border-bottom: 1px solid var(--border-dark);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
 }
 .notification-preference label { color: var(--text-primary-dark);}
 .notification-preference input[type="number"] { /* Already styled by .input-field */ }
@@ -263,18 +301,21 @@ body {
     display: inline-block;
 }
 .time-indicator-now {
-    background-color: hsl(50, 90%, 60%); /* Brighter yellow */
-    color: hsl(50, 90%, 15%); /* Darker text for yellow */
+    background-color: hsl(50, 90%, 60%);
+    color: hsl(50, 90%, 15%);
 }
 .time-indicator-upcoming {
-    background-color: hsl(145, 63%, 49%); /* Brighter green */
-    color: hsl(145, 100%, 10%); /* Darker text for green */
+    background-color: hsl(145, 63%, 49%);
+    color: hsl(145, 100%, 10%);
 }
 
 /* Ensure select dropdown text is visible in dark mode */
 select.input-field option {
-    background-color: var(--surface-dark-secondary);
+    background-color: var(--surface-2-dark); /* Use a consistent dark surface for options */
     color: var(--text-primary-dark);
+}
+select.input-field {
+    padding-right: 2.5rem; /* Make space for Tailwind's default arrow */
 }
 
 /* General link styling */
@@ -287,5 +328,14 @@ a:hover {
     color: var(--accent-1-hover);
 }
 .clickable-class-link:hover {
-    color: var(--accent-2) !important; /* More prominent hover for class links */
+    color: var(--accent-2) !important;
+}
+
+/* Specific overrides for better dark mode readability on colored event cards */
+.dark .event-card .text-on-color, .dark .week-event .text-on-color {
+    color: var(--text-on-colored-bg) !important;
+}
+.dark .event-card .icon-on-color svg, .dark .week-event .icon-on-color svg {
+    color: var(--text-on-colored-bg) !important;
+    opacity: 0.7;
 }
