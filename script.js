@@ -8,16 +8,14 @@ const CANVAS_DOMAIN_KEY = 'canvasDomain';
 const CANVAS_TOKEN_KEY = 'canvasToken';
 const CANVAS_COURSE_MAPPINGS_KEY = 'canvasCourseMappings';
 const NOTIFICATION_SETTINGS_KEY = 'classCompanionNotificationSettings';
-// DARK_MODE_KEY is removed as dark mode is now default
 
 const DEFAULT_WORKER_URL = 'https://class-companion.thebestmate100.workers.dev';
 const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
-const REFRESH_INTERVAL = 10000; // 10 seconds
-const STATUS_UPDATE_INTERVAL = 1000; // 1 second for 'ago' text
-const NOTIFICATION_CHECK_INTERVAL = 30000; // Check for notifications every 30 seconds
+const REFRESH_INTERVAL = 10000;
+const STATUS_UPDATE_INTERVAL = 1000;
+const NOTIFICATION_CHECK_INTERVAL = 30000;
 const CLOCK_UPDATE_INTERVAL = 1000;
 
-// Darker Pastel Colors for Dark Mode
 const PASTEL_COLORS = [
     { name: 'Dark Mint', value: 'hsl(180, 40%, 45%)' },
     { name: 'Dark Lavender', value: 'hsl(240, 40%, 60%)' },
@@ -28,9 +26,18 @@ const PASTEL_COLORS = [
     { name: 'Dark Gold', value: 'hsl(50, 60%, 55%)' },
     { name: 'Dark Sage', value: 'hsl(100, 30%, 50%)' },
     { name: 'Dark Coral', value: 'hsl(0, 60%, 60%)' },
-    { name: 'Dark Plum', value: 'hsl(270, 40%, 55%)' }
+    { name: 'Dark Plum', value: 'hsl(270, 35%, 45%)' }
 ];
 
+const ICONS = {
+     clock: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+     location: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
+     teacher: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>`,
+     event: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`,
+     assignment: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>`,
+     cloudError: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`,
+     link: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-indigo-400 hover:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`
+};
 
 const workerUrlInput = document.getElementById('workerUrl');
 const urlInput = document.getElementById('calendarUrl');
@@ -84,6 +91,17 @@ const saveNotificationSettingsBtn = document.getElementById('saveNotificationSet
 const liveClockDiv = document.getElementById('liveClock');
 const canvasClassListContainer = document.getElementById('canvasClassListContainer');
 
+// Canvas Detail Modal Elements
+const canvasDetailModal = document.getElementById('canvasDetailModal');
+const canvasDetailModalContent = document.getElementById('canvasDetailModalContent');
+const closeCanvasDetailModalBtn = document.getElementById('closeCanvasDetailModal');
+const canvasDetailCourseName = document.getElementById('canvasDetailCourseName');
+const canvasDetailCourseCode = document.getElementById('canvasDetailCourseCode');
+const canvasDetailCourseTerm = document.getElementById('canvasDetailCourseTerm');
+const canvasDetailCourseLink = document.getElementById('canvasDetailCourseLink');
+const canvasDetailAssignmentsList = document.getElementById('canvasDetailAssignmentsList');
+const canvasDetailAnnouncementsList = document.getElementById('canvasDetailAnnouncementsList');
+
 
 let compassWorkerUrl = DEFAULT_WORKER_URL;
 let allParsedEvents = [];
@@ -99,7 +117,7 @@ let backgroundUrl = DEFAULT_BACKGROUND_URL;
 let canvasDomain = '';
 let canvasToken = '';
 let canvasCourseMappings = {};
-let fetchedCanvasCourses = []; // Cache for Canvas courses
+let fetchedCanvasCourses = [];
 let notificationSettings = {
     classesEnabled: false, classesLeadTime: 5,
     assignmentsEnabled1: false, assignmentsLeadTime1: 60,
@@ -119,16 +137,8 @@ let isAutoRefreshing = false;
 let lastSuccessfulUpdateTime = null;
 let currentStatus = 'idle';
 
-const ICONS = {
-     clock: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
-     location: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`,
-     teacher: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>`,
-     event: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`,
-     assignment: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>`,
-     cloudError: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`,
-     link: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-indigo-400 hover:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`
-};
 
+// --- Event Listeners ---
 if (loadButton) loadButton.addEventListener('click', handleSaveAndLoad);
 if (searchBox) searchBox.addEventListener('input', handleSearch);
 if (sortOrderSelect) sortOrderSelect.addEventListener('change', handleSort);
@@ -144,6 +154,8 @@ if (addCanvasCourseMappingBtn) addCanvasCourseMappingBtn.addEventListener('click
 if (canvasCourseMappingsListDiv) canvasCourseMappingsListDiv.addEventListener('click', handleCanvasMappingListClick);
 if (newMappingPastelColorSelect) newMappingPastelColorSelect.addEventListener('change', () => { if (newMappingPastelColorSelect.value && newMappingColorInput) { newMappingColorInput.value = newMappingPastelColorSelect.value; }});
 if (saveNotificationSettingsBtn) saveNotificationSettingsBtn.addEventListener('click', handleSaveNotificationSettings);
+if (closeCanvasDetailModalBtn) closeCanvasDetailModalBtn.addEventListener('click', () => hideCanvasDetailModal());
+if (canvasDetailModal) canvasDetailModal.addEventListener('click', (event) => { if (event.target === canvasDetailModal) hideCanvasDetailModal(); }); // Close on backdrop click
 
 document.addEventListener('DOMContentLoaded', initializeApp);
 
@@ -175,7 +187,6 @@ function initializeApp() {
     switchSection('calendar');
     switchViewMode(currentViewMode);
 }
-
 
 function startLiveClock() {
     if (clockIntervalId) clearInterval(clockIntervalId);
@@ -244,7 +255,7 @@ function saveSettings(showMsg = true, type = 'general') {
         renderViews();
     } else if (type === 'canvasAuth' || type === 'canvasMap') {
         if (compassWorkerUrl && canvasDomain && canvasToken) {
-            fetchCanvasData(true); // Force refresh of courses for sidebar
+            fetchCanvasData(true); // Force refresh courses for sidebar and Canvas tab
         }
     } else if (type === 'compass') {
         const currentCompassUrl = urlInput ? urlInput.value.trim() : null;
@@ -262,7 +273,7 @@ function applyBackground() { document.body.style.backgroundImage = `url('${backg
 function handleSaveBackground() { const newUrl = backgroundUrlInput.value.trim(); localStorage.setItem(BACKGROUND_URL_KEY, newUrl); backgroundUrl = newUrl || DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background saved.', 'success', 'settings'); }
 function handleResetBackground() { if(backgroundUrlInput) backgroundUrlInput.value = ''; localStorage.removeItem(BACKGROUND_URL_KEY); backgroundUrl = DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background reset to default.', 'success', 'settings'); }
 function handleSaveCanvasSettings() {
-    saveSettings(true, 'canvasAuth'); // This will trigger fetchCanvasData if conditions met
+    saveSettings(true, 'canvasAuth');
  }
 
 function renderMappingsList() {
@@ -445,8 +456,11 @@ function renderListView() {
             let summaryHtml = event.summary;
             const canvasCourseId = canvasCourseMappings[event.summary];
             if (!event.isCanvasAssignment && canvasCourseId && canvasDomain) {
-                const canvasLink = `https://${canvasDomain}/courses/${canvasCourseId}`;
-                summaryHtml = `<a href="${canvasLink}" target="_blank" class="clickable-class-link hover:text-indigo-400">${event.summary}${ICONS.link}</a>`;
+                summaryHtml = `<span class="clickable-class-link hover:text-indigo-400 cursor-pointer" data-canvas-course-id="${canvasCourseId}">${event.summary}${ICONS.link}</span>`;
+                card.addEventListener('click', (e) => { // Add click listener to card for Compass class
+                    if (e.target.closest('a')) return; // Don't trigger if a link inside is clicked
+                    showCanvasDetailModal(canvasCourseId);
+                });
             } else if (event.isCanvasAssignment && event.html_url) {
                 summaryHtml = `<a href="${event.html_url}" target="_blank" class="clickable-class-link hover:text-red-400">${event.summary}${ICONS.link}</a>`;
             }
@@ -487,9 +501,15 @@ function renderWeeklyView() {
             const durationMinutes = Math.max(15, (eventEndMillis - eventStartMillis) / (1000 * 60)); const heightPx = (durationMinutes / 60) * slotHeight;
             if (eventEndMillis > new Date(event.startDate).setHours(hourStart, 0, 0, 0) && eventStartMillis < new Date(event.startDate).setHours(hourEnd, 0, 0, 0)) {
                 const eventDiv = document.createElement('div');
-                let isClickable = false; let linkUrl = '';
+                let isClickable = false; let linkUrl = ''; let isCanvasCourseLink = false; let courseIdForModal = null;
+
                 if (event.isCanvasAssignment && event.html_url) { isClickable = true; linkUrl = event.html_url;
-                } else if (!event.isCanvasAssignment && canvasCourseMappings[event.summary] && canvasDomain) { isClickable = true; linkUrl = `https://${canvasDomain}/courses/${canvasCourseMappings[event.summary]}`; }
+                } else if (!event.isCanvasAssignment && canvasCourseMappings[event.summary] && canvasDomain) {
+                    isClickable = true;
+                    isCanvasCourseLink = true; // Flag that this is a link to a Canvas course page
+                    courseIdForModal = canvasCourseMappings[event.summary];
+                    linkUrl = `https://${canvasDomain}/courses/${courseIdForModal}`; // Direct link for title
+                }
 
                 const isCustomColor = event.color && event.color !== 'var(--surface-1-dark)' && event.color !== '#e5e7eb' && event.color !== '#fed7d7' && event.color !== 'hsl(0, 50%, 30%)';
                 eventDiv.className = `week-event ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''} ${isClickable ? 'clickable-week-event' : ''}`;
@@ -497,7 +517,6 @@ function renderWeeklyView() {
                 eventDiv.style.backgroundColor = event.color || (event.isCanvasAssignment ? 'hsl(0, 50%, 30%)' : 'var(--surface-1-dark)');
                 eventDiv.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? 'hsl(0, 50%, 30%)' : 'var(--border-dark)'), 15);
                 const textColorClass = isCustomColor && !event.isCanvasAssignment ? 'text-on-color' : 'text-slate-100';
-
 
                 if (!isAutoRefreshing) { eventDiv.classList.add('fade-in'); eventDiv.style.animationDelay = `${eventIndex * 0.03}s`; } else { eventDiv.style.opacity = '1'; eventDiv.style.transform = 'translateY(0)'; }
 
@@ -517,7 +536,14 @@ function renderWeeklyView() {
 
                 eventDiv.innerHTML = `<strong class="${textColorClass}">${summaryText} ${timeIndicatorHtml}</strong><br><span class="text-xs ${textColorClass} opacity-80">${locationHtml}</span>`;
                 eventDiv.title = `${event.summary}\n${formatTime(event.startDate)} - ${formatTime(event.endDate)}\nRoom: ${event.location || 'N/A'}${event.teacher ? '\nTeacher: ' + event.teacher : ''}`;
-                if (isClickable) { eventDiv.onclick = () => window.open(linkUrl, '_blank'); }
+
+                if (isClickable) {
+                    if (isCanvasCourseLink) { // Compass class linked to Canvas course
+                        eventDiv.onclick = () => showCanvasDetailModal(courseIdForModal);
+                    } else { // Direct link (e.g., Canvas assignment)
+                        eventDiv.onclick = () => window.open(linkUrl, '_blank');
+                    }
+                }
                 const targetContainer = dayContentContainers[eventDayIndex]; if (targetContainer) { targetContainer.appendChild(eventDiv); }
             }
         }
@@ -556,7 +582,7 @@ async function fetchCanvasAPI(canvasApiEndpointWithPathAndQuery) {
     if (!canvasDomain || !canvasToken) { showMessageForCanvas('Canvas Domain and API Token not set in Settings.', 'error'); return null; }
     const workerPath = `${compassWorkerUrl}/canvas/${canvasApiEndpointWithPathAndQuery}`;
     const finalWorkerUrl = new URL(workerPath);
-    finalWorkerUrl.searchParams.append('domain', canvasDomain);
+    finalWorkerUrl.searchParams.append('domain', canvasDomain); // Worker script expects domain as query param
     try {
         const response = await fetch(finalWorkerUrl.toString(), { headers: { 'Authorization': `Bearer ${canvasToken}` } });
         if (!response.ok) { const errorData = await response.json().catch(() => ({ error: `Worker error: ${response.status} ${response.statusText}` })); throw new Error(errorData.error || `Failed to fetch from Canvas via worker: ${response.status}`); }
@@ -565,7 +591,7 @@ async function fetchCanvasAPI(canvasApiEndpointWithPathAndQuery) {
 }
 async function fetchCanvasCourses(forceRefresh = false) {
     if (!forceRefresh && fetchedCanvasCourses.length > 0) {
-        return fetchedCanvasCourses; // Return cached if not forcing refresh
+        return fetchedCanvasCourses;
     }
     const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&include[]=term&include[]=course_image&per_page=50');
     if (courses) {
@@ -573,18 +599,23 @@ async function fetchCanvasCourses(forceRefresh = false) {
             id: course.id,
             name: course.name,
             course_code: course.course_code,
+            term: course.term ? course.term.name : 'N/A',
             start_at: course.start_at ? new Date(course.start_at) : null,
-            image: course.image_download_url || (course.course_image || null) // Prefer download_url
+            image: course.image_download_url || (course.course_image || null),
+            html_url: `${canvasDomain.startsWith('http') ? '' : 'https://'}${canvasDomain}/courses/${course.id}` // Construct full URL
         }));
         return fetchedCanvasCourses;
     }
+    fetchedCanvasCourses = []; // Clear cache on failure
     return [];
 }
 async function fetchAssignmentsForCourse(courseId) { const assignments = await fetchCanvasAPI(`api/v1/courses/${courseId}/assignments?order_by=due_at&bucket=upcoming&per_page=50`); return assignments || []; }
+async function fetchAnnouncementsForCourse(courseId) { const announcements = await fetchCanvasAPI(`api/v1/announcements?context_codes[]=course_${courseId}&per_page=5`); return announcements || []; }
+
 
 async function processCanvasAssignmentsIntoEvents() {
     if (!compassWorkerUrl || !canvasDomain || !canvasToken) return;
-    const courses = await fetchCanvasCourses(); // Will use cache if available
+    const courses = await fetchCanvasCourses(); // Ensures fetchedCanvasCourses is populated
     if (!courses || courses.length === 0) return;
     let newCanvasAssignmentEvents = [];
     for (const course of courses) {
@@ -616,31 +647,33 @@ async function processCanvasAssignmentsIntoEvents() {
 async function fetchCanvasData(forceRefreshCourses = false) {
     if (!compassWorkerUrl || !canvasDomain || !canvasToken) { showMessageForCanvas('Please set Worker URL, Canvas Domain and API Token in Settings.', 'info'); return; }
     showMessageForCanvas('Loading Canvas data for Canvas Tab...', 'loading');
-    const courses = await fetchCanvasCourses(forceRefreshCourses); // Pass forceRefresh
+    const courses = await fetchCanvasCourses(forceRefreshCourses);
     renderCanvasClassListSidebar();
     if (!courses || courses.length === 0) { if (!canvasDataMessageArea.textContent.includes('Error')) { showMessageForCanvas('No active Canvas courses found or failed to load courses.', 'info');} return; }
-
     if(canvasCoursesDisplay) {
-        canvasCoursesDisplay.innerHTML = ''; // Clear previous
-        // Add grid classes to the container
+        canvasCoursesDisplay.innerHTML = '';
         canvasCoursesDisplay.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6';
         let assignmentsFoundTotal = 0;
 
         for (const course of courses) {
             const courseCard = document.createElement('div');
-            courseCard.className = 'canvas-item-card neumorph-card flex flex-col justify-between p-4 rounded-lg shadow-lg overflow-hidden h-full'; // Ensure cards take full height for grid alignment
+            courseCard.className = 'canvas-item-card flex flex-col justify-between p-4 rounded-lg shadow-lg overflow-hidden h-full cursor-pointer neumorph-card';
+            courseCard.addEventListener('click', () => showCanvasDetailModal(course.id));
 
-            let thumbnailHtml = `<div class="w-full h-32 bg-slate-700 flex items-center justify-center text-slate-500 rounded-t-md mb-3">No Image</div>`;
+
+            let thumbnailHtml = `<div class="w-full h-32 bg-slate-700 flex items-center justify-center text-slate-500 rounded-md mb-3">No Image</div>`;
             if (course.image) {
-                thumbnailHtml = `<img src="${course.image}" alt="${course.name} thumbnail" class="w-full h-32 object-cover rounded-t-md mb-3" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\'w-full h-32 bg-slate-700 flex items-center justify-center text-slate-500 rounded-t-md mb-3\\'>No Image</div>';">`;
+                thumbnailHtml = `<img src="${course.image}" alt="${course.name} thumbnail" class="w-full h-32 object-cover rounded-md mb-3" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                 <div class="w-full h-32 bg-slate-700 items-center justify-center text-slate-500 rounded-md mb-3 hidden">No Image</div>`;
             }
+
 
             const assignmentsForThisCourse = await fetchAssignmentsForCourse(course.id);
             let assignmentsHtml = '<p class="text-xs text-slate-400 italic mt-2">No upcoming assignments.</p>';
             if (assignmentsForThisCourse && assignmentsForThisCourse.length > 0) {
                 assignmentsFoundTotal += assignmentsForThisCourse.length;
                 assignmentsHtml = '<ul class="text-xs space-y-1 mt-2 list-disc list-inside pl-1">';
-                assignmentsForThisCourse.slice(0, 3).forEach(assignment => { // Show first 3
+                assignmentsForThisCourse.slice(0, 3).forEach(assignment => {
                     const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'N/A';
                     assignmentsHtml += `<li><a href="${assignment.html_url}" target="_blank" class="hover:text-indigo-300">${assignment.name} (Due: ${dueDate})</a></li>`;
                 });
@@ -657,7 +690,7 @@ async function fetchCanvasData(forceRefreshCourses = false) {
                     <p class="text-xs text-slate-400 mb-2 truncate" title="${course.course_code || 'ID: ' + course.id}">${course.course_code || 'ID: ' + course.id}</p>
                     ${assignmentsHtml}
                 </div>
-                <a href="https://${canvasDomain}/courses/${course.id}" target="_blank" class="btn btn-secondary btn-sm mt-3 self-start text-xs">View Course ${ICONS.link.replace('h-4 w-4', 'h-3 w-3')}</a>
+                <button class="btn btn-secondary btn-sm mt-3 self-start text-xs">View Details</button>
             `;
             canvasCoursesDisplay.appendChild(courseCard);
         }
@@ -687,9 +720,11 @@ function renderCanvasClassListSidebar() {
         .sort((a,b) => (a.name || "").localeCompare(b.name || ""))
         .forEach(course => {
         const courseLink = document.createElement('a');
-        courseLink.href = `https://${canvasDomain}/courses/${course.id}`;
-        courseLink.target = "_blank";
-        courseLink.className = "block p-1.5 rounded-md hover:bg-slate-700 transition-colors duration-150";
+        // Make the whole item clickable to open modal, not just a link icon
+        courseLink.href = "#"; // Prevent default link behavior
+        courseLink.onclick = (e) => { e.preventDefault(); showCanvasDetailModal(course.id); };
+        courseLink.className = "block p-1.5 rounded-md hover:bg-slate-700 transition-colors duration-150 cursor-pointer";
+
 
         let nextClassTimeStr = "";
         const mappedCompassName = Object.keys(canvasCourseMappings).find(key => canvasCourseMappings[key] === String(course.id));
@@ -714,10 +749,79 @@ function renderCanvasClassListSidebar() {
         courseLink.innerHTML = `
             <span class="text-sm font-medium text-slate-200">${course.name}</span>
             ${nextClassTimeStr ? `<span class="canvas-class-next-time">${nextClassTimeStr}</span>` : ''}
-            ${ICONS.link}
+            <span class="float-right text-indigo-400 text-xs">Details &rarr;</span>
         `;
         canvasClassListContainer.appendChild(courseLink);
     });
+}
+
+// --- Canvas Detail Modal Functions ---
+async function showCanvasDetailModal(courseId) {
+    if (!canvasDetailModal || !canvasDomain) return;
+    const course = fetchedCanvasCourses.find(c => String(c.id) === String(courseId));
+    if (!course) {
+        showMessageForCanvas('Could not find course details.', 'error');
+        return;
+    }
+
+    if(canvasDetailCourseName) canvasDetailCourseName.textContent = course.name || 'Course Details';
+    if(canvasDetailCourseCode) canvasDetailCourseCode.textContent = course.course_code || 'N/A';
+    if(canvasDetailCourseTerm) canvasDetailCourseTerm.textContent = course.term || 'N/A'; // Assuming 'term' object has 'name'
+    if(canvasDetailCourseLink) canvasDetailCourseLink.href = course.html_url || `https://${canvasDomain}/courses/${course.id}`;
+
+    if(canvasDetailAssignmentsList) canvasDetailAssignmentsList.innerHTML = '<div class="loader"></div>';
+    if(canvasDetailAnnouncementsList) canvasDetailAnnouncementsList.innerHTML = '<p class="italic text-slate-400">Loading announcements...</p>';
+
+
+    canvasDetailModal.classList.remove('hidden');
+    setTimeout(() => { // Delay to allow display:block before opacity transition
+        canvasDetailModal.classList.remove('opacity-0');
+        if(canvasDetailModalContent) canvasDetailModalContent.classList.remove('scale-95');
+    }, 10);
+
+
+    const assignments = await fetchAssignmentsForCourse(course.id);
+    if(canvasDetailAssignmentsList) {
+        canvasDetailAssignmentsList.innerHTML = '';
+        if (assignments && assignments.length > 0) {
+            assignments.forEach(assignment => {
+                const li = document.createElement('li');
+                li.className = 'p-2 rounded-md hover:bg-slate-700 transition-colors';
+                const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleString() : 'No due date';
+                li.innerHTML = `<a href="${assignment.html_url}" target="_blank" class="text-indigo-400 hover:underline">${assignment.name}</a> <span class="text-xs text-slate-400">- Due: ${dueDate}</span>`;
+                canvasDetailAssignmentsList.appendChild(li);
+            });
+        } else {
+            canvasDetailAssignmentsList.innerHTML = '<li class="text-slate-400 italic">No upcoming assignments for this course.</li>';
+        }
+    }
+
+    const announcements = await fetchAnnouncementsForCourse(course.id);
+    if(canvasDetailAnnouncementsList) {
+        canvasDetailAnnouncementsList.innerHTML = '';
+        if (announcements && announcements.length > 0) {
+            announcements.slice(0, 5).forEach(announcement => { // Show latest 5
+                const item = document.createElement('div');
+                item.className = 'p-2 rounded-md hover:bg-slate-700 transition-colors mb-1 text-sm';
+                const postDate = new Date(announcement.posted_at).toLocaleDateString();
+                item.innerHTML = `<h4 class="font-semibold text-slate-200">${announcement.title} <span class="text-xs text-slate-500">(${postDate})</span></h4>
+                                  <div class="text-slate-400 text-xs mt-1">${announcement.message ? announcement.message.substring(0, 150) + '...' : ''}</div>
+                                  <a href="${announcement.html_url}" target="_blank" class="text-indigo-500 hover:underline text-xs">Read more...</a>`;
+                canvasDetailAnnouncementsList.appendChild(item);
+            });
+        } else {
+            canvasDetailAnnouncementsList.innerHTML = '<p class="italic text-slate-400">No recent announcements for this course.</p>';
+        }
+    }
+}
+
+function hideCanvasDetailModal() {
+    if (!canvasDetailModal) return;
+    canvasDetailModal.classList.add('opacity-0');
+    if(canvasDetailModalContent) canvasDetailModalContent.classList.add('scale-95');
+    setTimeout(() => {
+        canvasDetailModal.classList.add('hidden');
+    }, 300); // Match transition duration
 }
 
 
