@@ -26,23 +26,23 @@
 
 
     /* Neumorphism Shadows (Dark Mode Only) */
-    --neumorph-shadow-outer: 5px 5px 12px rgba(0,0,0,0.5), -5px -5px 12px rgba(65,75,95,0.12); /* Adjusted lighter part */
+    --neumorph-shadow-outer: 5px 5px 12px rgba(0,0,0,0.5), -5px -5px 12px rgba(65,75,95,0.12);
     --neumorph-shadow-inner: inset 4px 4px 8px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(65,75,95,0.12);
 
     /* Glassmorphism */
-    --glass-blur: 18px;
+    --glass-blur: 18px; /* Adjusted from 20px for potentially better performance */
     --glass-shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 
-    /* Darker Pastel Options (examples, can add more) */
-    --pastel-dark-mint: hsl(180, 35%, 35%);
-    --pastel-dark-lavender: hsl(240, 35%, 45%);
-    --pastel-dark-peach: hsl(15, 55%, 48%);
-    --pastel-dark-sky-blue: hsl(200, 45%, 45%);
-    --pastel-dark-pink: hsl(330, 45%, 50%);
-    --pastel-dark-periwinkle: hsl(220, 45%, 50%);
-    --pastel-dark-gold: hsl(50, 50%, 45%);
-    --pastel-dark-sage: hsl(100, 25%, 40%);
-    --pastel-dark-coral: hsl(0, 50%, 50%);
+    /* Darker Pastel Options */
+    --pastel-dark-mint: hsl(180, 40%, 45%);
+    --pastel-dark-lavender: hsl(240, 40%, 60%);
+    --pastel-dark-peach: hsl(15, 70%, 60%);
+    --pastel-dark-sky-blue: hsl(200, 50%, 55%);
+    --pastel-dark-pink: hsl(330, 50%, 60%);
+    --pastel-dark-periwinkle: hsl(220, 50%, 60%);
+    --pastel-dark-gold: hsl(50, 60%, 55%);
+    --pastel-dark-sage: hsl(100, 30%, 50%);
+    --pastel-dark-coral: hsl(0, 60%, 60%);
     --pastel-dark-plum: hsl(270, 35%, 45%);
 }
 
@@ -89,12 +89,12 @@ body {
 }
 
 /* --- Glassmorphism & Neumorphism Base --- */
-.content-bg { /* Main content sections, sidebar */
+.content-bg {
     background-color: var(--surface-glass-dark);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--border-glass-dark);
-    border-radius: 0.75rem; /* 12px */
+    border-radius: 0.75rem;
     box-shadow: var(--glass-shadow-dark);
     transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
@@ -152,7 +152,7 @@ body {
     cursor: pointer;
     position: relative;
     transition: all 0.2s ease-in-out;
-    flex-shrink: 0; /* Prevent shrinking in flex layouts */
+    flex-shrink: 0;
 }
 .input-field::placeholder { color: var(--text-placeholder-dark); opacity: 1; }
 
@@ -320,10 +320,7 @@ select.input-field option {
     color: var(--text-primary-dark);
 }
 select.input-field {
-    padding-right: 2.5rem; /* Make space for Tailwind's default arrow */
-}
-/* Custom arrow for select to match dark theme if needed, Tailwind might handle this */
-select.input-field {
+    padding-right: 2.5rem;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.5rem center;
     background-repeat: no-repeat;
@@ -349,7 +346,7 @@ a:hover {
 
 /* Canvas Page Card Thumbnails */
 .canvas-item-card img {
-    border-radius: 0.375rem; /* Apply rounded corners to image itself */
+    border-radius: 0.375rem; /* Rounded corners for top of image */
 }
 .canvas-item-card .bg-slate-700 { /* Placeholder image div */
     border-radius: 0.375rem;
@@ -358,7 +355,7 @@ a:hover {
 
 /* Canvas Detail Modal Styling */
 #canvasDetailModalContent {
-    background-color: var(--surface-glass-dark); /* Glassmorphism for modal content */
+    background-color: var(--surface-glass-dark);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--border-glass-dark);
@@ -381,5 +378,50 @@ a:hover {
     background-color: var(--border-dark);
     border-radius: 4px;
     border: 2px solid var(--surface-dark);
+}
+
+/* Onboarding Modal Styles */
+#onboardingOverlay {
+    /* Uses fixed, inset-0, bg-slate-900/80, backdrop-blur-md from HTML */
+    transition: opacity 0.3s ease-in-out;
+}
+#onboardingOverlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+#onboardingCard {
+    /* Uses content-bg for glassmorphism */
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.onboarding-step {
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.onboarding-step.hidden {
+    display: none; /* Keep hidden until active */
+    opacity: 0;
+    transform: translateX(20px);
+    position: absolute; /* Allow smooth transition */
+    width: calc(100% - 4rem); /* Match padding of #onboardingCard */
+}
+.onboarding-step.active-step {
+    display: block;
+    opacity: 1;
+    transform: translateX(0);
+    position: relative; /* Take up space when active */
+}
+
+/* Step Indicator Styling */
+#stepIndicatorContainer .step-indicator-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--surface-2-dark); /* Inactive color */
+    transition: background-color 0.3s ease;
+    box-shadow: var(--neumorph-shadow-inner);
+}
+#stepIndicatorContainer .step-indicator-dot.active {
+    background-color: var(--accent-1); /* Active color */
+    box-shadow: var(--neumorph-shadow-outer);
 }
 
