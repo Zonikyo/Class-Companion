@@ -20,7 +20,64 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen transition-colors duration-300">
+    
+    <div id="onboardingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-md hidden">
+        <div id="onboardingCard" class="content-bg rounded-xl shadow-2xl p-8 w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0">
+            <h1 class="text-3xl font-bold text-center text-indigo-400 mb-2">Welcome to Class Companion!</h1>
+            <p class="text-center text-slate-400 mb-8">Let's get you set up in a few quick steps.</p>
+            
+            <div id="stepIndicatorContainer" class="flex justify-center space-x-2 mb-8">
+            </div>
+            
+            <div id="onboardingStep1" class="onboarding-step active-step">
+                <h2 class="text-xl font-semibold text-slate-100 mb-4">Step 1: Proxy Worker</h2>
+                <p class="text-sm text-slate-400 mb-1">This app uses a Cloudflare Worker to securely fetch your data. Please enter its URL.</p>
+                <p class="text-xs text-slate-500 mb-4">If you haven't deployed one, instructions are on the project's GitHub.</p>
+                <div>
+                    <label for="onboardingWorkerUrl" class="block text-sm font-medium text-slate-300 mb-1">Cloudflare Worker URL:</label>
+                    <input type="url" id="onboardingWorkerUrl" placeholder="https://your-worker.your-name.workers.dev" class="input-field block w-full">
+                </div>
+                <div class="mt-8 flex justify-end">
+                    <button id="nextToStep2" class="btn btn-primary">Next &rarr;</button>
+                </div>
+            </div>
 
+            <div id="onboardingStep2" class="onboarding-step hidden">
+                <h2 class="text-xl font-semibold text-slate-100 mb-4">Step 2: Compass Calendar</h2>
+                <p class="text-sm text-slate-400 mb-4">Enter your Compass iCalendar feed URL to import your timetable.</p>
+                <div>
+                    <label for="onboardingCalendarUrl" class="block text-sm font-medium text-slate-300 mb-1">Compass Calendar Feed URL (.ics):</label>
+                    <input type="url" id="onboardingCalendarUrl" placeholder="https://your-school.compass.education/..." class="input-field block w-full">
+                </div>
+                <div class="mt-8 flex justify-between">
+                    <button id="prevToStep1" class="btn btn-neutral">&larr; Previous</button>
+                    <button id="nextToStep3" class="btn btn-primary">Next &rarr;</button>
+                </div>
+            </div>
+
+            <div id="onboardingStep3" class="onboarding-step hidden">
+                <h2 class="text-xl font-semibold text-slate-100 mb-4">Step 3: Canvas Integration (Optional)</h2>
+                <p class="text-sm text-slate-400 mb-4">To see Canvas assignments, provide your Canvas domain and an API Access Token.</p>
+                <div class="space-y-3">
+                    <div>
+                        <label for="onboardingCanvasDomain" class="block text-sm font-medium text-slate-300 mb-1">Canvas Domain:</label>
+                        <input type="url" id="onboardingCanvasDomain" placeholder="https://yourinstitution.instructure.com" class="input-field block w-full">
+                    </div>
+                    <div>
+                        <label for="onboardingCanvasToken" class="block text-sm font-medium text-slate-300 mb-1">Canvas API Access Token:</label>
+                        <input type="password" id="onboardingCanvasToken" placeholder="Paste your token here" class="input-field block w-full">
+                        <p class="mt-1 text-xs text-slate-500">Find how to generate this in Canvas settings under "Approved Integrations".</p>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-between">
+                    <button id="prevToStep2" class="btn btn-neutral">&larr; Previous</button>
+                    <button id="finishOnboarding" class="btn btn-success">Finish Setup & Get Started!</button>
+                </div>
+                 <button id="skipCanvasStep" class="btn btn-secondary w-full mt-4 text-sm">Skip Canvas for Now</button>
+            </div>
+            <div id="onboardingErrorMessage" class="mt-4 text-red-400 text-sm text-center"></div>
+        </div>
+    </div>
     <nav id="mainNav" class="bg-slate-800/70 backdrop-blur-md shadow-md sticky top-0 z-30 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
