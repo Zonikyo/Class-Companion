@@ -19,16 +19,16 @@ const CLOCK_UPDATE_INTERVAL = 1000;
 
 // Darker Pastel Colors for Dark Mode
 const PASTEL_COLORS = [
-    { name: 'Dark Mint', value: 'hsl(180, 40%, 45%)' },   // #59b3b3
-    { name: 'Dark Lavender', value: 'hsl(240, 40%, 60%)' }, // #7f7fff
-    { name: 'Dark Peach', value: 'hsl(15, 70%, 60%)' },    // #e58c66
-    { name: 'Dark Sky Blue', value: 'hsl(200, 50%, 55%)' }, // #66a3cc
-    { name: 'Dark Rose', value: 'hsl(330, 50%, 60%)' },   // #cc6699
-    { name: 'Dark Periwinkle', value: 'hsl(220, 50%, 60%)'},// #7373cc
-    { name: 'Dark Gold', value: 'hsl(50, 60%, 55%)' },    // #ccb866
-    { name: 'Dark Sage', value: 'hsl(100, 30%, 50%)' },   // #669966
-    { name: 'Dark Coral', value: 'hsl(0, 60%, 60%)' },     // #e57373
-    { name: 'Dark Plum', value: 'hsl(270, 40%, 55%)' }    // #8c66b3
+    { name: 'Dark Mint', value: 'hsl(180, 40%, 45%)' },
+    { name: 'Dark Lavender', value: 'hsl(240, 40%, 60%)' },
+    { name: 'Dark Peach', value: 'hsl(15, 70%, 60%)' },
+    { name: 'Dark Sky Blue', value: 'hsl(200, 50%, 55%)' },
+    { name: 'Dark Rose', value: 'hsl(330, 50%, 60%)' },
+    { name: 'Dark Periwinkle', value: 'hsl(220, 50%, 60%)'},
+    { name: 'Dark Gold', value: 'hsl(50, 60%, 55%)' },
+    { name: 'Dark Sage', value: 'hsl(100, 30%, 50%)' },
+    { name: 'Dark Coral', value: 'hsl(0, 60%, 60%)' },
+    { name: 'Dark Plum', value: 'hsl(270, 40%, 55%)' }
 ];
 
 
@@ -81,7 +81,6 @@ const notifyAssignmentsEnabled2Checkbox = document.getElementById('notifyAssignm
 const notifyAssignmentsLeadTime2Input = document.getElementById('notifyAssignmentsLeadTime2');
 const notifyTimetableChangesEnabledCheckbox = document.getElementById('notifyTimetableChangesEnabled');
 const saveNotificationSettingsBtn = document.getElementById('saveNotificationSettingsBtn');
-// Dark Mode Toggle Removed
 const liveClockDiv = document.getElementById('liveClock');
 const canvasClassListContainer = document.getElementById('canvasClassListContainer');
 
@@ -100,7 +99,7 @@ let backgroundUrl = DEFAULT_BACKGROUND_URL;
 let canvasDomain = '';
 let canvasToken = '';
 let canvasCourseMappings = {};
-let fetchedCanvasCourses = [];
+let fetchedCanvasCourses = []; // Cache for Canvas courses
 let notificationSettings = {
     classesEnabled: false, classesLeadTime: 5,
     assignmentsEnabled1: false, assignmentsLeadTime1: 60,
@@ -128,7 +127,6 @@ const ICONS = {
      assignment: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 inline-block text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>`,
      cloudError: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>`,
      link: `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-indigo-400 hover:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>`
-     // Sun/Moon icons removed as dark mode is default
 };
 
 if (loadButton) loadButton.addEventListener('click', handleSaveAndLoad);
@@ -146,7 +144,6 @@ if (addCanvasCourseMappingBtn) addCanvasCourseMappingBtn.addEventListener('click
 if (canvasCourseMappingsListDiv) canvasCourseMappingsListDiv.addEventListener('click', handleCanvasMappingListClick);
 if (newMappingPastelColorSelect) newMappingPastelColorSelect.addEventListener('change', () => { if (newMappingPastelColorSelect.value && newMappingColorInput) { newMappingColorInput.value = newMappingPastelColorSelect.value; }});
 if (saveNotificationSettingsBtn) saveNotificationSettingsBtn.addEventListener('click', handleSaveNotificationSettings);
-// Dark mode toggle listener removed
 
 document.addEventListener('DOMContentLoaded', initializeApp);
 
@@ -154,7 +151,6 @@ function initializeApp() {
     populatePastelColorOptions();
     loadSettings();
     applyBackground();
-    // applyDarkModePreference(); // Removed, dark is default via HTML class
     renderMappingsList();
     renderCanvasCourseMappingsList();
     renderNotificationSettings();
@@ -180,7 +176,6 @@ function initializeApp() {
     switchViewMode(currentViewMode);
 }
 
-// Dark Mode functions removed as it's now default
 
 function startLiveClock() {
     if (clockIntervalId) clearInterval(clockIntervalId);
@@ -202,8 +197,6 @@ function populatePastelColorOptions() {
         const option = document.createElement('option');
         option.value = color.value;
         option.textContent = color.name;
-        // Styling the option itself with background color can be tricky across browsers
-        // but we can use the value later.
         newMappingPastelColorSelect.appendChild(option);
     });
 }
@@ -251,7 +244,7 @@ function saveSettings(showMsg = true, type = 'general') {
         renderViews();
     } else if (type === 'canvasAuth' || type === 'canvasMap') {
         if (compassWorkerUrl && canvasDomain && canvasToken) {
-            fetchCanvasData();
+            fetchCanvasData(true); // Force refresh of courses for sidebar
         }
     } else if (type === 'compass') {
         const currentCompassUrl = urlInput ? urlInput.value.trim() : null;
@@ -269,18 +262,13 @@ function applyBackground() { document.body.style.backgroundImage = `url('${backg
 function handleSaveBackground() { const newUrl = backgroundUrlInput.value.trim(); localStorage.setItem(BACKGROUND_URL_KEY, newUrl); backgroundUrl = newUrl || DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background saved.', 'success', 'settings'); }
 function handleResetBackground() { if(backgroundUrlInput) backgroundUrlInput.value = ''; localStorage.removeItem(BACKGROUND_URL_KEY); backgroundUrl = DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background reset to default.', 'success', 'settings'); }
 function handleSaveCanvasSettings() {
-    saveSettings(true, 'canvasAuth');
-    if (compassWorkerUrl && canvasDomainInput.value.trim() && canvasTokenInput.value.trim()) {
-         fetchCanvasData();
-    } else {
-        showMessage('Worker URL, Canvas Domain and Token are required to fetch data.', 'error', 'settings');
-    }
+    saveSettings(true, 'canvasAuth'); // This will trigger fetchCanvasData if conditions met
  }
 
 function renderMappingsList() {
     if (!mappingsListDiv) return;
     mappingsListDiv.innerHTML = ''; const sortedCodes = Object.keys(classMappings).sort();
-    sortedCodes.forEach(code => { const name = classMappings[code]; const color = classColors[name] || '#374151'; /* Default dark color */ const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-slate-700 border-slate-600';
+    sortedCodes.forEach(code => { const name = classMappings[code]; const color = classColors[name] || '#374151'; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-slate-700 border-slate-600';
         item.innerHTML = `<input type="text" value="${code}" data-code="${code}" class="mapping-code bg-slate-600 w-20 text-slate-100" readonly><span>&rarr;</span><input type="text" value="${name}" data-code="${code}" class="mapping-name input-field flex-grow"><input type="color" value="${color}" data-code="${code}" data-name="${name}" class="mapping-color"><button data-action="remove" data-code="${code}" title="Remove Mapping">&times;</button>`;
         mappingsListDiv.appendChild(item); });
     mappingsListDiv.querySelectorAll('.mapping-name, .mapping-color').forEach(input => input.addEventListener('change', handleMappingEdit));
@@ -402,9 +390,9 @@ function applyMappings(originalSummary) {
     return originalSummary;
 }
 function getClassColor(originalSummary, mappedSummary) {
-     if (originalSummary !== mappedSummary) { return classColors[mappedSummary] || 'var(--surface-1-dark)'; // Default to surface color
+     if (originalSummary !== mappedSummary) { return classColors[mappedSummary] || 'var(--surface-1-dark)';
      } else { const sortedCodes = Object.keys(classMappings).sort((a, b) => b.length - a.length); for (const code of sortedCodes) { const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(escapedCode, 'i'); if (regex.test(originalSummary)) { return classColors[classMappings[code]] || 'var(--surface-1-dark)'; } } }
-     return 'var(--surface-1-dark)'; // Default to surface color
+     return 'var(--surface-1-dark)';
  }
 function processAndClassifyEvents(events) {
     const newProcessedClasses = []; const newProcessedSidebar = []; const prevEventMap = new Map(previousProcessedClassEvents.map(e => [e.id, e]));
@@ -438,14 +426,14 @@ function renderListView() {
         const dayEvents = eventsByDay[dayString]; const dayDate = new Date(dayString); const dayHeader = document.createElement('h3'); dayHeader.className = 'text-lg font-semibold text-slate-200 mt-5 mb-2 border-b border-slate-700 pb-1'; if (!isAutoRefreshing) { dayHeader.classList.add('fade-in'); dayHeader.style.animationDelay = `${dayIndex * 0.05}s`; } dayHeader.textContent = formatDateHeading(dayDate); calendarDisplayList.appendChild(dayHeader);
         dayEvents.forEach((event, eventIndex) => {
             const card = document.createElement('div');
-            const isCustomColor = event.color && event.color !== 'var(--surface-1-dark)' && event.color !== '#e5e7eb' && event.color !== '#fed7d7'; // Check if a specific color is set
+            const isCustomColor = event.color && event.color !== 'var(--surface-1-dark)' && event.color !== '#e5e7eb' && event.color !== '#fed7d7' && event.color !== 'hsl(0, 50%, 30%)';
             card.className = `event-card p-3 rounded-lg border shadow-sm ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''}`;
             card.style.backgroundColor = event.color || (event.isCanvasAssignment ? 'hsl(0, 50%, 30%)' : 'var(--surface-1-dark)');
             card.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? 'hsl(0, 50%, 30%)' : 'var(--border-dark)'), 15);
             if (!isAutoRefreshing) { card.classList.add('fade-in'); card.style.animationDelay = `${(dayIndex * 50) + (eventIndex * 30) + 50}ms`; } else { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
 
             const startTime = formatTime(event.startDate); const endTime = formatTime(event.endDate);
-            const textColorClass = isCustomColor && !event.isCanvasAssignment ? 'text-on-color' : 'text-slate-100'; // Force black text if custom color
+            const textColorClass = isCustomColor && !event.isCanvasAssignment ? 'text-on-color' : 'text-slate-100';
             const iconColorClass = isCustomColor && !event.isCanvasAssignment ? 'icon-on-color' : 'text-slate-400';
 
             const clockIcon = ICONS.clock.replace('text-slate-400', iconColorClass);
@@ -517,7 +505,6 @@ function renderWeeklyView() {
                 let summaryText = event.summary;
                 if(isClickable) summaryText += ` ${ICONS.link.replace('text-indigo-400', textColorClass === 'text-on-color' ? 'text-black' : 'text-indigo-400')}`;
 
-
                 let timeIndicatorHtml = '';
                 if (nowTime >= event.startDate.getTime() && nowTime <= event.endDate.getTime() && !event.isCanvasAssignment) {
                     timeIndicatorHtml = `<span class="time-indicator time-indicator-now !text-xs !px-1 !py-0.5">NOW</span>`;
@@ -576,12 +563,28 @@ async function fetchCanvasAPI(canvasApiEndpointWithPathAndQuery) {
         return await response.json();
     } catch (error) { console.error('Canvas API Fetch Error via Worker:', error); showMessageForCanvas(`Error fetching from Canvas: ${error.message}. Check worker logs if issue persists.`, 'error'); return null; }
 }
-async function fetchCanvasCourses() { const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&per_page=50'); if (courses) { fetchedCanvasCourses = courses.map(course => ({ id: course.id, name: course.name, course_code: course.course_code, start_at: course.start_at ? new Date(course.start_at) : null })); return fetchedCanvasCourses; } return []; }
+async function fetchCanvasCourses(forceRefresh = false) {
+    if (!forceRefresh && fetchedCanvasCourses.length > 0) {
+        return fetchedCanvasCourses; // Return cached if not forcing refresh
+    }
+    const courses = await fetchCanvasAPI('api/v1/courses?enrollment_state=active&include[]=term&include[]=course_image&per_page=50');
+    if (courses) {
+        fetchedCanvasCourses = courses.map(course => ({
+            id: course.id,
+            name: course.name,
+            course_code: course.course_code,
+            start_at: course.start_at ? new Date(course.start_at) : null,
+            image: course.image_download_url || (course.course_image || null) // Prefer download_url
+        }));
+        return fetchedCanvasCourses;
+    }
+    return [];
+}
 async function fetchAssignmentsForCourse(courseId) { const assignments = await fetchCanvasAPI(`api/v1/courses/${courseId}/assignments?order_by=due_at&bucket=upcoming&per_page=50`); return assignments || []; }
 
 async function processCanvasAssignmentsIntoEvents() {
     if (!compassWorkerUrl || !canvasDomain || !canvasToken) return;
-    const courses = await fetchCanvasCourses();
+    const courses = await fetchCanvasCourses(); // Will use cache if available
     if (!courses || courses.length === 0) return;
     let newCanvasAssignmentEvents = [];
     for (const course of courses) {
@@ -600,7 +603,7 @@ async function processCanvasAssignmentsIntoEvents() {
                         description: assignment.html_url,
                         isCanvasAssignment: true,
                         html_url: assignment.html_url,
-                        color: 'hsl(0, 50%, 30%)' // Darker red for Canvas assignments in dark mode
+                        color: 'hsl(0, 50%, 30%)'
                     });
                 }
             });
@@ -610,28 +613,57 @@ async function processCanvasAssignmentsIntoEvents() {
     allParsedEvents.push(...newCanvasAssignmentEvents);
 }
 
-async function fetchCanvasData() {
+async function fetchCanvasData(forceRefreshCourses = false) {
     if (!compassWorkerUrl || !canvasDomain || !canvasToken) { showMessageForCanvas('Please set Worker URL, Canvas Domain and API Token in Settings.', 'info'); return; }
     showMessageForCanvas('Loading Canvas data for Canvas Tab...', 'loading');
-    const courses = fetchedCanvasCourses.length > 0 ? fetchedCanvasCourses : await fetchCanvasCourses();
+    const courses = await fetchCanvasCourses(forceRefreshCourses); // Pass forceRefresh
     renderCanvasClassListSidebar();
     if (!courses || courses.length === 0) { if (!canvasDataMessageArea.textContent.includes('Error')) { showMessageForCanvas('No active Canvas courses found or failed to load courses.', 'info');} return; }
-    if(canvasCoursesDisplay) canvasCoursesDisplay.innerHTML = ''; let assignmentsFound = 0;
-    for (const course of courses) {
-        if(canvasCoursesDisplay) {
-            const courseDiv = document.createElement('div'); courseDiv.className = 'canvas-item-card p-4 rounded-lg shadow mb-4';
-            courseDiv.innerHTML = `<h3 class="text-lg font-semibold text-indigo-400 mb-2">${course.name} <span class="text-sm text-slate-400">(${course.course_code || 'ID: ' + course.id})</span></h3>`;
-            const assignmentsList = document.createElement('ul'); assignmentsList.className = 'list-disc list-inside space-y-1 pl-2 text-sm';
-            const assignments = await fetchAssignmentsForCourse(course.id);
-            if (assignments && assignments.length > 0) {
-                assignmentsFound += assignments.length;
-                assignments.forEach(assignment => { const li = document.createElement('li'); const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour:'numeric', minute:'2-digit' }) : 'No due date'; li.innerHTML = `<a href="${assignment.html_url}" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">${assignment.name}${ICONS.link}</a> - Due: ${dueDate}`; assignmentsList.appendChild(li); });
-            } else { assignmentsList.innerHTML = '<li class="text-slate-400 italic">No upcoming assignments.</li>'; }
-            courseDiv.appendChild(assignmentsList); canvasCoursesDisplay.appendChild(courseDiv);
+
+    if(canvasCoursesDisplay) {
+        canvasCoursesDisplay.innerHTML = ''; // Clear previous
+        // Add grid classes to the container
+        canvasCoursesDisplay.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6';
+        let assignmentsFoundTotal = 0;
+
+        for (const course of courses) {
+            const courseCard = document.createElement('div');
+            courseCard.className = 'canvas-item-card neumorph-card flex flex-col justify-between p-4 rounded-lg shadow-lg overflow-hidden h-full'; // Ensure cards take full height for grid alignment
+
+            let thumbnailHtml = `<div class="w-full h-32 bg-slate-700 flex items-center justify-center text-slate-500 rounded-t-md mb-3">No Image</div>`;
+            if (course.image) {
+                thumbnailHtml = `<img src="${course.image}" alt="${course.name} thumbnail" class="w-full h-32 object-cover rounded-t-md mb-3" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\'w-full h-32 bg-slate-700 flex items-center justify-center text-slate-500 rounded-t-md mb-3\\'>No Image</div>';">`;
+            }
+
+            const assignmentsForThisCourse = await fetchAssignmentsForCourse(course.id);
+            let assignmentsHtml = '<p class="text-xs text-slate-400 italic mt-2">No upcoming assignments.</p>';
+            if (assignmentsForThisCourse && assignmentsForThisCourse.length > 0) {
+                assignmentsFoundTotal += assignmentsForThisCourse.length;
+                assignmentsHtml = '<ul class="text-xs space-y-1 mt-2 list-disc list-inside pl-1">';
+                assignmentsForThisCourse.slice(0, 3).forEach(assignment => { // Show first 3
+                    const dueDate = assignment.due_at ? new Date(assignment.due_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'N/A';
+                    assignmentsHtml += `<li><a href="${assignment.html_url}" target="_blank" class="hover:text-indigo-300">${assignment.name} (Due: ${dueDate})</a></li>`;
+                });
+                if (assignmentsForThisCourse.length > 3) {
+                    assignmentsHtml += `<li>...and ${assignmentsForThisCourse.length - 3} more.</li>`;
+                }
+                assignmentsHtml += '</ul>';
+            }
+
+            courseCard.innerHTML = `
+                <div>
+                    ${thumbnailHtml}
+                    <h3 class="text-md font-semibold text-indigo-400 mb-1 truncate" title="${course.name}">${course.name}</h3>
+                    <p class="text-xs text-slate-400 mb-2 truncate" title="${course.course_code || 'ID: ' + course.id}">${course.course_code || 'ID: ' + course.id}</p>
+                    ${assignmentsHtml}
+                </div>
+                <a href="https://${canvasDomain}/courses/${course.id}" target="_blank" class="btn btn-secondary btn-sm mt-3 self-start text-xs">View Course ${ICONS.link.replace('h-4 w-4', 'h-3 w-3')}</a>
+            `;
+            canvasCoursesDisplay.appendChild(courseCard);
         }
+        if (assignmentsFoundTotal > 0) { showMessageForCanvas(`Loaded ${courses.length} courses. Displaying upcoming assignments.`, 'success');
+        } else if (courses.length > 0) { showMessageForCanvas(`Loaded ${courses.length} courses. No upcoming assignments found.`, 'info'); }
     }
-    if (assignmentsFound > 0 && canvasCoursesDisplay) { showMessageForCanvas(`Loaded ${courses.length} courses and ${assignmentsFound} upcoming assignments.`, 'success');
-    } else if (courses.length > 0 && canvasCoursesDisplay) { showMessageForCanvas(`Loaded ${courses.length} courses. No upcoming assignments found for these courses.`, 'info'); }
 }
 function showMessageForCanvas(msg, type = 'info') {
     if(!canvasDataMessageArea) return;
@@ -705,33 +737,8 @@ function showMessage(msg, type = 'info', location = 'calendar') { const targetMe
 function formatTime(date) { return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true }); }
 function formatDateHeading(date) { const options = { weekday: 'long', month: 'long', day: 'numeric' }; return date.toLocaleDateString(undefined, options); }
 function extractTeacher(description) { const lines = description.split('\\n'); let teacherLine = lines.find(line => /^\s*teacher:/i.test(line)); if (teacherLine) return teacherLine.replace(/^\s*teacher:/i, '').trim(); return null; }
-// isColorDark is no longer strictly needed if forcing black text on colored cards,
-// but can be kept for other potential uses or if you want to be more nuanced later.
-function isColorDark(hexColor) {
-    if (!hexColor || hexColor.length < 4) return false;
-    // Check if it's a CSS variable first
-    if (hexColor.startsWith('var(--')) { // Simplistic check, might need refinement
-        // For CSS variables, we can't easily determine darkness client-side without knowing its resolved value.
-        // Default to assuming it's NOT dark, so white/light text would be chosen by default.
-        // For our specific case of forcing black text on pastels, this function's result for text color will be overridden.
-        return false;
-    }
-    hexColor = hexColor.substring(1);
-    if (hexColor.length === 3) hexColor = hexColor.split('').map(c => c + c).join('');
-    const r = parseInt(hexColor.substring(0, 2), 16);
-    const g = parseInt(hexColor.substring(2, 4), 16);
-    const b = parseInt(hexColor.substring(4, 6), 16);
-    const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
-    return hsp < 127.5;
-}
-function darkenColor(hexColor, percent) {
-    if (!hexColor || hexColor.length < 4 || hexColor.startsWith('var(--')) return 'hsl(222, 30%, 20%)'; // Default dark border
-    let R = parseInt(hexColor.substring(1,3),16); let G = parseInt(hexColor.substring(3,5),16); let B = parseInt(hexColor.substring(5,7),16);
-    R = parseInt(R * (100 - percent) / 100); G = parseInt(G * (100 - percent) / 100); B = parseInt(B * (100 - percent) / 100);
-    R = (R<0)?0:R; G = (G<0)?0:G; B = (B<0)?0:B;
-    const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16)); const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16)); const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
-    return "#"+RR+GG+BB;
-}
+function isColorDark(hexColor) { if (!hexColor || hexColor.length < 4) return false; if (hexColor.startsWith('var(--')) { return false; } hexColor = hexColor.substring(1); if (hexColor.length === 3) hexColor = hexColor.split('').map(c => c + c).join(''); const r = parseInt(hexColor.substring(0, 2), 16); const g = parseInt(hexColor.substring(2, 4), 16); const b = parseInt(hexColor.substring(4, 6), 16); const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b)); return hsp < 127.5; }
+function darkenColor(hexColor, percent) { if (!hexColor || hexColor.length < 4 || hexColor.startsWith('var(--')) return 'hsl(222, 30%, 20%)'; let R = parseInt(hexColor.substring(1,3),16); let G = parseInt(hexColor.substring(3,5),16); let B = parseInt(hexColor.substring(5,7),16); R = parseInt(R * (100 - percent) / 100); G = parseInt(G * (100 - percent) / 100); B = parseInt(B * (100 - percent) / 100); R = (R<0)?0:R; G = (G<0)?0:G; B = (B<0)?0:B; const RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16)); const GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16)); const BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16)); return "#"+RR+GG+BB; }
 
 // --- Notification Functions ---
 function renderNotificationSettings() {
