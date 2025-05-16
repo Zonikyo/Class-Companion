@@ -1063,3 +1063,19 @@ function checkAndSendNotifications() {
     });
 }
 function startNotificationChecker() { if (notificationCheckIntervalId) clearInterval(notificationCheckIntervalId); notificationCheckIntervalId = setInterval(checkAndSendNotifications, NOTIFICATION_CHECK_INTERVAL); }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const splashContainer = document.querySelector('.splash-container');
+    const mainContent = document.querySelector('.main-content');
+    
+    // Hide splash screen and show main content after animation
+    setTimeout(() => {
+        splashContainer.classList.add('fade-out');
+        mainContent.classList.add('visible');
+        
+        // Remove splash screen from DOM after fade out
+        setTimeout(() => {
+            splashContainer.style.display = 'none';
+        }, 500);
+    }, 3000);
+});
