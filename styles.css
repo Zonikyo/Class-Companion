@@ -6,6 +6,13 @@
     --surface-glass-dark: hsla(222, 45%, 18%, 0.65); /* Glassmorphism background - slightly lighter for more gloss */
     --surface-modal-dark: hsla(222, 45%, 12%, 0.85); /* Darker, more opaque for modal backdrop */
 
+    --primary-color: #4a90e2;
+    --secondary-color: #2c3e50;
+    --background-color: #ffffff;
+    --text-color: #2c3e50;
+    --animation-duration: 2.5s;
+    --bounce-timing: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --smooth-timing: cubic-bezier(0.34, 1.56, 0.64, 1);
 
     --text-primary-dark: hsl(210, 40%, 98%); /* Almost white */
     --text-secondary-dark: hsl(215, 25%, 75%); /* Lighter gray for secondary text */
