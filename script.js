@@ -1,17 +1,14 @@
-// --- main.js ---
-// Core application logic, Compass calendar, UI management, settings, notifications.
-
-// --- Constants & DOM Elements (from index.html) ---
+// --- Constants & DOM Elements ---
 const CALENDAR_URL_KEY = 'compassCalendarUrl';
 const WORKER_URL_KEY = 'compassWorkerUrl';
 const CLASS_MAPPINGS_KEY = 'compassClassMappings';
 const CLASS_COLORS_KEY = 'compassClassColors';
 const BACKGROUND_URL_KEY = 'compassBackgroundUrl';
-const CANVAS_DOMAIN_KEY = 'canvasDomain'; // Used here for linking
-const CANVAS_TOKEN_KEY = 'canvasToken'; // Used here for linking
+const CANVAS_DOMAIN_KEY = 'canvasDomain';
+const CANVAS_TOKEN_KEY = 'canvasToken';
 const CANVAS_COURSE_MAPPINGS_KEY = 'canvasCourseMappings';
 const NOTIFICATION_SETTINGS_KEY = 'classCompanionNotificationSettings';
-const ONBOARDING_COMPLETE_KEY = 'classCompanionOnboardingComplete';
+const ONBOARDING_COMPLETE_KEY = 'classCompanionOnboardingComplete'; // New key
 
 const DEFAULT_WORKER_URL = 'https://class-companion.thebestmate100.workers.dev';
 const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
@@ -65,15 +62,13 @@ const prevToStep2Btn = document.getElementById('prevToStep2');
 const finishOnboardingBtn = document.getElementById('finishOnboarding');
 const skipCanvasStepBtn = document.getElementById('skipCanvasStep');
 
-// Main App Elements
+
 const workerUrlInput = document.getElementById('workerUrl');
 const urlInput = document.getElementById('calendarUrl');
 const loadButton = document.getElementById('loadCalendarBtn');
 const calendarDisplayList = document.getElementById('calendarDisplayList');
 const calendarDisplayWeek = document.getElementById('calendarDisplayWeek');
-const calendarDisplayDay = document.getElementById('calendarDisplayDay'); // New Day View
 const weeklyViewGrid = document.getElementById('weeklyViewGrid');
-const dayViewGrid = document.getElementById('dayViewGrid'); // For Day View Grid (if needed, or reuse weekly logic)
 const calendarMessageArea = document.getElementById('calendarMessageArea');
 const settingsMessageArea = document.getElementById('settingsMessageArea');
 const searchBox = document.getElementById('searchBox');
@@ -83,7 +78,6 @@ const settingsSection = document.getElementById('settingsSection');
 const calendarSection = document.getElementById('calendarSection');
 const canvasSection = document.getElementById('canvasSection');
 const listControls = document.getElementById('listControls');
-const dayViewBtn = document.getElementById('dayViewBtn'); // New Day View Button
 const listViewBtn = document.getElementById('listViewBtn');
 const weekViewBtn = document.getElementById('weekViewBtn');
 const mappingsListDiv = document.getElementById('mappingsList');
@@ -103,6 +97,8 @@ const statusTextSpan = document.getElementById('statusText');
 const canvasDomainInput = document.getElementById('canvasDomain');
 const canvasTokenInput = document.getElementById('canvasToken');
 const saveCanvasSettingsBtn = document.getElementById('saveCanvasSettingsBtn');
+const canvasDataMessageArea = document.getElementById('canvasDataMessageArea');
+const canvasCoursesDisplay = document.getElementById('canvasCoursesDisplay');
 const canvasCourseMappingsListDiv = document.getElementById('canvasCourseMappingsList');
 const compassClassNameForCanvasInput = document.getElementById('compassClassNameForCanvas');
 const canvasCourseIdForMappingInput = document.getElementById('canvasCourseIdForMapping');
@@ -118,6 +114,15 @@ const notifyTimetableChangesEnabledCheckbox = document.getElementById('notifyTim
 const saveNotificationSettingsBtn = document.getElementById('saveNotificationSettingsBtn');
 const liveClockDiv = document.getElementById('liveClock');
 const canvasClassListContainer = document.getElementById('canvasClassListContainer');
+const canvasDetailModal = document.getElementById('canvasDetailModal');
+const canvasDetailModalContent = document.getElementById('canvasDetailModalContent');
+const closeCanvasDetailModalBtn = document.getElementById('closeCanvasDetailModal');
+const canvasDetailCourseName = document.getElementById('canvasDetailCourseName');
+const canvasDetailCourseCode = document.getElementById('canvasDetailCourseCode');
+const canvasDetailCourseTerm = document.getElementById('canvasDetailCourseTerm');
+const canvasDetailCourseLink = document.getElementById('canvasDetailCourseLink');
+const canvasDetailAssignmentsList = document.getElementById('canvasDetailAssignmentsList');
+const canvasDetailAnnouncementsList = document.getElementById('canvasDetailAnnouncementsList');
 
 
 let compassWorkerUrl = DEFAULT_WORKER_URL;
@@ -127,14 +132,14 @@ let processedClassEvents = [];
 let processedSidebarEvents = [];
 let currentSortOrder = 'time';
 let currentSearchTerm = '';
-let currentViewMode = 'list'; // Default view
+let currentViewMode = 'list';
 let classMappings = {};
 let classColors = {};
 let backgroundUrl = DEFAULT_BACKGROUND_URL;
-let canvasDomain = ''; // Will be populated from canvas.js or localStorage
-let canvasToken = '';  // Will be populated from canvas.js or localStorage
-let canvasCourseMappings = {}; // Will be populated from canvas.js or localStorage
-let fetchedCanvasCourses = []; // Will be populated from canvas.js
+let canvasDomain = '';
+let canvasToken = '';
+let canvasCourseMappings = {};
+let fetchedCanvasCourses = [];
 let notificationSettings = {
     classesEnabled: false, classesLeadTime: 5,
     assignmentsEnabled1: false, assignmentsLeadTime1: 60,
@@ -161,18 +166,19 @@ if (loadButton) loadButton.addEventListener('click', handleSaveAndLoad);
 if (searchBox) searchBox.addEventListener('input', handleSearch);
 if (sortOrderSelect) sortOrderSelect.addEventListener('change', handleSort);
 if (navLinks) navLinks.forEach(link => link.addEventListener('click', handleNavClick));
-if (dayViewBtn) dayViewBtn.addEventListener('click', () => switchViewMode('day'));
 if (listViewBtn) listViewBtn.addEventListener('click', () => switchViewMode('list'));
 if (weekViewBtn) weekViewBtn.addEventListener('click', () => switchViewMode('week'));
 if (addMappingBtn) addMappingBtn.addEventListener('click', handleAddMapping);
 if (mappingsListDiv) mappingsListDiv.addEventListener('click', handleMappingListClick);
 if (saveBackgroundBtn) saveBackgroundBtn.addEventListener('click', handleSaveBackground);
 if (resetBackgroundBtn) resetBackgroundBtn.addEventListener('click', handleResetBackground);
-if (saveCanvasSettingsBtn) saveCanvasSettingsBtn.addEventListener('click', handleSaveCanvasSettings); // This will call a function in canvas.js
+if (saveCanvasSettingsBtn) saveCanvasSettingsBtn.addEventListener('click', handleSaveCanvasSettings);
 if (addCanvasCourseMappingBtn) addCanvasCourseMappingBtn.addEventListener('click', handleAddCanvasCourseMapping);
 if (canvasCourseMappingsListDiv) canvasCourseMappingsListDiv.addEventListener('click', handleCanvasMappingListClick);
 if (newMappingPastelColorSelect) newMappingPastelColorSelect.addEventListener('change', () => { if (newMappingPastelColorSelect.value && newMappingColorInput) { newMappingColorInput.value = newMappingPastelColorSelect.value; }});
 if (saveNotificationSettingsBtn) saveNotificationSettingsBtn.addEventListener('click', handleSaveNotificationSettings);
+if (closeCanvasDetailModalBtn) closeCanvasDetailModalBtn.addEventListener('click', () => hideCanvasDetailModal());
+if (canvasDetailModal) canvasDetailModal.addEventListener('click', (event) => { if (event.target === canvasDetailModal) hideCanvasDetailModal(); });
 
 // Onboarding Listeners
 if (nextToStep2Btn) nextToStep2Btn.addEventListener('click', () => navigateOnboarding(1));
@@ -182,6 +188,7 @@ if (prevToStep2Btn) prevToStep2Btn.addEventListener('click', () => navigateOnboa
 if (finishOnboardingBtn) finishOnboardingBtn.addEventListener('click', handleFinishOnboarding);
 if (skipCanvasStepBtn) skipCanvasStepBtn.addEventListener('click', handleSkipCanvasOnboarding);
 
+
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 // --- Initialization ---
@@ -189,7 +196,6 @@ function initializeApp() {
     if (localStorage.getItem(ONBOARDING_COMPLETE_KEY) === 'true') {
         initializeMainApp();
     } else {
-        if(onboardingWorkerUrlInput) onboardingWorkerUrlInput.value = DEFAULT_WORKER_URL; // Pre-fill default worker URL
         showOnboarding();
     }
 }
@@ -197,16 +203,16 @@ function initializeApp() {
 function initializeMainApp() {
     if(onboardingOverlay) onboardingOverlay.classList.add('hidden');
     populatePastelColorOptions();
-    loadSettings(); // Loads all settings including those managed by canvas.js
+    loadSettings();
     applyBackground();
     renderMappingsList();
-    renderCanvasCourseMappingsList(); // Managed by main.js as it uses shared state
+    renderCanvasCourseMappingsList();
     renderNotificationSettings();
     initializeStatusIndicator();
     setupNotificationPermission();
     startNotificationChecker();
     startLiveClock();
-    if (typeof renderCanvasClassListSidebar === "function") renderCanvasClassListSidebar(); // Call if canvas.js loaded
+    renderCanvasClassListSidebar();
 
 
     const savedCompassUrl = localStorage.getItem(CALENDAR_URL_KEY);
@@ -221,7 +227,7 @@ function initializeMainApp() {
          updateStatusIndicator('idle');
     }
     switchSection('calendar');
-    switchViewMode('list'); // Default to list view
+    switchViewMode(currentViewMode);
 }
 
 
@@ -229,7 +235,7 @@ function initializeMainApp() {
 function showOnboarding() {
     if (!onboardingOverlay || !onboardingCard) return;
     onboardingOverlay.classList.remove('hidden');
-    setTimeout(() => {
+    setTimeout(() => { // Allow display:flex before transition
         onboardingCard.classList.remove('opacity-0', 'scale-95');
         onboardingCard.classList.add('opacity-100', 'scale-100');
     }, 10);
@@ -250,7 +256,7 @@ function updateOnboardingStepUI() {
         }
     });
     renderStepIndicators();
-    if(onboardingErrorMessage) onboardingErrorMessage.textContent = '';
+    if(onboardingErrorMessage) onboardingErrorMessage.textContent = ''; // Clear previous errors
 }
 
 function renderStepIndicators() {
@@ -277,7 +283,7 @@ function navigateOnboarding(nextStepIndex) {
 function validateOnboardingStep(stepNumber) {
     if(onboardingErrorMessage) onboardingErrorMessage.textContent = '';
     let isValid = true;
-    if (stepNumber === 0) {
+    if (stepNumber === 0) { // Worker URL
         if (!onboardingWorkerUrlInput || !onboardingWorkerUrlInput.value.trim()) {
             if(onboardingErrorMessage) onboardingErrorMessage.textContent = 'Worker URL is required.';
             isValid = false;
@@ -285,7 +291,7 @@ function validateOnboardingStep(stepNumber) {
             try { new URL(onboardingWorkerUrlInput.value.trim()); }
             catch (_) { if(onboardingErrorMessage) onboardingErrorMessage.textContent = 'Invalid Worker URL format.'; isValid = false; }
         }
-    } else if (stepNumber === 1) {
+    } else if (stepNumber === 1) { // Compass URL
         if (!onboardingCalendarUrlInput || !onboardingCalendarUrlInput.value.trim()) {
             if(onboardingErrorMessage) onboardingErrorMessage.textContent = 'Compass Calendar URL is required.';
             isValid = false;
@@ -293,7 +299,7 @@ function validateOnboardingStep(stepNumber) {
             try { new URL(onboardingCalendarUrlInput.value.trim()); }
             catch (_) { if(onboardingErrorMessage) onboardingErrorMessage.textContent = 'Invalid Compass Calendar URL format.'; isValid = false; }
         }
-    } else if (stepNumber === 2) {
+    } else if (stepNumber === 2) { // Canvas (optional, but validate if filled)
         const domain = onboardingCanvasDomainInput ? onboardingCanvasDomainInput.value.trim() : '';
         const token = onboardingCanvasTokenInput ? onboardingCanvasTokenInput.value.trim() : '';
         if (domain && !token) {
@@ -303,7 +309,7 @@ function validateOnboardingStep(stepNumber) {
             if(onboardingErrorMessage) onboardingErrorMessage.textContent = 'Canvas Domain is required if Token is provided.';
             isValid = false;
         } else if (domain) {
-            try { new URL(domain.startsWith('http') ? domain : `https://${domain}`); } // Add protocol if missing for validation
+            try { new URL(domain); }
             catch (_) { if(onboardingErrorMessage) onboardingErrorMessage.textContent = 'Invalid Canvas Domain format.'; isValid = false; }
         }
     }
@@ -311,8 +317,38 @@ function validateOnboardingStep(stepNumber) {
 }
 
 function handleFinishOnboarding() {
-    if (!validateOnboardingStep(2)) return;
+    if (!validateOnboardingStep(2)) return; // Validate final step
     saveOnboardingData();
+    localStorage.setItem(ONBOARDING_COMPLETE_KEY, 'true');
+    if(onboardingOverlay && onboardingCard) {
+        onboardingCard.classList.add('opacity-0', 'scale-95');
+        onboardingOverlay.classList.add('opacity-0');
+        setTimeout(() => {
+            onboardingOverlay.classList.add('hidden');
+            initializeMainApp();
+        }, 300);
+    } else {
+        initializeMainApp(); // Fallback if elements are missing
+    }
+}
+
+function handleSkipCanvasOnboarding() {
+    // Save Worker and Compass URLs, skip Canvas
+    if (!validateOnboardingStep(0) || !validateOnboardingStep(1)) {
+        // Show error for step 0 or 1 if not validated before skipping
+        if (!validateOnboardingStep(0)) {
+            currentOnboardingStep = 0; updateOnboardingStepUI(); validateOnboardingStep(0);
+        } else if (!validateOnboardingStep(1)) {
+            currentOnboardingStep = 1; updateOnboardingStepUI(); validateOnboardingStep(1);
+        }
+        return;
+    }
+    if(onboardingWorkerUrlInput) localStorage.setItem(WORKER_URL_KEY, onboardingWorkerUrlInput.value.trim());
+    if(onboardingCalendarUrlInput) localStorage.setItem(CALENDAR_URL_KEY, onboardingCalendarUrlInput.value.trim());
+    // Clear any potentially entered Canvas info if skipping
+    localStorage.removeItem(CANVAS_DOMAIN_KEY);
+    localStorage.removeItem(CANVAS_TOKEN_KEY);
+
     localStorage.setItem(ONBOARDING_COMPLETE_KEY, 'true');
     if(onboardingOverlay && onboardingCard) {
         onboardingCard.classList.add('opacity-0', 'scale-95');
@@ -326,24 +362,6 @@ function handleFinishOnboarding() {
     }
 }
 
-function handleSkipCanvasOnboarding() {
-    if (!validateOnboardingStep(0) || !validateOnboardingStep(1)) {
-        if (!validateOnboardingStep(0)) { currentOnboardingStep = 0; updateOnboardingStepUI(); validateOnboardingStep(0); }
-        else if (!validateOnboardingStep(1)) { currentOnboardingStep = 1; updateOnboardingStepUI(); validateOnboardingStep(1); }
-        return;
-    }
-    if(onboardingWorkerUrlInput) localStorage.setItem(WORKER_URL_KEY, onboardingWorkerUrlInput.value.trim());
-    if(onboardingCalendarUrlInput) localStorage.setItem(CALENDAR_URL_KEY, onboardingCalendarUrlInput.value.trim());
-    localStorage.removeItem(CANVAS_DOMAIN_KEY);
-    localStorage.removeItem(CANVAS_TOKEN_KEY);
-    localStorage.setItem(ONBOARDING_COMPLETE_KEY, 'true');
-    if(onboardingOverlay && onboardingCard) {
-        onboardingCard.classList.add('opacity-0', 'scale-95');
-        onboardingOverlay.classList.add('opacity-0');
-        setTimeout(() => { onboardingOverlay.classList.add('hidden'); initializeMainApp(); }, 300);
-    } else { initializeMainApp(); }
-}
-
 function saveOnboardingData() {
     if(onboardingWorkerUrlInput) localStorage.setItem(WORKER_URL_KEY, onboardingWorkerUrlInput.value.trim());
     if(onboardingCalendarUrlInput) localStorage.setItem(CALENDAR_URL_KEY, onboardingCalendarUrlInput.value.trim());
@@ -353,11 +371,11 @@ function saveOnboardingData() {
 
 
 // --- Live Clock ---
-function startLiveClock() { if (clockIntervalId) clearInterval(clockIntervalId); updateLiveClock(); clockIntervalId = setInterval(updateLiveClock, CLOCK_UPDATE_INTERVAL); }
-function updateLiveClock() { if (!liveClockDiv) return; const now = new Date(); const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); const dateString = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }); liveClockDiv.innerHTML = `<div class="text-3xl">${timeString}</div><div class="text-xs">${dateString}</div>`; }
+function startLiveClock() { /* ... same as before ... */ if (clockIntervalId) clearInterval(clockIntervalId); updateLiveClock(); clockIntervalId = setInterval(updateLiveClock, CLOCK_UPDATE_INTERVAL); }
+function updateLiveClock() { /* ... same as before ... */ if (!liveClockDiv) return; const now = new Date(); const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); const dateString = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }); liveClockDiv.innerHTML = `<div class="text-3xl">${timeString}</div><div class="text-xs">${dateString}</div>`; }
 
-function populatePastelColorOptions() { if (!newMappingPastelColorSelect) return; PASTEL_COLORS.forEach(color => { const option = document.createElement('option'); option.value = color.value; option.textContent = color.name; newMappingPastelColorSelect.appendChild(option); }); }
-function loadSettings() {
+function populatePastelColorOptions() { /* ... same as before ... */ if (!newMappingPastelColorSelect) return; PASTEL_COLORS.forEach(color => { const option = document.createElement('option'); option.value = color.value; option.textContent = color.name; newMappingPastelColorSelect.appendChild(option); }); }
+function loadSettings() { /* ... same as before ... */
      compassWorkerUrl = localStorage.getItem(WORKER_URL_KEY) || DEFAULT_WORKER_URL;
      if(workerUrlInput) workerUrlInput.value = compassWorkerUrl;
      classMappings = JSON.parse(localStorage.getItem(CLASS_MAPPINGS_KEY) || '{}');
@@ -372,7 +390,7 @@ function loadSettings() {
      const savedNotificationSettings = JSON.parse(localStorage.getItem(NOTIFICATION_SETTINGS_KEY));
      if (savedNotificationSettings) { notificationSettings = { ...notificationSettings, ...savedNotificationSettings }; }
 }
-function saveSettings(showMsg = true, type = 'general') {
+function saveSettings(showMsg = true, type = 'general') { /* ... same as before ... */
     if(workerUrlInput) localStorage.setItem(WORKER_URL_KEY, workerUrlInput.value.trim());
     if(urlInput) localStorage.setItem(CALENDAR_URL_KEY, urlInput.value.trim());
     localStorage.setItem(CLASS_MAPPINGS_KEY, JSON.stringify(classMappings));
@@ -385,23 +403,37 @@ function saveSettings(showMsg = true, type = 'general') {
     loadSettings(); applyBackground();
     if (showMsg) showMessage('Settings saved.', 'success', 'settings');
     if (type === 'general' && allParsedEvents.length > 0) { previousProcessedClassEvents = [...processedClassEvents]; processAndClassifyEvents(allParsedEvents); isAutoRefreshing = false; renderViews();
-    } else if (type === 'canvasAuth' || type === 'canvasMap') { if (compassWorkerUrl && canvasDomain && canvasToken && typeof fetchCanvasData === 'function') { fetchCanvasData(true); }
+    } else if (type === 'canvasAuth' || type === 'canvasMap') { if (compassWorkerUrl && canvasDomain && canvasToken) { fetchCanvasData(true); }
     } else if (type === 'compass') { const currentCompassUrl = urlInput ? urlInput.value.trim() : null; if (compassWorkerUrl && currentCompassUrl) { isFirstLoad = true; startAutoRefresh(currentCompassUrl); }
     } else if (type === 'notifications') { if (notificationSettings.classesEnabled || notificationSettings.assignmentsEnabled1 || notificationSettings.assignmentsEnabled2 || notificationSettings.timetableChangesEnabled) { requestNotificationPermission(); } }
 }
 function applyBackground() { document.body.style.backgroundImage = `url('${backgroundUrl || DEFAULT_BACKGROUND_URL}')`; }
 function handleSaveBackground() { const newUrl = backgroundUrlInput.value.trim(); localStorage.setItem(BACKGROUND_URL_KEY, newUrl); backgroundUrl = newUrl || DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background saved.', 'success', 'settings'); }
 function handleResetBackground() { if(backgroundUrlInput) backgroundUrlInput.value = ''; localStorage.removeItem(BACKGROUND_URL_KEY); backgroundUrl = DEFAULT_BACKGROUND_URL; applyBackground(); showMessage('Background reset to default.', 'success', 'settings'); }
-function handleSaveCanvasSettings() { saveSettings(true, 'canvasAuth'); } // fetchCanvasData called within saveSettings
+function handleSaveCanvasSettings() { saveSettings(true, 'canvasAuth'); }
 
-function renderMappingsList() { /* ... same as before ... */ }
-function handleAddMapping() { /* ... same as before ... */ }
-function handleMappingListClick(event) { /* ... same as before ... */ }
-function handleMappingEdit(event) { /* ... same as before ... */ }
-function renderCanvasCourseMappingsList() { /* ... same as before ... */ }
-function handleAddCanvasCourseMapping() { /* ... same as before ... */ }
-function handleCanvasMappingListClick(event) { /* ... same as before ... */ }
-function handleCanvasMappingEdit(event) { /* ... same as before ... */ }
+function renderMappingsList() { /* ... same as before ... */
+    if (!mappingsListDiv) return; mappingsListDiv.innerHTML = ''; const sortedCodes = Object.keys(classMappings).sort();
+    sortedCodes.forEach(code => { const name = classMappings[code]; const color = classColors[name] || '#374151'; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-slate-700 border-slate-600';
+        item.innerHTML = `<input type="text" value="${code}" data-code="${code}" class="mapping-code bg-slate-600 w-20 text-slate-100" readonly><span>&rarr;</span><input type="text" value="${name}" data-code="${code}" class="mapping-name input-field flex-grow"><input type="color" value="${color}" data-code="${code}" data-name="${name}" class="mapping-color"><button data-action="remove" data-code="${code}" title="Remove Mapping">&times;</button>`;
+        mappingsListDiv.appendChild(item); });
+    mappingsListDiv.querySelectorAll('.mapping-name, .mapping-color').forEach(input => input.addEventListener('change', handleMappingEdit));
+}
+function handleAddMapping() { /* ... same as before ... */
+    if (!newMappingCodeInput || !newMappingNameInput || !newMappingColorInput || !newMappingPastelColorSelect) return; const code = newMappingCodeInput.value.trim().toUpperCase(); const name = newMappingNameInput.value.trim(); let color = newMappingColorInput.value; if (newMappingPastelColorSelect.value) { color = newMappingPastelColorSelect.value; } if (!code || !name) { showMessage('Both Code and Full Name are required.', 'error', 'settings'); return; } if (classMappings[code]) { showMessage(`Code "${code}" already exists.`, 'error', 'settings'); return; } classMappings[code] = name; classColors[name] = color; newMappingCodeInput.value = ''; newMappingNameInput.value = ''; newMappingColorInput.value = '#374151'; newMappingPastelColorSelect.value = ''; renderMappingsList(); saveSettings(true, 'general');
+}
+function handleMappingListClick(event) { /* ... same as before ... */ const target = event.target; const action = target.getAttribute('data-action'); const code = target.getAttribute('data-code'); if (action === 'remove' && code) { const name = classMappings[code]; delete classMappings[code]; delete classColors[name]; renderMappingsList(); saveSettings(true, 'general'); } }
+function handleMappingEdit(event) { /* ... same as before ... */ const input = event.target; const code = input.getAttribute('data-code'); const originalName = classMappings[code]; if (input.classList.contains('mapping-name')) { const newName = input.value.trim(); if (newName && newName !== originalName) { classMappings[code] = newName; if (classColors[originalName]) { classColors[newName] = classColors[originalName]; delete classColors[originalName]; } const colorInput = input.closest('.mapping-item').querySelector('.mapping-color'); if(colorInput) colorInput.setAttribute('data-name', newName); renderMappingsList(); saveSettings(true, 'general'); } else { input.value = originalName; } } else if (input.classList.contains('mapping-color')) { const name = input.getAttribute('data-name'); const newColor = input.value; if (name) { classColors[name] = newColor; saveSettings(true, 'general'); } } }
+function renderCanvasCourseMappingsList() { /* ... same as before ... */
+    if (!canvasCourseMappingsListDiv) return; canvasCourseMappingsListDiv.innerHTML = ''; const sortedCompassNames = Object.keys(canvasCourseMappings).sort();
+    sortedCompassNames.forEach(compassName => { const canvasId = canvasCourseMappings[compassName]; const item = document.createElement('div'); item.className = 'mapping-item p-2 border rounded-md bg-slate-700 border-slate-600';
+        item.innerHTML = `<input type="text" value="${compassName}" data-compass-name="${compassName}" class="canvas-map-compass-name bg-slate-600 text-slate-100 flex-grow" readonly><span>&rarr;</span><input type="text" value="${canvasId}" data-compass-name="${compassName}" class="canvas-map-id input-field w-32"><button data-action="remove-canvas-map" data-compass-name="${compassName}" title="Remove Mapping">&times;</button>`;
+        canvasCourseMappingsListDiv.appendChild(item); });
+    canvasCourseMappingsListDiv.querySelectorAll('.canvas-map-id').forEach(input => input.addEventListener('change', handleCanvasMappingEdit));
+}
+function handleAddCanvasCourseMapping() { /* ... same as before ... */ if (!compassClassNameForCanvasInput || !canvasCourseIdForMappingInput) return; const compassName = compassClassNameForCanvasInput.value.trim(); const canvasId = canvasCourseIdForMappingInput.value.trim(); if (!compassName || !canvasId) { showMessage('Compass Class Name and Canvas Course ID are required.', 'error', 'settings'); return; } if (canvasCourseMappings[compassName]) { showMessage(`Mapping for "${compassName}" already exists.`, 'error', 'settings'); return; } canvasCourseMappings[compassName] = canvasId; compassClassNameForCanvasInput.value = ''; canvasCourseIdForMappingInput.value = ''; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); }
+function handleCanvasMappingListClick(event) { /* ... same as before ... */ const target = event.target; const action = target.getAttribute('data-action'); const compassName = target.getAttribute('data-compass-name'); if (action === 'remove-canvas-map' && compassName) { delete canvasCourseMappings[compassName]; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); } }
+function handleCanvasMappingEdit(event) { /* ... same as before ... */ const input = event.target; const compassName = input.getAttribute('data-compass-name'); const newCanvasId = input.value.trim(); if (compassName && newCanvasId) { canvasCourseMappings[compassName] = newCanvasId; saveSettings(true, 'canvasMap'); } else if (compassName && !newCanvasId) { delete canvasCourseMappings[compassName]; renderCanvasCourseMappingsList(); saveSettings(true, 'canvasMap'); } }
 
 function handleNavClick(event) { const section = event.target.getAttribute('data-section'); switchSection(section); }
 function switchSection(section) {
@@ -417,28 +449,15 @@ function switchSection(section) {
     if (section === 'settings' && settingsSection) { settingsSection.classList.remove('hidden');
     } else if (section === 'canvas' && canvasSection) {
         canvasSection.classList.remove('hidden');
-        if (compassWorkerUrl && canvasDomain && canvasToken && typeof fetchCanvasData === 'function') { fetchCanvasData(); }
-        else { if(typeof showMessageForCanvas === 'function') showMessageForCanvas('Please set Worker URL, Canvas Domain, and API Token in Settings.', 'info'); }
+        if (compassWorkerUrl && canvasDomain && canvasToken) { fetchCanvasData(); }
+        else { showMessageForCanvas('Please set Worker URL, Canvas Domain, and API Token in Settings.', 'info'); }
     } else if (calendarSection) { // Default to calendar
         calendarSection.classList.remove('hidden');
         if (allParsedEvents.length > 0) { renderViews(); }
         else { const savedUrl = localStorage.getItem(CALENDAR_URL_KEY); if (!savedUrl && !compassWorkerUrl) showMessage('Go to Settings to enter Worker & Compass URLs.', 'info', 'calendar'); }
     }
 }
-function switchViewMode(mode) {
-    currentViewMode = mode;
-    if(dayViewBtn) dayViewBtn.classList.toggle('active', mode === 'day');
-    if(listViewBtn) listViewBtn.classList.toggle('active', mode === 'list');
-    if(weekViewBtn) weekViewBtn.classList.toggle('active', mode === 'week');
-
-    if(calendarDisplayDay) calendarDisplayDay.classList.toggle('hidden', mode !== 'day');
-    if(calendarDisplayList) calendarDisplayList.classList.toggle('hidden', mode !== 'list');
-    if(calendarDisplayWeek) calendarDisplayWeek.classList.toggle('hidden', mode !== 'week');
-
-    if(listControls) listControls.classList.toggle('hidden', mode !== 'list' && mode !== 'day'); // Show for Day and List
-    isAutoRefreshing = false;
-    renderViews();
-}
+function switchViewMode(mode) { currentViewMode = mode; if(listViewBtn) listViewBtn.classList.toggle('active', mode === 'list'); if(weekViewBtn) weekViewBtn.classList.toggle('active', mode === 'week'); if(calendarDisplayList) calendarDisplayList.classList.toggle('hidden', mode !== 'list'); if(calendarDisplayWeek) calendarDisplayWeek.classList.toggle('hidden', mode !== 'week'); if(listControls) listControls.classList.toggle('hidden', mode !== 'list'); isAutoRefreshing = false; renderViews(); }
 
 function handleSaveAndLoad() {
     const workerURLValue = workerUrlInput ? workerUrlInput.value.trim() : '';
@@ -483,7 +502,7 @@ async function fetchAndProcessCalendar(compassCalUrl, isInitialLoadForThisCall =
         previousProcessedClassEvents = newParsedCompassEvents.filter(e => !e.isCanvasAssignment);
         allParsedEvents = newParsedCompassEvents;
 
-        if (compassWorkerUrl && canvasDomain && canvasToken && typeof processCanvasAssignmentsIntoEvents === 'function') {
+        if (compassWorkerUrl && canvasDomain && canvasToken) {
             await processCanvasAssignmentsIntoEvents();
         }
         processAndClassifyEvents(allParsedEvents);
@@ -493,96 +512,41 @@ async function fetchAndProcessCalendar(compassCalUrl, isInitialLoadForThisCall =
         if (isInitialLoadForThisCall) isFirstLoad = false;
     }
 }
-function parseCalendarData(icsData) { /* ... same as before ... */ }
-function applyMappings(originalSummary) { /* ... same as before ... */ }
-function getClassColor(originalSummary, mappedSummary) { /* ... same as before ... */ }
-function processAndClassifyEvents(events) { /* ... same as before ... */ }
-
-
-function renderViews() {
-    if (currentViewMode === 'list') renderListView();
-    else if (currentViewMode === 'week') renderWeeklyView();
-    else if (currentViewMode === 'day') renderDayView(); // New Day View
-    renderSidebar();
-    if(calendarDisplayDay) calendarDisplayDay.classList.toggle('hidden', currentViewMode !== 'day');
-    if(calendarDisplayList) calendarDisplayList.classList.toggle('hidden', currentViewMode !== 'list');
-    if(calendarDisplayWeek) calendarDisplayWeek.classList.toggle('hidden', currentViewMode !== 'week');
+function parseCalendarData(icsData) {
+    try {
+        const jcalData = ICAL.parse(icsData); const comp = new ICAL.Component(jcalData); const vevents = comp.getAllSubcomponents('vevent'); if (!vevents || vevents.length === 0) return [];
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        return vevents.map(vevent => { const event = new ICAL.Event(vevent); const startDate = event.startDate.toJSDate(); return { id: event.uid || `${event.summary}-${startDate.toISOString()}`, summary: event.summary || 'No Title', originalSummary: event.summary || 'No Title', startDate: startDate, endDate: event.endDate.toJSDate(), location: event.location || null, description: event.description || '', teacher: extractTeacher(event.description || '') }; }).filter(event => event.startDate >= today);
+    } catch (parseError) { console.error('Error parsing iCal data:', parseError); showMessage(`Error parsing calendar data: ${parseError.message}`, 'error', 'calendar'); return []; }
 }
 
-function renderDayView() {
-    if (!calendarDisplayDay) return;
-    clearDisplayAreaOnly('day'); // New function or adapt clearDisplayAreaOnly
-
-    const today = new Date();
-    const todayString = today.toDateString();
-
-    const combinedEvents = [...processedClassEvents, ...processedSidebarEvents.filter(e => e.isCanvasAssignment && e.startDate >= new Date())];
-    const todayEvents = combinedEvents.filter(event => event.startDate.toDateString() === todayString)
-                                   .sort((a,b) => a.startDate - b.startDate);
-
-    const dayHeader = document.createElement('h3');
-    dayHeader.className = 'text-xl font-semibold text-slate-100 mb-4 text-center';
-    dayHeader.textContent = `Today's Schedule - ${formatDateHeading(today)}`;
-    calendarDisplayDay.appendChild(dayHeader);
-
-    if (todayEvents.length === 0) {
-        calendarDisplayDay.innerHTML += '<p class="text-slate-400 text-center italic">No events scheduled for today.</p>';
-        return;
-    }
-
-    const now = new Date();
-    todayEvents.forEach((event, eventIndex) => {
-        const card = document.createElement('div');
-        const isCustomColor = event.color && event.color !== 'var(--surface-1-dark)' && event.color !== '#e5e7eb' && event.color !== '#fed7d7' && event.color !== 'hsl(0, 50%, 30%)';
-        card.className = `event-card p-4 rounded-lg border shadow-lg mb-3 ${event.isCanvasAssignment ? 'canvas-assignment-event' : ''}`;
-        card.style.backgroundColor = event.color || (event.isCanvasAssignment ? 'hsl(0, 50%, 30%)' : 'var(--surface-1-dark)');
-        card.style.borderColor = darkenColor(event.color || (event.isCanvasAssignment ? 'hsl(0, 50%, 30%)' : 'var(--border-dark)'), 15);
-        if (!isAutoRefreshing) { card.classList.add('fade-in'); card.style.animationDelay = `${eventIndex * 0.05}s`; }
-        else { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }
-
-        const startTime = formatTime(event.startDate);
-        const endTime = formatTime(event.endDate);
-        const textColorClass = isCustomColor && !event.isCanvasAssignment ? 'text-on-color' : 'text-slate-100';
-        const iconColorClass = isCustomColor && !event.isCanvasAssignment ? 'icon-on-color' : 'text-slate-400';
-
-        const clockIcon = ICONS.clock.replace('text-slate-400', iconColorClass);
-        const locationIcon = ICONS.location.replace('text-slate-400', iconColorClass);
-        const teacherIcon = ICONS.teacher.replace('text-slate-400', iconColorClass);
-        const assignmentIcon = ICONS.assignment.replace('text-slate-400', iconColorClass);
-
-        let summaryHtml = event.summary;
-        const canvasCourseId = canvasCourseMappings[event.summary];
-        if (!event.isCanvasAssignment && canvasCourseId && canvasDomain) {
-            summaryHtml = `<span class="clickable-class-link hover:text-indigo-400 cursor-pointer" data-canvas-course-id="${canvasCourseId}">${event.summary}${ICONS.link}</span>`;
-            card.addEventListener('click', (e) => { if (e.target.closest('span[data-canvas-course-id]')) { showCanvasDetailModal(canvasCourseId); } else if (e.target.closest('a')) { return; }});
-        } else if (event.isCanvasAssignment && event.html_url) {
-            summaryHtml = `<a href="${event.html_url}" target="_blank" class="clickable-class-link hover:text-red-400">${event.summary}${ICONS.link}</a>`;
-        }
-
-        let timeIndicatorHtml = '';
-        if (now >= event.startDate && now <= event.endDate && !event.isCanvasAssignment) {
-            timeIndicatorHtml = `<span class="time-indicator time-indicator-now">NOW</span>`;
-        } else if (event.startDate > now && !event.isCanvasAssignment) {
-            const diffMins = Math.round((event.startDate.getTime() - now.getTime()) / 60000);
-            if (diffMins > 0) { timeIndicatorHtml = `<span class="time-indicator time-indicator-upcoming">In ${diffMins} min${diffMins > 1 ? 's' : ''}</span>`; }
-        }
-
-        let locationHtml = ''; if (event.oldLocation) { locationHtml += `<span class="text-red-500 line-through mr-1 opacity-80">${event.oldLocation}</span>`; } locationHtml += (event.location || 'N/A');
-        card.innerHTML = `
-            <div class="flex justify-between items-start mb-1">
-                <h4 class="text-lg font-semibold ${textColorClass} flex-grow pr-2">${summaryHtml} ${timeIndicatorHtml}</h4>
-                <span class="text-sm font-medium ${textColorClass} mt-1 whitespace-nowrap">${event.isCanvasAssignment ? assignmentIcon : clockIcon} ${startTime}${event.isCanvasAssignment ? '' : ' - ' + endTime}</span>
-            </div>
-            <div class="text-sm ${textColorClass} space-y-1 opacity-90">
-                <p>${locationIcon} <span class="font-medium">${event.isCanvasAssignment ? 'Course' : 'Room'}:</span> ${locationHtml}</p>
-                ${event.teacher && !event.isCanvasAssignment ? `<p>${teacherIcon} <span class="font-medium">Teacher:</span> ${event.teacher}</p>` : ''}
-                 ${event.isCanvasAssignment && event.description && event.description !== event.html_url ? `<p class="mt-1 text-xs">${event.description.substring(0,100)}...</p>` : ''}
-            </div>`;
-        calendarDisplayDay.appendChild(card);
+function applyMappings(originalSummary) {
+    const sortedCodes = Object.keys(classMappings).sort((a, b) => b.length - a.length);
+    for (const code of sortedCodes) { const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(escapedCode, 'i'); if (regex.test(originalSummary)) { return classMappings[code]; } }
+    return originalSummary;
+}
+function getClassColor(originalSummary, mappedSummary) {
+     if (originalSummary !== mappedSummary) { return classColors[mappedSummary] || 'var(--surface-1-dark)';
+     } else { const sortedCodes = Object.keys(classMappings).sort((a, b) => b.length - a.length); for (const code of sortedCodes) { const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const regex = new RegExp(escapedCode, 'i'); if (regex.test(originalSummary)) { return classColors[classMappings[code]] || 'var(--surface-1-dark)'; } } }
+     return 'var(--surface-1-dark)';
+ }
+function processAndClassifyEvents(events) {
+    const newProcessedClasses = []; const newProcessedSidebar = []; const prevEventMap = new Map(previousProcessedClassEvents.map(e => [e.id, e]));
+    events.forEach(event => {
+        const newEvent = { ...event };
+        if (!newEvent.isCanvasAssignment) { newEvent.summary = applyMappings(newEvent.originalSummary); newEvent.color = getClassColor(newEvent.originalSummary, newEvent.summary); }
+        const previousEvent = prevEventMap.get(newEvent.id); if (previousEvent && previousEvent.location !== newEvent.location) { newEvent.oldLocation = previousEvent.location; } else { delete newEvent.oldLocation; }
+        const summaryLower = newEvent.summary.toLowerCase(); const originalSummaryLower = newEvent.originalSummary.toLowerCase();
+        const containsNonClassKeyword = /\b(due|assignment|meeting|event|holiday|assembly|whole school|carnival)\b/i;
+        const isLikelyClass = newEvent.location && !containsNonClassKeyword.test(summaryLower) && !containsNonClassKeyword.test(originalSummaryLower) && !newEvent.isCanvasAssignment;
+        if (isLikelyClass) { newProcessedClasses.push(newEvent); } else { newProcessedSidebar.push(newEvent); }
     });
+    processedClassEvents = newProcessedClasses;
+    processedSidebarEvents = newProcessedSidebar.sort((a, b) => a.startDate - b.startDate);
 }
 
 
+function renderViews() { if (currentViewMode === 'list') { renderListView(); } else { renderWeeklyView(); } renderSidebar(); if(calendarDisplayList) calendarDisplayList.classList.toggle('hidden', currentViewMode !== 'list'); if(calendarDisplayWeek) calendarDisplayWeek.classList.toggle('hidden', currentViewMode !== 'week');}
 function renderListView() {
     if (!calendarDisplayList) return;
     clearDisplayAreaOnly('list');
