@@ -82,12 +82,12 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #1c1c1c;
+    background-color: var(--background-color);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    transition: opacity 0.5s ease-out;
+    transition: opacity 0.7s var(--smooth-timing);
 }
 
 .splash-container.fade-out {
@@ -100,24 +100,39 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 2rem;
+    animation: splashEntrance 0.8s var(--bounce-timing);
 }
 
 .logo-container {
     width: 120px;
     height: 120px;
+    position: relative;
+}
+
+.logo-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(circle, rgba(74, 144, 226, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+    transform: translate(-50%, -50%) scale(0);
+    animation: pulseGlow 2s var(--smooth-timing) infinite;
 }
 
 .logo {
     width: 100%;
     height: 100%;
     color: var(--primary-color);
-    animation: logoAnimation var(--animation-duration) ease-in-out;
+    animation: logoAnimation var(--animation-duration) var(--bounce-timing);
+    filter: drop-shadow(0 0 10px rgba(74, 144, 226, 0.3));
 }
 
 .logo-path {
     stroke-dasharray: 300;
     stroke-dashoffset: 300;
-    animation: drawLogo 2s ease forwards;
+    animation: drawLogo 2s var(--smooth-timing) forwards;
 }
 
 .app-name {
@@ -129,8 +144,9 @@ body {
 
 .app-name span {
     opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.5s ease forwards;
+    transform: translateY(20px) scale(0.8);
+    animation: fadeInUpScale 0.5s var(--bounce-timing) forwards;
+    display: inline-block;
 }
 
 .loading-bar {
@@ -139,6 +155,7 @@ body {
     background-color: rgba(74, 144, 226, 0.2);
     border-radius: 2px;
     overflow: hidden;
+    position: relative;
 }
 
 .loading-progress {
@@ -146,31 +163,76 @@ body {
     height: 100%;
     background-color: var(--primary-color);
     transform-origin: left;
-    animation: loading var(--animation-duration) ease-in-out;
+    animation: loading var(--animation-duration) var(--smooth-timing);
+    position: relative;
+}
+
+.loading-progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes splashEntrance {
+    0% {
+        transform: scale(0.8) translateY(30px);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes logoAnimation {
     0% {
-        transform: scale(0.5);
+        transform: scale(0.5) rotate(-180deg);
     }
     50% {
-        transform: scale(1.1);
+        transform: scale(1.2) rotate(10deg);
+    }
+    65% {
+        transform: scale(0.95) rotate(-5deg);
+    }
+    80% {
+        transform: scale(1.05) rotate(2deg);
     }
     100% {
-        transform: scale(1);
+        transform: scale(1) rotate(0);
     }
 }
 
 @keyframes drawLogo {
-    to {
+    0% {
+        stroke-dashoffset: 300;
+    }
+    50% {
+        stroke-dashoffset: 150;
+    }
+    100% {
         stroke-dashoffset: 0;
     }
 }
 
-@keyframes fadeInUp {
-    to {
+@keyframes fadeInUpScale {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
+    }
+    60% {
+        transform: translateY(-5px) scale(1.1);
+    }
+    80% {
+        transform: translateY(2px) scale(0.95);
+    }
+    100% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -178,39 +240,80 @@ body {
     0% {
         transform: scaleX(0);
     }
-    50% {
-        transform: scaleX(0.5);
+    40% {
+        transform: scaleX(0.4);
     }
     100% {
         transform: scaleX(1);
     }
 }
 
+@keyframes pulseGlow {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(400%);
+    }
+}
+
 .main-content {
     opacity: 0;
-    transition: opacity 0.5s ease-in;
+    transition: opacity 0.7s var(--smooth-timing);
 }
 
 .main-content.visible {
     opacity: 1;
 }
 
-/* Generate delays for each letter in the app name */
+/* Enhanced delays for each letter with slightly non-linear timing */
 .app-name span:nth-child(1) { animation-delay: 0.1s; }
-.app-name span:nth-child(2) { animation-delay: 0.2s; }
-.app-name span:nth-child(3) { animation-delay: 0.3s; }
-.app-name span:nth-child(4) { animation-delay: 0.4s; }
-.app-name span:nth-child(5) { animation-delay: 0.5s; }
-.app-name span:nth-child(6) { animation-delay: 0.6s; }
-.app-name span:nth-child(7) { animation-delay: 0.7s; }
-.app-name span:nth-child(8) { animation-delay: 0.8s; }
-.app-name span:nth-child(9) { animation-delay: 0.9s; }
-.app-name span:nth-child(10) { animation-delay: 1.0s; }
-.app-name span:nth-child(11) { animation-delay: 1.1s; }
-.app-name span:nth-child(12) { animation-delay: 1.2s; }
-.app-name span:nth-child(13) { animation-delay: 1.3s; }
-.app-name span:nth-child(14) { animation-delay: 1.4s; }
-.app-name span:nth-child(15) { animation-delay: 1.5s; }
+.app-name span:nth-child(2) { animation-delay: 0.15s; }
+.app-name span:nth-child(3) { animation-delay: 0.19s; }
+.app-name span:nth-child(4) { animation-delay: 0.22s; }
+.app-name span:nth-child(5) { animation-delay: 0.24s; }
+.app-name span:nth-child(6) { animation-delay: 0.26s; }
+.app-name span:nth-child(7) { animation-delay: 0.35s; }
+.app-name span:nth-child(8) { animation-delay: 0.39s; }
+.app-name span:nth-child(9) { animation-delay: 0.42s; }
+.app-name span:nth-child(10) { animation-delay: 0.44s; }
+.app-name span:nth-child(11) { animation-delay: 0.46s; }
+.app-name span:nth-child(12) { animation-delay: 0.48s; }
+.app-name span:nth-child(13) { animation-delay: 0.50s; }
+.app-name span:nth-child(14) { animation-delay: 0.52s; }
+.app-name span:nth-child(15) { animation-delay: 0.54s; }
+
+/* Add hover effects for interactive elements */
+.logo:hover {
+    animation: wiggle 0.5s var(--bounce-timing);
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(-5deg) scale(1.1); }
+    75% { transform: rotate(5deg) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .splash-screen, .logo, .app-name span, .loading-progress {
+        animation-duration: 0.5s;
+        transition-duration: 0.5s;
+    }
+}
 
 /* --- Animations --- */
 .fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
