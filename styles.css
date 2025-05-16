@@ -3,7 +3,7 @@
     --bg-dark: hsl(222, 47%, 11%); /* Very dark blue */
     --surface-1-dark: hsl(222, 45%, 15%); /* For cards, slightly lighter */
     --surface-2-dark: hsl(222, 40%, 20%); /* For interactive elements or secondary surfaces */
-    --surface-glass-dark: hsla(222, 45%, 18%, 0.75); /* Glassmorphism background - slightly more opaque for depth */
+    --surface-glass-dark: hsla(222, 45%, 18%, 0.65); /* Glassmorphism background - slightly lighter for more gloss */
     --surface-modal-dark: hsla(222, 45%, 12%, 0.85); /* Darker, more opaque for modal backdrop */
 
 
@@ -30,7 +30,7 @@
     --neumorph-shadow-inner: inset 4px 4px 8px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(65,75,95,0.12);
 
     /* Glassmorphism */
-    --glass-blur: 20px; /* Increased blur */
+    --glass-blur: 18px; /* Adjusted from 20px for potentially better performance */
     --glass-shadow-dark: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 
     /* Darker Pastel Options */
@@ -196,7 +196,7 @@ body {
     background-color: var(--surface-1-dark);
     border: 1px solid var(--border-dark);
     box-shadow: 3px 3px 8px rgba(0,0,0,0.3), -3px -3px 8px rgba(70,80,100,0.1);
-    color: var(--text-primary-dark); /* Default text on cards */
+    color: var(--text-primary-dark);
 }
 .event-card .text-on-color, .week-event .text-on-color {
     color: var(--text-on-colored-bg) !important;
@@ -207,35 +207,26 @@ body {
 }
 
 
-/* --- Weekly & Day View Specifics --- */
-#calendarDisplayWeek, #calendarDisplayDay { overflow-x: auto; }
+/* --- Weekly View Specifics --- */
+#calendarDisplayWeek { overflow-x: auto; }
 .weekly-grid-container { position: relative; padding-top: 40px; }
-.weekly-grid, .day-view-grid { display: grid; gap: 1px; background-color: rgba(var(--border-dark), 0.2); border: 1px solid rgba(var(--border-dark), 0.2); border-radius: 4px; }
-.weekly-grid { grid-template-columns: 60px repeat(5, minmax(100px, 1fr)); grid-auto-rows: 60px; }
-.day-view-grid { grid-template-columns: 60px 1fr; grid-auto-rows: 60px; /* Time column + single day column */ }
-
+.weekly-grid { display: grid; grid-template-columns: 60px repeat(5, minmax(100px, 1fr)); grid-auto-rows: 60px; gap: 1px; background-color: rgba(var(--border-dark), 0.2); border: 1px solid rgba(var(--border-dark), 0.2); border-radius: 4px; }
 .grid-header { font-weight: 600; text-align: center; padding: 8px 4px; background-color: rgba(var(--accent-1), 0.15); color: var(--accent-1); font-size: 0.875rem; position: sticky; top: 0; z-index: 20; height: 40px; border-bottom: 1px solid rgba(var(--border-dark), 0.2); }
 .time-slot { font-size: 0.75rem; text-align: right; padding: 0 4px; color: var(--text-secondary-dark); background-color: var(--surface-dark); display: flex; align-items: center; justify-content: flex-end; border-top: 1px solid rgba(var(--border-dark),0.15); grid-column: 1 / 2; }
 .day-column-bg { background-color: var(--surface-1-dark); border-top: 1px solid rgba(var(--border-dark),0.15); }
 .day-column-content { grid-column: span 1; grid-row: 1 / -1; position: relative; border-left: 1px solid rgba(var(--border-dark),0.15); background-color: transparent; }
-
-/* Specific for weekly grid */
-.weekly-grid .day-column-content[data-day-index="0"] { grid-column: 2 / 3; }
-.weekly-grid .day-column-content[data-day-index="1"] { grid-column: 3 / 4; }
-.weekly-grid .day-column-content[data-day-index="2"] { grid-column: 4 / 5; }
-.weekly-grid .day-column-content[data-day-index="3"] { grid-column: 5 / 6; }
-.weekly-grid .day-column-content[data-day-index="4"] { grid-column: 6 / 7; }
-/* Specific for day view grid */
-.day-view-grid .day-column-content { grid-column: 2 / 3; }
-
-
-.week-event, .day-event-item { position: absolute; left: 2px; right: 2px; font-size: 0.7rem; line-height: 1.2; padding: 2px 4px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; cursor: default; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10; opacity: 1; transform: translateY(0); }
-.week-event.clickable-week-event, .day-event-item.clickable-day-event { cursor: pointer; }
-.week-event.fade-in, .day-event-item.fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
-.week-event:hover, .day-event-item:hover { filter: brightness(1.2); }
-.week-event.canvas-assignment-event, .day-event-item.canvas-assignment-event { border-left: 3px solid hsl(0, 70%, 60%); background-color: hsl(0, 50%, 30%) !important; color: var(--text-primary-dark) !important; }
-.week-event.canvas-assignment-event .text-on-color, .day-event-item.canvas-assignment-event .text-on-color { color: var(--text-primary-dark) !important; }
-.week-event.canvas-assignment-event .icon-on-color svg, .day-event-item.canvas-assignment-event .icon-on-color svg { color: var(--text-primary-dark) !important; opacity: 0.8; }
+.day-column-content[data-day-index="0"] { grid-column: 2 / 3; }
+.day-column-content[data-day-index="1"] { grid-column: 3 / 4; }
+.day-column-content[data-day-index="2"] { grid-column: 4 / 5; }
+.day-column-content[data-day-index="3"] { grid-column: 5 / 6; }
+.day-column-content[data-day-index="4"] { grid-column: 6 / 7; }
+.week-event { position: absolute; left: 2px; right: 2px; font-size: 0.7rem; line-height: 1.2; padding: 2px 4px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; cursor: default; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10; opacity: 1; transform: translateY(0); }
+.week-event.clickable-week-event { cursor: pointer; }
+.week-event.fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
+.week-event:hover { filter: brightness(1.2); }
+.week-event.canvas-assignment-event { border-left: 3px solid hsl(0, 70%, 60%); background-color: hsl(0, 50%, 30%) !important; color: var(--text-primary-dark) !important; }
+.week-event.canvas-assignment-event .text-on-color { color: var(--text-primary-dark) !important; }
+.week-event.canvas-assignment-event .icon-on-color svg { color: var(--text-primary-dark) !important; opacity: 0.8; }
 
 
 /* --- Sidebar Specifics --- */
@@ -355,7 +346,7 @@ a:hover {
 
 /* Canvas Page Card Thumbnails */
 .canvas-item-card img {
-    border-radius: 0.375rem; /* Apply rounded corners to image itself */
+    border-radius: 0.375rem; /* Rounded corners for top of image */
 }
 .canvas-item-card .bg-slate-700 { /* Placeholder image div */
     border-radius: 0.375rem;
@@ -369,42 +360,21 @@ a:hover {
     -webkit-backdrop-filter: blur(var(--glass-blur));
     border: 1px solid var(--border-glass-dark);
 }
-#canvasDetailModalContent h2, #canvasDetailModalContent h3 {
-    color: var(--text-primary-dark);
-    border-bottom-color: var(--border-dark);
-}
-#canvasDetailModalContent p, #canvasDetailModalContent span, #canvasDetailModalContent li {
-    color: var(--text-secondary-dark);
-}
-#canvasDetailModalContent .font-medium {
-    color: var(--text-primary-dark);
-}
-#canvasDetailModalContent a {
-    color: var(--accent-1);
-}
-#canvasDetailModalContent a:hover {
-    color: var(--accent-1-hover);
-}
-
-
-#canvasDetailAssignmentsList, #canvasDetailAnnouncementsList, #canvasDetailSyllabus {
+#canvasDetailAssignmentsList, #canvasDetailAnnouncementsList {
     scrollbar-width: thin;
     scrollbar-color: var(--border-dark) var(--surface-dark);
 }
 #canvasDetailAssignmentsList::-webkit-scrollbar,
-#canvasDetailAnnouncementsList::-webkit-scrollbar,
-#canvasDetailSyllabus::-webkit-scrollbar {
+#canvasDetailAnnouncementsList::-webkit-scrollbar {
     width: 8px;
 }
 #canvasDetailAssignmentsList::-webkit-scrollbar-track,
-#canvasDetailAnnouncementsList::-webkit-scrollbar-track,
-#canvasDetailSyllabus::-webkit-scrollbar-track {
+#canvasDetailAnnouncementsList::-webkit-scrollbar-track {
     background: var(--surface-dark);
     border-radius: 4px;
 }
 #canvasDetailAssignmentsList::-webkit-scrollbar-thumb,
-#canvasDetailAnnouncementsList::-webkit-scrollbar-thumb,
-#canvasDetailSyllabus::-webkit-scrollbar-thumb {
+#canvasDetailAnnouncementsList::-webkit-scrollbar-thumb {
     background-color: var(--border-dark);
     border-radius: 4px;
     border: 2px solid var(--surface-dark);
@@ -412,6 +382,7 @@ a:hover {
 
 /* Onboarding Modal Styles */
 #onboardingOverlay {
+    /* Uses fixed, inset-0, bg-slate-900/80, backdrop-blur-md from HTML */
     transition: opacity 0.3s ease-in-out;
 }
 #onboardingOverlay.hidden {
@@ -419,6 +390,7 @@ a:hover {
     pointer-events: none;
 }
 #onboardingCard {
+    /* Uses content-bg for glassmorphism */
     max-height: 90vh;
     overflow-y: auto;
 }
@@ -426,45 +398,29 @@ a:hover {
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 .onboarding-step.hidden {
-    display: none;
+    display: none; /* Keep hidden until active */
     opacity: 0;
     transform: translateX(20px);
-    position: absolute;
-    width: calc(100% - 4rem);
+    position: absolute; /* Allow smooth transition */
+    width: calc(100% - 4rem); /* Match padding of #onboardingCard */
 }
 .onboarding-step.active-step {
     display: block;
     opacity: 1;
     transform: translateX(0);
-    position: relative;
+    position: relative; /* Take up space when active */
 }
 
+/* Step Indicator Styling */
 #stepIndicatorContainer .step-indicator-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color: var(--surface-2-dark);
+    background-color: var(--surface-2-dark); /* Inactive color */
     transition: background-color 0.3s ease;
     box-shadow: var(--neumorph-shadow-inner);
 }
 #stepIndicatorContainer .step-indicator-dot.active {
-    background-color: var(--accent-1);
+    background-color: var(--accent-1); /* Active color */
     box-shadow: var(--neumorph-shadow-outer);
 }
-
-/* Day View Specific Styles */
-.day-view-header {
-    text-align: center;
-    padding: 0.75rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary-dark);
-    background-color: var(--surface-2-dark);
-    border-bottom: 1px solid var(--border-dark);
-    margin-bottom: 1rem;
-    border-radius: 0.5rem 0.5rem 0 0; /* Rounded top corners if part of a card */
-}
-.day-event-item {
-    /* Uses .week-event styles, but can be overridden if needed */
-}
-
