@@ -76,6 +76,142 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+.splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.5s ease-out;
+}
+
+.splash-container.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.splash-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.logo-container {
+    width: 120px;
+    height: 120px;
+}
+
+.logo {
+    width: 100%;
+    height: 100%;
+    color: var(--primary-color);
+    animation: logoAnimation var(--animation-duration) ease-in-out;
+}
+
+.logo-path {
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    animation: drawLogo 2s ease forwards;
+}
+
+.app-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+    display: flex;
+}
+
+.app-name span {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.loading-bar {
+    width: 200px;
+    height: 4px;
+    background-color: rgba(74, 144, 226, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-color);
+    transform-origin: left;
+    animation: loading var(--animation-duration) ease-in-out;
+}
+
+@keyframes logoAnimation {
+    0% {
+        transform: scale(0.5);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes drawLogo {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes loading {
+    0% {
+        transform: scaleX(0);
+    }
+    50% {
+        transform: scaleX(0.5);
+    }
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+.main-content {
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+}
+
+.main-content.visible {
+    opacity: 1;
+}
+
+/* Generate delays for each letter in the app name */
+.app-name span:nth-child(1) { animation-delay: 0.1s; }
+.app-name span:nth-child(2) { animation-delay: 0.2s; }
+.app-name span:nth-child(3) { animation-delay: 0.3s; }
+.app-name span:nth-child(4) { animation-delay: 0.4s; }
+.app-name span:nth-child(5) { animation-delay: 0.5s; }
+.app-name span:nth-child(6) { animation-delay: 0.6s; }
+.app-name span:nth-child(7) { animation-delay: 0.7s; }
+.app-name span:nth-child(8) { animation-delay: 0.8s; }
+.app-name span:nth-child(9) { animation-delay: 0.9s; }
+.app-name span:nth-child(10) { animation-delay: 1.0s; }
+.app-name span:nth-child(11) { animation-delay: 1.1s; }
+.app-name span:nth-child(12) { animation-delay: 1.2s; }
+.app-name span:nth-child(13) { animation-delay: 1.3s; }
+.app-name span:nth-child(14) { animation-delay: 1.4s; }
+.app-name span:nth-child(15) { animation-delay: 1.5s; }
+
 /* --- Animations --- */
 .fade-in { animation: fadeInAnimation 0.5s ease-in forwards; }
 .fade-out { animation: fadeOutAnimation 0.5s ease-out forwards; }
