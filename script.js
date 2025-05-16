@@ -10,7 +10,7 @@ const CANVAS_COURSE_MAPPINGS_KEY = 'canvasCourseMappings';
 const NOTIFICATION_SETTINGS_KEY = 'classCompanionNotificationSettings';
 const ONBOARDING_COMPLETE_KEY = 'classCompanionOnboardingComplete'; // New key
 
-const DEFAULT_WORKER_URL = 'https://class-companion.thebestmate100.workers.dev';
+const DEFAULT_WORKER_URL = 'https://class-companion.zonikyo.workers.dev';
 const DEFAULT_BACKGROUND_URL = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.motionbolt.com%2Fwp-content%2Fuploads%2F2021%2F12%2FBackground_2.jpg&f=1&nofb=1&ipt=fb1e82a0f77bb090f3f284f3dee0d6b334a89a1437206a52786427eff0f2c650';
 const REFRESH_INTERVAL = 10000;
 const STATUS_UPDATE_INTERVAL = 1000;
