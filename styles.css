@@ -145,7 +145,7 @@ body {
 .app-name {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--secondary-color);
+    color: white;
     display: flex;
 }
 
